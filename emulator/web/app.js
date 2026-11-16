@@ -64,7 +64,6 @@ async function load() {
     board.on('log', (m) => log('sys', m));
     board.on('reset', (why) => log('sys', `reset (${why})`));
     setupCanvas();
-    buildPresets();
     log('sys', `geladen: ${$('rom').selectedOptions[0].textContent}, adres ${board.address}`);
     for (const id of ['rom', 'rm2', 'rm3', 'cpu', 'cols', 'rows', 'addr']) store.set(id, $(id).value);
     applyUrlActions();
@@ -109,27 +108,118 @@ function draw() {
   $('stats').textContent = `t = ${t.toFixed(2)} s · pulsen ${st.pulses} · flips ${st.flips} · buiten display ${st.outside} · watchdog-resets ${st.wdResets}`;
 }
 
-// ---------- telegrammen ----------
-function addrChar() { return String.fromCharCode(48 + Number($('addr').value)); }
-function buildPresets() {
-  const a = addrChar();
-  const presets = [
-    ['status', `a${a}`], ['versie', `aV${a}`],
-    ['test zwart', `aT${a}0`], ['test geel', `aT${a}1`], ['dambord', `aT${a}2`], ['invers', `aT${a}3`],
-    ['vrije tekst', `aA${a}1001\\nHallo\\nwereld\\n\\n`], ['lijn 12', 'l012'], ['bestemming 3', 'z003'],
-  ];
-  const el = $('presets'); el.innerHTML = '';
-  for (const [name, tele] of presets) {
-    const b = document.createElement('button'); b.textContent = name;
-    b.onclick = () => { $('tele').value = tele; send(); };
-    el.appendChild(b);
+// ---------- telegrammen samenstellen ----------
+// Symbolen in de ASFP-font (DIN 66003-variant): ze staan op de plek van gewone ASCII-tekens.
+const SYMBOLS = [['🚶', '$', 'loopmannetje'], ['Ⓢ', '=', 'S-Bahn'], ['Ⓤ', '?', 'U-Bahn']];
+const UMLAUT = { 'Ä': '[', 'Ö': '\\', 'Ü': ']', 'ä': '{', 'ö': '|', 'ü': '}', 'ß': '~' };
+const SPECIAL = '$%=?^_[\\]{|}~';
+
+const pad = (n, w) => String(Math.max(0, Math.min(10 ** w - 1, Math.floor(Number(n) || 0)))).padStart(w, '0');
+const tAddr = () => String.fromCharCode(48 + Math.max(0, Math.min(15, Number($('taddr').value) || 0)));
+
+function encodeText(text, warnings) {
+  const lines = text.replace(/\r/g, '').split('\n');
+  const pages = []; let cur = [];
+  for (const l of lines) {
+    if (l.trim() === '') { if (cur.length) pages.push(cur); cur = []; } else cur.push(l.trim());
   }
+  if (cur.length) pages.push(cur);
+  let literal = false, dropped = false;
+  const conv = (str) => {
+    let out = '';
+    for (const ch of str) {
+      const sym = SYMBOLS.find(([g]) => g === ch);
+      if (sym) { out += sym[1]; continue; }
+      if (UMLAUT[ch] && $('fumlaut').checked) { out += UMLAUT[ch]; continue; }
+      if (SPECIAL.includes(ch)) literal = true;
+      const code = ch.charCodeAt(0);
+      if (code >= 0x20 && code < 0x7F) { out += ch; continue; }
+      const plain = ch.normalize('NFD').replace(/[̀-ͯ]/g, '');
+      if (plain.length === 1 && plain.charCodeAt(0) < 0x7F) { out += plain; dropped = true; continue; }
+      dropped = true;
+    }
+    return out;
+  };
+  let body = '';
+  pages.forEach((p, i) => {
+    if (p.length > 2) warnings.push(`pagina ${i + 1} heeft ${p.length} regels; alleen de eerste twee worden getoond`);
+    // één regel: "regel\n\n\n", twee regels: "regel1\nregel2\n\n" (getest in de emulator)
+    body += conv(p[0]) + '\n' + (p[1] !== undefined ? conv(p[1]) : '') + '\n\n';
+  });
+  if (literal) warnings.push('tekens als ? = $ % [ ] { } verschijnen als symbool of umlaut (DIN 66003)');
+  if (dropped) warnings.push('accenten en onbekende tekens zijn vereenvoudigd of weggelaten');
+  if (!pages.length) body = '\n\n';
+  return body;
 }
+
+function buildTelegram() {
+  const kind = $('kind').value, warnings = [];
+  let body;
+  switch (kind) {
+    case 'text': body = `aA${tAddr()}1001\n` + encodeText($('ftext').value, warnings); break;
+    case 'dest': body = 'z' + pad($('fnum').value, 3); break;
+    case 'line': body = 'l' + pad($('fnum').value, 3); break;
+    case 'course': body = 'k' + pad($('fnum').value, 2); break;
+    case 'test': body = `aT${tAddr()}${$('fpattern').value}`; break;
+    case 'status': body = `a${tAddr()}`; break;
+    case 'version': body = `aV${tAddr()}`; break;
+    default: body = $('tele').value.replace(/\\n/g, '\n').replace(/\\r/g, '\r');
+  }
+  if (body.length + 1 > 249) warnings.push(`telegram is ${body.length + 1} tekens; ASFP negeert alles boven ~249 tekens`);
+  return { body, warnings };
+}
+
+function checksum(body) { let cs = 0x7F; for (const ch of body + '\r') cs ^= ch.charCodeAt(0); return cs; }
+
+function updateBuilder() {
+  const kind = $('kind').value;
+  for (const f of document.querySelectorAll('.fields')) f.hidden = !f.dataset.kind.split(' ').includes(kind);
+  $('numhint').textContent = {
+    dest: 'DS003: bestemmingsnummer. MLAWO/AZR-12C zoeken de tekst op in de tekst-EPROM.',
+    line: 'DS001: lijnnummer, getoond in het lijnnummervak.',
+    course: 'DS002: koersnummer (2 cijfers volgens VDV 300).',
+  }[kind] || '';
+  const { body, warnings } = buildTelegram();
+  const esc = (t) => t.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+  $('preview').innerHTML = esc(body).replace(/\n/g, '<span class="ctl">↵</span>') +
+    `<span class="ctl">␍ + checksum 0x${checksum(body).toString(16).padStart(2, '0').toUpperCase()}</span>`;
+  $('plen').textContent = `${body.length + 2} tekens`;
+  $('pwarn').textContent = warnings.join(' · ');
+  store.set('kind', kind); store.set('ftext', $('ftext').value);
+}
+
 function send() {
   if (!board) return;
-  const body = $('tele').value.replace(/\\n/g, '\n').replace(/\r?\n$/, (m) => m);
+  const { body } = buildTelegram();
   board.sendTelegram(body);
   log('tx', `→ display ${show(body)}`);
+}
+
+function insertAtCursor(el, text) {
+  const s = el.selectionStart ?? el.value.length, e = el.selectionEnd ?? s;
+  el.value = el.value.slice(0, s) + text + el.value.slice(e);
+  el.selectionStart = el.selectionEnd = s + text.length;
+  el.focus();
+}
+
+function initBuilder() {
+  $('kind').value = store.get('kind', 'text');
+  $('ftext').value = store.get('ftext', $('ftext').value);
+  $('taddr').value = $('addr').value;
+  const sym = $('symbols');
+  for (const [glyph, , name] of SYMBOLS) {
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = glyph; b.title = name;
+    b.onclick = () => { insertAtCursor($('ftext'), glyph); updateBuilder(); };
+    sym.appendChild(b);
+  }
+  for (const id of ['kind', 'taddr', 'ftext', 'fumlaut', 'fnum', 'fpattern', 'tele']) {
+    $(id).addEventListener('input', updateBuilder);
+    $(id).addEventListener('change', updateBuilder);
+  }
+  for (const id of ['ftext', 'tele', 'fnum']) {
+    $(id).addEventListener('keydown', (e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); send(); } });
+  }
+  updateBuilder();
 }
 
 // ---------- knoppen ----------
@@ -153,7 +243,7 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 
-// URL-parameters: ?rom=ASFP.bin&addr=1&prerun=3&send=aA11001\nHallo\n\n&after=5&speed=1
+// URL-parameters: ?rom=ASFP.bin&addr=1&prerun=3&send=aA11001\nHallo\n\n\n&after=5&speed=1
 const params = new URLSearchParams(location.search);
 function applyUrlParams() {
   const rom = params.get('rom');
@@ -166,7 +256,9 @@ function applyUrlActions() {
   urlActionsDone = true;
   if (params.has('prerun')) board.runSeconds(Number(params.get('prerun')));
   if (params.has('send')) {
+    $('kind').value = 'raw';
     $('tele').value = params.get('send');
+    updateBuilder();
     send();
     if (params.has('after')) board.runSeconds(Number(params.get('after')));
   }
@@ -191,11 +283,11 @@ function init() {
   applyUrlParams();
   $('load').onclick = load;
   $('send').onclick = send;
-  $('tele').addEventListener('keydown', (e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) send(); });
-  $('btnReset').onclick = () => { if (board) { board.address = Number($('addr').value); board.cpu.reset(); log('sys', 'reset (knop)'); buildPresets(); } };
+  initBuilder();
+  $('btnReset').onclick = () => { if (board) { board.address = Number($('addr').value); board.cpu.reset(); log('sys', 'reset (knop)'); } };
   $('s1').onchange = () => { if (board) board.s1 = $('s1').checked ? 0 : 1; };
   $('s2').onchange = () => { if (board) board.s2 = $('s2').checked ? 1 : 0; };
-  $('addr').onchange = () => buildPresets();
+  $('addr').onchange = () => { $('taddr').value = $('addr').value; updateBuilder(); };
   holdButton('btnYellow', 'yellow');
   holdButton('btnBlack', 'black');
   load();

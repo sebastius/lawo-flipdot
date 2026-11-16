@@ -212,6 +212,17 @@ Versie-antwoorden: MLAWO `R.SCH.` (ROM 0x380B), ASFP en AZIPZR1 allebei `F00293`
 
 ---
 
+### 2.8 Vrije tekst (`aA`) in ASFP: pagina-opmaak (getest in de emulator)
+
+- Na `aA` + adres slaat ASFP vijf tekens over (bijvoorbeeld `1001\n`). Daarna volgt de tekst.
+- **Pagina van twee regels:** `regel1\nregel2\n\n`. Beide regels krijgen het kleine font.
+- **Pagina van één regel:** `regel\n\n\n`. Met maar `\n\n` valt het eerste teken van de volgende pagina weg.
+  Een losse regel krijgt het grote font als hij past, anders een kleiner font.
+- Bij meerdere pagina's wisselen die elkaar af.
+- ASFP begint pas ongeveer 2,5 s na het telegram met tekenen. Daarna schrijft hij alle dots opnieuw, met pulsen van ongeveer 1,1 ms. Een nieuw beeld kost dus ongeveer 4,5 s.
+
+---
+
 ## 3. Bediening en diagnose (uit firmware + handleiding)
 
 - Testknop geel/zwart (TG/TS op P3.2/P3.3) → hele display geel/zwart.

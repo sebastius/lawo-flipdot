@@ -38,10 +38,18 @@
   #log { height: 260px; overflow-y: auto; background: #0c0d0f; border-radius: 5px; padding: 8px; font: 12px/1.45 ui-monospace, monospace; white-space: pre-wrap; }
   #log .tx { color: var(--accent); } #log .rx { color: var(--ok); } #log .sys { color: var(--muted); } #log .err { color: var(--danger); }
   .stats { font: 12px/1.6 ui-monospace, monospace; color: var(--muted); }
-  .presets { display: flex; gap: 6px; flex-wrap: wrap; }
-  .presets button { font-size: 12px; padding: 3px 8px; }
-  textarea { width: 100%; height: 64px; background: #121417; color: var(--text); border: 1px solid var(--line); border-radius: 5px; padding: 6px; font: 13px ui-monospace, monospace; resize: vertical; }
-  .hint { color: var(--muted); font-size: 12px; }
+  textarea { width: 100%; height: 96px; background: #121417; color: var(--text); border: 1px solid var(--line); border-radius: 5px; padding: 6px; font: 13px ui-monospace, monospace; resize: vertical; }
+  .hint { color: var(--muted); font-size: 12px; margin: 4px 0; }
+  .hint.warn { color: var(--accent); }
+  .hint.warn:empty { display: none; }
+  .fields { margin-bottom: 6px; }
+  .fields[hidden] { display: none; }
+  .symbols { display: inline-flex; gap: 4px; flex-wrap: wrap; }
+  .symbols button { font-size: 12px; padding: 2px 7px; }
+  .preview { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; background: #0c0d0f; border-radius: 5px; padding: 8px 10px; margin: 6px 0; }
+  .preview code { font: 13px ui-monospace, monospace; color: var(--accent); word-break: break-all; }
+  .preview code .ctl { color: var(--muted); }
+  .hint code { font: 12px ui-monospace, monospace; color: var(--text); }
 </style>
 </head>
 <body>
@@ -67,11 +75,60 @@
     </section>
     <section>
       <h2>IBIS-console</h2>
-      <div class="presets" id="presets"></div>
-      <div style="margin:8px 0"><textarea id="tele" spellcheck="false">aA11001\nHallo\nwereld\n\n</textarea></div>
+      <div class="row">
+        <label for="kind">Telegram</label>
+        <select id="kind">
+          <option value="text">Vrije tekst (aA)</option>
+          <option value="dest">Bestemmingsnummer (z)</option>
+          <option value="line">Lijnnummer (l)</option>
+          <option value="course">Koersnummer (k)</option>
+          <option value="test">Testbeeld (aT)</option>
+          <option value="status">Status opvragen (a)</option>
+          <option value="version">Versie opvragen (aV)</option>
+          <option value="raw">Handmatig</option>
+        </select>
+        <label for="taddr">Adres</label><input type="number" id="taddr" value="1" min="0" max="15">
+      </div>
+
+      <div class="fields" data-kind="text">
+        <textarea id="ftext" spellcheck="false" placeholder="Eén of twee regels per pagina. Lege regel = volgende pagina.">Hallo
+wereld
+
+Tweede pagina</textarea>
+        <div class="row">
+          <span class="hint">Symbolen:</span>
+          <span class="symbols" id="symbols"></span>
+          <label><input type="checkbox" id="fumlaut" checked> ä ö ü ß omzetten</label>
+        </div>
+        <p class="hint">Eén regel = groot font (als het past), twee regels = klein font. Pagina's wisselen elkaar af. Alleen voor ASFP/AZIPZR1.</p>
+      </div>
+      <div class="fields" data-kind="dest line course">
+        <div class="row"><label for="fnum">Nummer</label><input type="number" id="fnum" value="3" min="0" max="999"></div>
+        <p class="hint" id="numhint"></p>
+      </div>
+      <div class="fields" data-kind="test">
+        <div class="row">
+          <label for="fpattern">Beeld</label>
+          <select id="fpattern"><option value="0">0 · alles zwart</option><option value="1">1 · alles geel</option><option value="2">2 · dambord</option><option value="3">3 · omgekeerd dambord</option></select>
+        </div>
+        <p class="hint">Adres 0 = alle displays.</p>
+      </div>
+      <div class="fields" data-kind="status version">
+        <p class="hint">Het display antwoordt in het logboek hieronder (status: <code>a0</code>, versie: bv. <code>aVF00293</code>).</p>
+      </div>
+      <div class="fields" data-kind="raw">
+        <textarea id="tele" spellcheck="false">aA11001\nHallo\n\n\n</textarea>
+        <p class="hint">\n = regeleinde. CR en checksum worden automatisch toegevoegd.</p>
+      </div>
+
+      <div class="preview">
+        <code id="preview"></code>
+        <span id="plen" class="hint"></span>
+      </div>
+      <p class="hint warn" id="pwarn"></p>
       <div class="row">
         <button class="primary" id="send">Verstuur</button>
-        <span class="hint">\n = regeleinde; CR en checksum worden automatisch toegevoegd (1200 Bd 7E2)</span>
+        <span class="hint">1200 Bd 7E2 · CR + XOR-checksum automatisch · Ctrl+Enter verstuurt</span>
       </div>
       <div id="log"></div>
     </section>
