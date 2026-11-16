@@ -1,0 +1,6498 @@
+L0000:
+  0000  024ebf    LJMP L4EBF
+  0003  db C3 EF 9D FF EE 9C FE 22  ; ......."
+L000B:
+  000B  024dcd    LJMP L4DCD
+L000E:
+  000E  ef        MOV A,R7
+  000F  2f        ADD A,R7
+  0010  5002      JNC L0014
+  0012  0583      INC DPH
+L0014:
+  0014  2582      ADD A,DPL
+  0016  f582      MOV DPL,A
+  0018  e583      MOV A,DPH
+  001A  3e        ADDC A,R6
+  001B  2e        ADD A,R6
+  001C  f583      MOV DPH,A
+  001E  22        RET
+  001F  db 00 00 00 00  ; ....
+L0023:
+  0023  024de8    LJMP L4DE8
+  0026  db 22  ; "
+L0027:
+  0027  900007    MOV DPTR,#0007h
+  002A  e0        MOVX A,@DPTR
+  002B  fe        MOV R6,A
+  002C  a3        INC DPTR
+  002D  e0        MOVX A,@DPTR
+  002E  ff        MOV R7,A
+  002F  ef        MOV A,R7
+  0030  4e        ORL A,R6
+  0031  7004      JNZ L0037
+  0033  c200      CLR 20h.0{b00}
+  0035  8002      SJMP L0039
+L0037:
+  0037  c200      CLR 20h.0{b00}
+L0039:
+  0039  22        RET
+L003A:
+  003A  e541      MOV A,41h
+  003C  c3        CLR C
+  003D  9430      SUBB A,#30h
+  003F  4007      JC L0048
+  0041  e541      MOV A,41h
+  0043  d3        SETB C
+  0044  9439      SUBB A,#39h
+  0046  4002      JC L004A
+L0048:
+  0048  8002      SJMP L004C
+L004A:
+  004A  d3        SETB C
+  004B  22        RET
+L004C:
+  004C  c3        CLR C
+  004D  22        RET
+L004E:
+  004E  753f00    MOV 3Fh,#00h
+  0051  753e00    MOV 3Eh,#00h
+  0054  853d40    MOV 40h,3Dh
+L0057:
+  0057  e540      MOV A,40h
+  0059  90035f    MOV DPTR,#035Fh
+  005C  124ead    LCALL L4EAD
+  005F  e0        MOVX A,@DPTR
+  0060  f541      MOV 41h,A
+  0062  12003a    LCALL L003A
+  0065  c0d0      PUSH PSW
+  0067  e540      MOV A,40h
+  0069  c3        CLR C
+  006A  9406      SUBB A,#06h
+  006C  5003      JNC L0071
+  006E  d3        SETB C
+  006F  8001      SJMP L0072
+L0071:
+  0071  c3        CLR C
+L0072:
+  0072  92f0      MOV B.0,C
+  0074  d0d0      POP PSW
+  0076  82f0      ANL C,B.0
+  0078  5033      JNC L00AD
+  007A  ae3e      MOV R6,3Eh
+  007C  af3f      MOV R7,3Fh
+  007E  7498      MOV A,#98h
+  0080  d3        SETB C
+  0081  9f        SUBB A,R7
+  0082  7419      MOV A,#19h
+  0084  9e        SUBB A,R6
+  0085  401c      JC L00A3
+  0087  740a      MOV A,#0Ah
+  0089  124e5c    LCALL L4E5C
+  008C  e540      MOV A,40h
+  008E  90035f    MOV DPTR,#035Fh
+  0091  124ead    LCALL L4EAD
+  0094  e0        MOVX A,@DPTR
+  0095  c3        CLR C
+  0096  9430      SUBB A,#30h
+  0098  2f        ADD A,R7
+  0099  ff        MOV R7,A
+  009A  5001      JNC L009D
+  009C  0e        INC R6
+L009D:
+  009D  8e3e      MOV 3Eh,R6
+  009F  8f3f      MOV 3Fh,R7
+  00A1  8006      SJMP L00A9
+L00A3:
+  00A3  753eff    MOV 3Eh,#FFh
+  00A6  753fff    MOV 3Fh,#FFh
+L00A9:
+  00A9  0540      INC 40h
+  00AB  80aa      SJMP L0057
+L00AD:
+  00AD  ae3e      MOV R6,3Eh
+  00AF  af3f      MOV R7,3Fh
+  00B1  22        RET
+L00B2:
+  00B2  753bff    MOV 3Bh,#FFh
+  00B5  753c00    MOV 3Ch,#00h
+L00B8:
+  00B8  e53c      MOV A,3Ch
+  00BA  c3        CLR C
+  00BB  953a      SUBB A,3Ah
+  00BD  5035      JNC L00F4
+  00BF  e53c      MOV A,3Ch
+  00C1  90031e    MOV DPTR,#031Eh
+  00C4  124ead    LCALL L4EAD
+  00C7  e0        MOVX A,@DPTR
+  00C8  45e0      ORL A,ACC
+  00CA  30d016    JNB P,L00E3
+  00CD  e53c      MOV A,3Ch
+  00CF  90031e    MOV DPTR,#031Eh
+  00D2  124ead    LCALL L4EAD
+  00D5  e0        MOVX A,@DPTR
+  00D6  6480      XRL A,#80h
+  00D8  fe        MOV R6,A
+  00D9  e53c      MOV A,3Ch
+  00DB  90031e    MOV DPTR,#031Eh
+  00DE  124ead    LCALL L4EAD
+  00E1  ee        MOV A,R6
+  00E2  f0        MOVX @DPTR,A
+L00E3:
+  00E3  e53c      MOV A,3Ch
+  00E5  90031e    MOV DPTR,#031Eh
+  00E8  124ead    LCALL L4EAD
+  00EB  e0        MOVX A,@DPTR
+  00EC  653b      XRL A,3Bh
+  00EE  f53b      MOV 3Bh,A
+  00F0  053c      INC 3Ch
+  00F2  80c4      SJMP L00B8
+L00F4:
+  00F4  e53c      MOV A,3Ch
+  00F6  90031e    MOV DPTR,#031Eh
+  00F9  124ead    LCALL L4EAD
+  00FC  e53b      MOV A,3Bh
+  00FE  f0        MOVX @DPTR,A
+  00FF  22        RET
+L0100:
+  0100  753800    MOV 38h,#00h
+  0103  90035f    MOV DPTR,#035Fh
+  0106  e0        MOVX A,@DPTR
+  0107  fe        MOV R6,A
+  0108  90055b    MOV DPTR,#055Bh
+  010B  e0        MOVX A,@DPTR
+  010C  8e0c      MOV 0Ch,R6
+  010E  7f01      MOV R7,#01h
+  0110  904c0b    MOV DPTR,#4C0Bh
+  0113  124e13    LCALL L4E13
+  0116  ec        MOV A,R4
+  0117  fe        MOV R6,A
+  0118  e4        CLR A
+  0119  93        MOVC A,@A+DPTR
+  011A  ff        MOV R7,A
+  011B  ee        MOV A,R6
+  011C  b50f1f    CJNE A,0Fh,L013E
+  011F  900360    MOV DPTR,#0360h
+  0122  e0        MOVX A,@DPTR
+  0123  f541      MOV 41h,A
+  0125  12003a    LCALL L003A
+  0128  5005      JNC L012F
+  012A  753804    MOV 38h,#04h
+  012D  800c      SJMP L013B
+L012F:
+  012F  8000      SJMP L0131
+L0131:
+  0131  900360    MOV DPTR,#0360h
+  0134  e0        MOVX A,@DPTR
+  0135  b44103    CJNE A,#41h,L013B
+  0138  753805    MOV 38h,#05h
+L013B:
+  013B  020204    LJMP L0204
+L013E:
+  013E  90035f    MOV DPTR,#035Fh
+  0141  e0        MOVX A,@DPTR
+  0142  b46148    CJNE A,#61h,L018D
+  0145  900360    MOV DPTR,#0360h
+  0148  e0        MOVX A,@DPTR
+  0149  f541      MOV 41h,A
+  014B  12003a    LCALL L003A
+  014E  92f0      MOV B.0,C
+  0150  900361    MOV DPTR,#0361h
+  0153  e0        MOVX A,@DPTR
+  0154  640d      XRL A,#0Dh
+  0156  6003      JZ L015B
+  0158  c3        CLR C
+  0159  8001      SJMP L015C
+L015B:
+  015B  d3        SETB C
+L015C:
+  015C  82f0      ANL C,B.0
+  015E  5005      JNC L0165
+  0160  753807    MOV 38h,#07h
+  0163  8026      SJMP L018B
+L0165:
+  0165  900360    MOV DPTR,#0360h
+  0168  e0        MOVX A,@DPTR
+  0169  b44102    CJNE A,#41h,L016E
+  016C  8002      SJMP L0170
+L016E:
+  016E  8005      SJMP L0175
+L0170:
+  0170  75380c    MOV 38h,#0Ch
+  0173  8016      SJMP L018B
+L0175:
+  0175  900360    MOV DPTR,#0360h
+  0178  e0        MOVX A,@DPTR
+  0179  b45605    CJNE A,#56h,L0181
+  017C  753808    MOV 38h,#08h
+  017F  800a      SJMP L018B
+L0181:
+  0181  900360    MOV DPTR,#0360h
+  0184  e0        MOVX A,@DPTR
+  0185  b45403    CJNE A,#54h,L018B
+  0188  753809    MOV 38h,#09h
+L018B:
+  018B  8077      SJMP L0204
+L018D:
+  018D  90035f    MOV DPTR,#035Fh
+  0190  e0        MOVX A,@DPTR
+  0191  b46c28    CJNE A,#6Ch,L01BC
+  0194  900360    MOV DPTR,#0360h
+  0197  e0        MOVX A,@DPTR
+  0198  f541      MOV 41h,A
+  019A  12003a    LCALL L003A
+  019D  5005      JNC L01A4
+  019F  753801    MOV 38h,#01h
+  01A2  8016      SJMP L01BA
+L01A4:
+  01A4  900360    MOV DPTR,#0360h
+  01A7  e0        MOVX A,@DPTR
+  01A8  b44505    CJNE A,#45h,L01B0
+  01AB  753802    MOV 38h,#02h
+  01AE  800a      SJMP L01BA
+L01B0:
+  01B0  900360    MOV DPTR,#0360h
+  01B3  e0        MOVX A,@DPTR
+  01B4  b45303    CJNE A,#53h,L01BA
+  01B7  75380a    MOV 38h,#0Ah
+L01BA:
+  01BA  8048      SJMP L0204
+L01BC:
+  01BC  90035f    MOV DPTR,#035Fh
+  01BF  e0        MOVX A,@DPTR
+  01C0  b46b10    CJNE A,#6Bh,L01D3
+  01C3  900360    MOV DPTR,#0360h
+  01C6  e0        MOVX A,@DPTR
+  01C7  f541      MOV 41h,A
+  01C9  12003a    LCALL L003A
+  01CC  5003      JNC L01D1
+  01CE  753803    MOV 38h,#03h
+L01D1:
+  01D1  8031      SJMP L0204
+L01D3:
+  01D3  90035f    MOV DPTR,#035Fh
+  01D6  e0        MOVX A,@DPTR
+  01D7  b47710    CJNE A,#77h,L01EA
+  01DA  900360    MOV DPTR,#0360h
+  01DD  e0        MOVX A,@DPTR
+  01DE  f541      MOV 41h,A
+  01E0  12003a    LCALL L003A
+  01E3  5003      JNC L01E8
+  01E5  753806    MOV 38h,#06h
+L01E8:
+  01E8  801a      SJMP L0204
+L01EA:
+  01EA  90035f    MOV DPTR,#035Fh
+  01ED  e0        MOVX A,@DPTR
+  01EE  b46510    CJNE A,#65h,L0201
+  01F1  900360    MOV DPTR,#0360h
+  01F4  e0        MOVX A,@DPTR
+  01F5  f541      MOV 41h,A
+  01F7  12003a    LCALL L003A
+  01FA  5003      JNC L01FF
+  01FC  75380d    MOV 38h,#0Dh
+L01FF:
+  01FF  8003      SJMP L0204
+L0201:
+  0201  753800    MOV 38h,#00h
+L0204:
+  0204  e538      MOV A,38h
+  0206  7003      JNZ L020B
+  0208  020435    LJMP L0435
+L020B:
+  020B  e538      MOV A,38h
+  020D  b4013a    CJNE A,#01h,L024A
+  0210  753d01    MOV 3Dh,#01h
+  0213  12004e    LCALL L004E
+  0216  900015    MOV DPTR,#0015h
+  0219  ee        MOV A,R6
+  021A  f0        MOVX @DPTR,A
+  021B  a3        INC DPTR
+  021C  ef        MOV A,R7
+  021D  f0        MOVX @DPTR,A
+  021E  753900    MOV 39h,#00h
+L0221:
+  0221  e539      MOV A,39h
+  0223  d3        SETB C
+  0224  9403      SUBB A,#03h
+  0226  501f      JNC L0247
+  0228  e539      MOV A,39h
+  022A  04        INC A
+  022B  90035f    MOV DPTR,#035Fh
+  022E  124ead    LCALL L4EAD
+  0231  e539      MOV A,39h
+  0233  fe        MOV R6,A
+  0234  e0        MOVX A,@DPTR
+  0235  ff        MOV R7,A
+  0236  ee        MOV A,R6
+  0237  900011    MOV DPTR,#0011h
+  023A  124ead    LCALL L4EAD
+  023D  ef        MOV A,R7
+  023E  f0        MOVX @DPTR,A
+  023F  7839      MOV R0,#39h
+  0241  7401      MOV A,#01h
+  0243  26        ADD A,@R0
+  0244  f6        MOV @R0,A
+  0245  50da      JNC L0221
+L0247:
+  0247  020435    LJMP L0435
+L024A:
+  024A  e538      MOV A,38h
+  024C  b40211    CJNE A,#02h,L0260
+  024F  753d02    MOV 3Dh,#02h
+  0252  12004e    LCALL L004E
+  0255  900019    MOV DPTR,#0019h
+  0258  ee        MOV A,R6
+  0259  f0        MOVX @DPTR,A
+  025A  a3        INC DPTR
+  025B  ef        MOV A,R7
+  025C  f0        MOVX @DPTR,A
+  025D  020435    LJMP L0435
+L0260:
+  0260  e538      MOV A,38h
+  0262  b40a03    CJNE A,#0Ah,L0268
+  0265  020435    LJMP L0435
+L0268:
+  0268  e538      MOV A,38h
+  026A  b40311    CJNE A,#03h,L027E
+  026D  753d01    MOV 3Dh,#01h
+  0270  12004e    LCALL L004E
+  0273  900023    MOV DPTR,#0023h
+  0276  ee        MOV A,R6
+  0277  f0        MOVX @DPTR,A
+  0278  a3        INC DPTR
+  0279  ef        MOV A,R7
+  027A  f0        MOVX @DPTR,A
+  027B  020435    LJMP L0435
+L027E:
+  027E  e538      MOV A,38h
+  0280  b40413    CJNE A,#04h,L0296
+  0283  d207      SETB 20h.7{b07}
+  0285  753d01    MOV 3Dh,#01h
+  0288  12004e    LCALL L004E
+  028B  90001d    MOV DPTR,#001Dh
+  028E  ee        MOV A,R6
+  028F  f0        MOVX @DPTR,A
+  0290  a3        INC DPTR
+  0291  ef        MOV A,R7
+  0292  f0        MOVX @DPTR,A
+  0293  020435    LJMP L0435
+L0296:
+  0296  e538      MOV A,38h
+  0298  b40503    CJNE A,#05h,L029E
+  029B  020435    LJMP L0435
+L029E:
+  029E  e538      MOV A,38h
+  02A0  b40b09    CJNE A,#0Bh,L02AC
+  02A3  900556    MOV DPTR,#0556h
+  02A6  7401      MOV A,#01h
+  02A8  f0        MOVX @DPTR,A
+  02A9  020435    LJMP L0435
+L02AC:
+  02AC  e538      MOV A,38h
+  02AE  b40611    CJNE A,#06h,L02C2
+  02B1  753d01    MOV 3Dh,#01h
+  02B4  12004e    LCALL L004E
+  02B7  900029    MOV DPTR,#0029h
+  02BA  ee        MOV A,R6
+  02BB  f0        MOVX @DPTR,A
+  02BC  a3        INC DPTR
+  02BD  ef        MOV A,R7
+  02BE  f0        MOVX @DPTR,A
+  02BF  020435    LJMP L0435
+L02C2:
+  02C2  e538      MOV A,38h
+  02C4  b4074a    CJNE A,#07h,L0311
+  02C7  c205      CLR 20h.5{b05}
+  02C9  900360    MOV DPTR,#0360h
+  02CC  e0        MOVX A,@DPTR
+  02CD  fe        MOV R6,A
+  02CE  90055b    MOV DPTR,#055Bh
+  02D1  e0        MOVX A,@DPTR
+  02D2  2430      ADD A,#30h
+  02D4  b50e37    CJNE A,0Eh,L030E
+  02D7  300b05    JNB 21h.3{b0B},L02DF
+  02DA  753906    MOV 39h,#06h
+  02DD  8003      SJMP L02E2
+L02DF:
+  02DF  753900    MOV 39h,#00h
+L02E2:
+  02E2  c20b      CLR 21h.3{b0B}
+  02E4  7461      MOV A,#61h
+  02E6  90031e    MOV DPTR,#031Eh
+  02E9  f0        MOVX @DPTR,A
+  02EA  e539      MOV A,39h
+  02EC  2430      ADD A,#30h
+  02EE  90031f    MOV DPTR,#031Fh
+  02F1  f0        MOVX @DPTR,A
+  02F2  740d      MOV A,#0Dh
+  02F4  900320    MOV DPTR,#0320h
+  02F7  f0        MOVX @DPTR,A
+  02F8  7403      MOV A,#03h
+  02FA  f53a      MOV 3Ah,A
+  02FC  1200b2    LCALL L00B2
+  02FF  7404      MOV A,#04h
+  0301  90002f    MOV DPTR,#002Fh
+  0304  f0        MOVX @DPTR,A
+  0305  d204      SETB 20h.4{b04}
+  0307  900555    MOV DPTR,#0555h
+  030A  e4        CLR A
+  030B  f0        MOVX @DPTR,A
+  030C  d299      SETB TI
+L030E:
+  030E  020435    LJMP L0435
+L0311:
+  0311  e538      MOV A,38h
+  0313  b40c48    CJNE A,#0Ch,L035E
+  0316  c205      CLR 20h.5{b05}
+  0318  900361    MOV DPTR,#0361h
+  031B  e0        MOVX A,@DPTR
+  031C  fe        MOV R6,A
+  031D  90055b    MOV DPTR,#055Bh
+  0320  e0        MOVX A,@DPTR
+  0321  2430      ADD A,#30h
+  0323  b50e35    CJNE A,0Eh,L035B
+  0326  7402      MOV A,#02h
+  0328  900556    MOV DPTR,#0556h
+  032B  f0        MOVX @DPTR,A
+  032C  753900    MOV 39h,#00h
+  032F  c20b      CLR 21h.3{b0B}
+  0331  7461      MOV A,#61h
+  0333  90031e    MOV DPTR,#031Eh
+  0336  f0        MOVX @DPTR,A
+  0337  e539      MOV A,39h
+  0339  2430      ADD A,#30h
+  033B  90031f    MOV DPTR,#031Fh
+  033E  f0        MOVX @DPTR,A
+  033F  740d      MOV A,#0Dh
+  0341  900320    MOV DPTR,#0320h
+  0344  f0        MOVX @DPTR,A
+  0345  7403      MOV A,#03h
+  0347  f53a      MOV 3Ah,A
+  0349  1200b2    LCALL L00B2
+  034C  7404      MOV A,#04h
+  034E  90002f    MOV DPTR,#002Fh
+  0351  f0        MOVX @DPTR,A
+  0352  d204      SETB 20h.4{b04}
+  0354  900555    MOV DPTR,#0555h
+  0357  e4        CLR A
+  0358  f0        MOVX @DPTR,A
+  0359  d299      SETB TI
+L035B:
+  035B  020435    LJMP L0435
+L035E:
+  035E  e538      MOV A,38h
+  0360  b40d2c    CJNE A,#0Dh,L038F
+  0363  753901    MOV 39h,#01h
+L0366:
+  0366  e539      MOV A,39h
+  0368  d3        SETB C
+  0369  9406      SUBB A,#06h
+  036B  501f      JNC L038C
+  036D  e539      MOV A,39h
+  036F  90035f    MOV DPTR,#035Fh
+  0372  124ead    LCALL L4EAD
+  0375  e539      MOV A,39h
+  0377  14        DEC A
+  0378  fe        MOV R6,A
+  0379  e0        MOVX A,@DPTR
+  037A  ff        MOV R7,A
+  037B  ee        MOV A,R6
+  037C  900009    MOV DPTR,#0009h
+  037F  124ead    LCALL L4EAD
+  0382  ef        MOV A,R7
+  0383  f0        MOVX @DPTR,A
+  0384  7839      MOV R0,#39h
+  0386  7401      MOV A,#01h
+  0388  26        ADD A,@R0
+  0389  f6        MOV @R0,A
+  038A  50da      JNC L0366
+L038C:
+  038C  020435    LJMP L0435
+L038F:
+  038F  e538      MOV A,38h
+  0391  b40878    CJNE A,#08h,L040C
+  0394  c205      CLR 20h.5{b05}
+  0396  900361    MOV DPTR,#0361h
+  0399  e0        MOVX A,@DPTR
+  039A  6430      XRL A,#30h
+  039C  600e      JZ L03AC
+  039E  900361    MOV DPTR,#0361h
+  03A1  e0        MOVX A,@DPTR
+  03A2  fe        MOV R6,A
+  03A3  90055b    MOV DPTR,#055Bh
+  03A6  e0        MOVX A,@DPTR
+  03A7  2430      ADD A,#30h
+  03A9  b50e5e    CJNE A,0Eh,L040A
+L03AC:
+  03AC  7461      MOV A,#61h
+  03AE  90031e    MOV DPTR,#031Eh
+  03B1  f0        MOVX @DPTR,A
+  03B2  7456      MOV A,#56h
+  03B4  90031f    MOV DPTR,#031Fh
+  03B7  f0        MOVX @DPTR,A
+  03B8  904b16    MOV DPTR,#4B16h
+  03BB  e4        CLR A
+  03BC  93        MOVC A,@A+DPTR
+  03BD  900320    MOV DPTR,#0320h
+  03C0  f0        MOVX @DPTR,A
+  03C1  904b17    MOV DPTR,#4B17h
+  03C4  e4        CLR A
+  03C5  93        MOVC A,@A+DPTR
+  03C6  900321    MOV DPTR,#0321h
+  03C9  f0        MOVX @DPTR,A
+  03CA  904b18    MOV DPTR,#4B18h
+  03CD  e4        CLR A
+  03CE  93        MOVC A,@A+DPTR
+  03CF  900322    MOV DPTR,#0322h
+  03D2  f0        MOVX @DPTR,A
+  03D3  904b19    MOV DPTR,#4B19h
+  03D6  e4        CLR A
+  03D7  93        MOVC A,@A+DPTR
+  03D8  900323    MOV DPTR,#0323h
+  03DB  f0        MOVX @DPTR,A
+  03DC  904b1a    MOV DPTR,#4B1Ah
+  03DF  e4        CLR A
+  03E0  93        MOVC A,@A+DPTR
+  03E1  900324    MOV DPTR,#0324h
+  03E4  f0        MOVX @DPTR,A
+  03E5  904b1b    MOV DPTR,#4B1Bh
+  03E8  e4        CLR A
+  03E9  93        MOVC A,@A+DPTR
+  03EA  900325    MOV DPTR,#0325h
+  03ED  f0        MOVX @DPTR,A
+  03EE  740d      MOV A,#0Dh
+  03F0  900326    MOV DPTR,#0326h
+  03F3  f0        MOVX @DPTR,A
+  03F4  7409      MOV A,#09h
+  03F6  f53a      MOV 3Ah,A
+  03F8  1200b2    LCALL L00B2
+  03FB  740a      MOV A,#0Ah
+  03FD  90002f    MOV DPTR,#002Fh
+  0400  f0        MOVX @DPTR,A
+  0401  d204      SETB 20h.4{b04}
+  0403  900555    MOV DPTR,#0555h
+  0406  e4        CLR A
+  0407  f0        MOVX @DPTR,A
+  0408  d299      SETB TI
+L040A:
+  040A  8029      SJMP L0435
+L040C:
+  040C  e538      MOV A,38h
+  040E  b40924    CJNE A,#09h,L0435
+  0411  c205      CLR 20h.5{b05}
+  0413  900361    MOV DPTR,#0361h
+  0416  e0        MOVX A,@DPTR
+  0417  6430      XRL A,#30h
+  0419  600e      JZ L0429
+  041B  900361    MOV DPTR,#0361h
+  041E  e0        MOVX A,@DPTR
+  041F  fe        MOV R6,A
+  0420  90055b    MOV DPTR,#055Bh
+  0423  e0        MOVX A,@DPTR
+  0424  2430      ADD A,#30h
+  0426  b50e0c    CJNE A,0Eh,L0435
+L0429:
+  0429  900362    MOV DPTR,#0362h
+  042C  e0        MOVX A,@DPTR
+  042D  c3        CLR C
+  042E  9430      SUBB A,#30h
+  0430  04        INC A
+  0431  900571    MOV DPTR,#0571h
+  0434  f0        MOVX @DPTR,A
+L0435:
+  0435  22        RET
+L0436:
+  0436  209803    JB RI,L043C
+  0439  020530    LJMP L0530
+L043C:
+  043C  859942    MOV 42h,SBUF
+  043F  c298      CLR RI
+  0441  c20a      CLR 21h.2{b0A}
+  0443  8542e0    MOV ACC,42h
+  0446  30d00a    JNB P,L0453
+  0449  d20a      SETB 21h.2{b0A}
+  044B  900553    MOV DPTR,#0553h
+  044E  e4        CLR A
+  044F  f0        MOVX @DPTR,A
+  0450  020530    LJMP L0530
+L0453:
+  0453  e542      MOV A,42h
+  0455  547f      ANL A,#7Fh
+  0457  f543      MOV 43h,A
+  0459  900553    MOV DPTR,#0553h
+  045C  e0        MOVX A,@DPTR
+  045D  7043      JNZ L04A2
+  045F  e543      MOV A,43h
+  0461  c3        CLR C
+  0462  9461      SUBB A,#61h
+  0464  4007      JC L046D
+  0466  e543      MOV A,43h
+  0468  d3        SETB C
+  0469  947a      SUBB A,#7Ah
+  046B  4002      JC L046F
+L046D:
+  046D  8025      SJMP L0494
+L046F:
+  046F  e543      MOV A,43h
+  0471  90035f    MOV DPTR,#035Fh
+  0474  f0        MOVX @DPTR,A
+  0475  7400      MOV A,#00h
+  0477  900360    MOV DPTR,#0360h
+  047A  f0        MOVX @DPTR,A
+  047B  7400      MOV A,#00h
+  047D  900361    MOV DPTR,#0361h
+  0480  f0        MOVX @DPTR,A
+  0481  752d01    MOV 2Dh,#01h
+  0484  74ff      MOV A,#FFh
+  0486  6542      XRL A,42h
+  0488  90002e    MOV DPTR,#002Eh
+  048B  f0        MOVX @DPTR,A
+  048C  900553    MOV DPTR,#0553h
+  048F  7401      MOV A,#01h
+  0491  f0        MOVX @DPTR,A
+  0492  800b      SJMP L049F
+L0494:
+  0494  e543      MOV A,43h
+  0496  b40d06    CJNE A,#0Dh,L049F
+  0499  7403      MOV A,#03h
+  049B  900553    MOV DPTR,#0553h
+  049E  f0        MOVX @DPTR,A
+L049F:
+  049F  020530    LJMP L0530
+L04A2:
+  04A2  900553    MOV DPTR,#0553h
+  04A5  e0        MOVX A,@DPTR
+  04A6  b4015f    CJNE A,#01h,L0508
+  04A9  e52d      MOV A,2Dh
+  04AB  d3        SETB C
+  04AC  94f9      SUBB A,#F9h
+  04AE  504b      JNC L04FB
+  04B0  90002e    MOV DPTR,#002Eh
+  04B3  e0        MOVX A,@DPTR
+  04B4  6542      XRL A,42h
+  04B6  90002e    MOV DPTR,#002Eh
+  04B9  f0        MOVX @DPTR,A
+  04BA  e52d      MOV A,2Dh
+  04BC  90035f    MOV DPTR,#035Fh
+  04BF  124ead    LCALL L4EAD
+  04C2  e543      MOV A,43h
+  04C4  f0        MOVX @DPTR,A
+  04C5  90035f    MOV DPTR,#035Fh
+  04C8  e0        MOVX A,@DPTR
+  04C9  b46115    CJNE A,#61h,L04E1
+  04CC  900360    MOV DPTR,#0360h
+  04CF  e0        MOVX A,@DPTR
+  04D0  b4410e    CJNE A,#41h,L04E1
+  04D3  900361    MOV DPTR,#0361h
+  04D6  e0        MOVX A,@DPTR
+  04D7  fe        MOV R6,A
+  04D8  90055b    MOV DPTR,#055Bh
+  04DB  e0        MOVX A,@DPTR
+  04DC  2430      ADD A,#30h
+  04DE  6e        XRL A,R6
+  04DF  6002      JZ L04E3
+L04E1:
+  04E1  8016      SJMP L04F9
+L04E3:
+  04E3  e52d      MOV A,2Dh
+  04E5  90035f    MOV DPTR,#035Fh
+  04E8  124ead    LCALL L4EAD
+  04EB  e52d      MOV A,2Dh
+  04ED  fe        MOV R6,A
+  04EE  e0        MOVX A,@DPTR
+  04EF  ff        MOV R7,A
+  04F0  ee        MOV A,R6
+  04F1  900459    MOV DPTR,#0459h
+  04F4  124ead    LCALL L4EAD
+  04F7  ef        MOV A,R7
+  04F8  f0        MOVX @DPTR,A
+L04F9:
+  04F9  052d      INC 2Dh
+L04FB:
+  04FB  e543      MOV A,43h
+  04FD  b40d06    CJNE A,#0Dh,L0506
+  0500  7402      MOV A,#02h
+  0502  900553    MOV DPTR,#0553h
+  0505  f0        MOVX @DPTR,A
+L0506:
+  0506  8028      SJMP L0530
+L0508:
+  0508  900553    MOV DPTR,#0553h
+  050B  e0        MOVX A,@DPTR
+  050C  b4021c    CJNE A,#02h,L052B
+  050F  90002e    MOV DPTR,#002Eh
+  0512  e0        MOVX A,@DPTR
+  0513  6542      XRL A,42h
+  0515  6006      JZ L051D
+  0517  d209      SETB 21h.1{b09}
+  0519  c201      CLR 20h.1{b01}
+  051B  8007      SJMP L0524
+L051D:
+  051D  c209      CLR 21h.1{b09}
+  051F  d201      SETB 20h.1{b01}
+  0521  120100    LCALL L0100
+L0524:
+  0524  900553    MOV DPTR,#0553h
+  0527  e4        CLR A
+  0528  f0        MOVX @DPTR,A
+  0529  8005      SJMP L0530
+L052B:
+  052B  900553    MOV DPTR,#0553h
+  052E  e4        CLR A
+  052F  f0        MOVX @DPTR,A
+L0530:
+  0530  309934    JNB TI,L0567
+  0533  c299      CLR TI
+  0535  30042f    JNB 20h.4{b04},L0567
+  0538  900555    MOV DPTR,#0555h
+  053B  e0        MOVX A,@DPTR
+  053C  fe        MOV R6,A
+  053D  90002f    MOV DPTR,#002Fh
+  0540  e0        MOVX A,@DPTR
+  0541  d3        SETB C
+  0542  9e        SUBB A,R6
+  0543  4020      JC L0565
+  0545  900555    MOV DPTR,#0555h
+  0548  e0        MOVX A,@DPTR
+  0549  7005      JNZ L0550
+  054B  742c      MOV A,#2Ch
+  054D  124e03    LCALL L4E03
+L0550:
+  0550  900555    MOV DPTR,#0555h
+  0553  e0        MOVX A,@DPTR
+  0554  90031e    MOV DPTR,#031Eh
+  0557  124ead    LCALL L4EAD
+  055A  e0        MOVX A,@DPTR
+  055B  f599      MOV SBUF,A
+  055D  900555    MOV DPTR,#0555h
+  0560  e0        MOVX A,@DPTR
+  0561  04        INC A
+  0562  f0        MOVX @DPTR,A
+  0563  8002      SJMP L0567
+L0565:
+  0565  c204      CLR 20h.4{b04}
+L0567:
+  0567  22        RET
+L0568:
+  0568  d2b4      SETB T0
+  056A  900562    MOV DPTR,#0562h
+  056D  e0        MOVX A,@DPTR
+  056E  fe        MOV R6,A
+  056F  a3        INC DPTR
+  0570  e0        MOVX A,@DPTR
+  0571  ff        MOV R7,A
+  0572  ef        MOV A,R7
+  0573  4e        ORL A,R6
+  0574  6006      JZ L057C
+  0576  900562    MOV DPTR,#0562h
+  0579  124e32    LCALL L4E32
+L057C:
+  057C  200c03    JB 21h.4{b0C},L0582
+  057F  020661    LJMP L0661
+L0582:
+  0582  90056b    MOV DPTR,#056Bh
+  0585  e0        MOVX A,@DPTR
+  0586  540f      ANL A,#0Fh
+  0588  fe        MOV R6,A
+  0589  e4        CLR A
+  058A  a20e      MOV C,21h.6{b0E}
+  058C  33        RLC A
+  058D  c4        SWAP A
+  058E  54f0      ANL A,#F0h
+  0590  541f      ANL A,#1Fh
+  0592  4e        ORL A,R6
+  0593  fe        MOV R6,A
+  0594  900000    MOV DPTR,#0000h
+  0597  e0        MOVX A,@DPTR
+  0598  54e0      ANL A,#E0h
+  059A  4e        ORL A,R6
+  059B  900000    MOV DPTR,#0000h
+  059E  f0        MOVX @DPTR,A
+  059F  90056c    MOV DPTR,#056Ch
+  05A2  e0        MOVX A,@DPTR
+  05A3  75f070    MOV B,#70h
+  05A6  84        DIV AB
+  05A7  ff        MOV R7,A
+  05A8  7e00      MOV R6,#00h
+  05AA  ef        MOV A,R7
+  05AB  900002    MOV DPTR,#0002h
+  05AE  f0        MOVX @DPTR,A
+  05AF  90056c    MOV DPTR,#056Ch
+  05B2  e0        MOVX A,@DPTR
+  05B3  75f070    MOV B,#70h
+  05B6  84        DIV AB
+  05B7  adf0      MOV R5,B
+  05B9  7c00      MOV R4,#00h
+  05BB  ed        MOV A,R5
+  05BC  900010    MOV DPTR,#0010h
+  05BF  f0        MOVX @DPTR,A
+  05C0  90056c    MOV DPTR,#056Ch
+  05C3  e0        MOVX A,@DPTR
+  05C4  c3        CLR C
+  05C5  9470      SUBB A,#70h
+  05C7  5029      JNC L05F2
+  05C9  e4        CLR A
+  05CA  a20e      MOV C,21h.6{b0E}
+  05CC  33        RLC A
+  05CD  fe        MOV R6,A
+  05CE  7401      MOV A,#01h
+  05D0  ff        MOV R7,A
+  05D1  ee        MOV A,R6
+  05D2  0f        INC R7
+  05D3  23        RL A
+L05D4:
+  05D4  03        RR A
+  05D5  dffd      DJNZ R7,L05D4
+  05D7  fe        MOV R6,A
+  05D8  900010    MOV DPTR,#0010h
+  05DB  e0        MOVX A,@DPTR
+  05DC  853683    MOV DPH,36h
+  05DF  853782    MOV DPL,37h
+  05E2  124ead    LCALL L4EAD
+  05E5  ee        MOV A,R6
+  05E6  fe        MOV R6,A
+  05E7  e4        CLR A
+  05E8  93        MOVC A,@A+DPTR
+  05E9  ff        MOV R7,A
+  05EA  ee        MOV A,R6
+  05EB  4f        ORL A,R7
+  05EC  900001    MOV DPTR,#0001h
+  05EF  f0        MOVX @DPTR,A
+  05F0  8065      SJMP L0657
+L05F2:
+  05F2  90055c    MOV DPTR,#055Ch
+  05F5  e0        MOVX A,@DPTR
+  05F6  b48c30    CJNE A,#8Ch,L0629
+  05F9  e4        CLR A
+  05FA  a20e      MOV C,21h.6{b0E}
+  05FC  33        RLC A
+  05FD  fe        MOV R6,A
+  05FE  7401      MOV A,#01h
+  0600  ff        MOV R7,A
+  0601  ee        MOV A,R6
+  0602  0f        INC R7
+  0603  23        RL A
+L0604:
+  0604  03        RR A
+  0605  dffd      DJNZ R7,L0604
+  0607  fe        MOV R6,A
+  0608  900010    MOV DPTR,#0010h
+  060B  e0        MOVX A,@DPTR
+  060C  853683    MOV DPH,36h
+  060F  853782    MOV DPL,37h
+  0612  fc        MOV R4,A
+  0613  7f54      MOV R7,#54h
+  0615  124e99    LCALL L4E99
+  0618  ec        MOV A,R4
+  0619  124ead    LCALL L4EAD
+  061C  ee        MOV A,R6
+  061D  fe        MOV R6,A
+  061E  e4        CLR A
+  061F  93        MOVC A,@A+DPTR
+  0620  ff        MOV R7,A
+  0621  ee        MOV A,R6
+  0622  4f        ORL A,R7
+  0623  900001    MOV DPTR,#0001h
+  0626  f0        MOVX @DPTR,A
+  0627  802e      SJMP L0657
+L0629:
+  0629  e4        CLR A
+  062A  a20e      MOV C,21h.6{b0E}
+  062C  33        RLC A
+  062D  fe        MOV R6,A
+  062E  7401      MOV A,#01h
+  0630  ff        MOV R7,A
+  0631  ee        MOV A,R6
+  0632  0f        INC R7
+  0633  23        RL A
+L0634:
+  0634  03        RR A
+  0635  dffd      DJNZ R7,L0634
+  0637  fe        MOV R6,A
+  0638  900010    MOV DPTR,#0010h
+  063B  e0        MOVX A,@DPTR
+  063C  853683    MOV DPH,36h
+  063F  853782    MOV DPL,37h
+  0642  fc        MOV R4,A
+  0643  7f62      MOV R7,#62h
+  0645  124e99    LCALL L4E99
+  0648  ec        MOV A,R4
+  0649  124ead    LCALL L4EAD
+  064C  ee        MOV A,R6
+  064D  fe        MOV R6,A
+  064E  e4        CLR A
+  064F  93        MOVC A,@A+DPTR
+  0650  ff        MOV R7,A
+  0651  ee        MOV A,R6
+  0652  4f        ORL A,R7
+  0653  900001    MOV DPTR,#0001h
+  0656  f0        MOVX @DPTR,A
+L0657:
+  0657  c20c      CLR 21h.4{b0C}
+  0659  d2b4      SETB T0
+  065B  d2b4      SETB T0
+  065D  d2b4      SETB T0
+  065F  c2b4      CLR T0
+L0661:
+  0661  e533      MOV A,33h
+  0663  4532      ORL A,32h
+  0665  6005      JZ L066C
+  0667  7832      MOV R0,#32h
+  0669  124ed0    LCALL L4ED0
+L066C:
+  066C  90055e    MOV DPTR,#055Eh
+  066F  e0        MOVX A,@DPTR
+  0670  fe        MOV R6,A
+  0671  a3        INC DPTR
+  0672  e0        MOVX A,@DPTR
+  0673  ff        MOV R7,A
+  0674  ef        MOV A,R7
+  0675  4e        ORL A,R6
+  0676  6006      JZ L067E
+  0678  90055e    MOV DPTR,#055Eh
+  067B  124e32    LCALL L4E32
+L067E:
+  067E  e52c      MOV A,2Ch
+  0680  452b      ORL A,2Bh
+  0682  6007      JZ L068B
+  0684  b2b5      CPL T1
+  0686  782b      MOV R0,#2Bh
+  0688  124ed0    LCALL L4ED0
+L068B:
+  068B  758a0c    MOV TL0,#0Ch
+  068E  758cfe    MOV TH0,#FEh
+  0691  22        RET
+L0692:
+  0692  301006    JNB 22h.0{b10},L069B
+  0695  e533      MOV A,33h
+  0697  4532      ORL A,32h
+  0699  7002      JNZ L069D
+L069B:
+  069B  8002      SJMP L069F
+L069D:
+  069D  80f3      SJMP L0692
+L069F:
+  069F  309603    JNB P1.6,L06A5
+  06A2  020732    LJMP L0732
+L06A5:
+  06A5  90055b    MOV DPTR,#055Bh
+  06A8  e0        MOVX A,@DPTR
+  06A9  b4ff03    CJNE A,#FFh,L06AF
+  06AC  200503    JB 20h.5{b05},L06B2
+L06AF:
+  06AF  020732    LJMP L0732
+L06B2:
+  06B2  752f3d    MOV 2Fh,#3Dh
+  06B5  752e00    MOV 2Eh,#00h
+L06B8:
+  06B8  e52f      MOV A,2Fh
+  06BA  452e      ORL A,2Eh
+  06BC  6036      JZ L06F4
+  06BE  ae2e      MOV R6,2Eh
+  06C0  af2f      MOV R7,2Fh
+  06C2  1f        DEC R7
+  06C3  bfff01    CJNE R7,#FFh,L06C7
+  06C6  1e        DEC R6
+L06C7:
+  06C7  90031e    MOV DPTR,#031Eh
+  06CA  124e8e    LCALL L4E8E
+  06CD  ae2e      MOV R6,2Eh
+  06CF  af2f      MOV R7,2Fh
+  06D1  e0        MOVX A,@DPTR
+  06D2  fc        MOV R4,A
+  06D3  900321    MOV DPTR,#0321h
+  06D6  124e8e    LCALL L4E8E
+  06D9  ec        MOV A,R4
+  06DA  f0        MOVX @DPTR,A
+  06DB  900321    MOV DPTR,#0321h
+  06DE  124e8e    LCALL L4E8E
+  06E1  e0        MOVX A,@DPTR
+  06E2  b40d08    CJNE A,#0Dh,L06ED
+  06E5  e52f      MOV A,2Fh
+  06E7  2404      ADD A,#04h
+  06E9  90002f    MOV DPTR,#002Fh
+  06EC  f0        MOVX @DPTR,A
+L06ED:
+  06ED  782e      MOV R0,#2Eh
+  06EF  124ed0    LCALL L4ED0
+  06F2  80c4      SJMP L06B8
+L06F4:
+  06F4  752f01    MOV 2Fh,#01h
+  06F7  752e00    MOV 2Eh,#00h
+L06FA:
+  06FA  ae2e      MOV R6,2Eh
+  06FC  af2f      MOV R7,2Fh
+  06FE  7403      MOV A,#03h
+  0700  be001a    CJNE R6,#00h,L071D
+  0703  9f        SUBB A,R7
+  0704  4017      JC L071D
+  0706  90031e    MOV DPTR,#031Eh
+  0709  124e8e    LCALL L4E8E
+  070C  7430      MOV A,#30h
+  070E  f0        MOVX @DPTR,A
+  070F  782f      MOV R0,#2Fh
+  0711  7401      MOV A,#01h
+  0713  26        ADD A,@R0
+  0714  f6        MOV @R0,A
+  0715  5004      JNC L071B
+  0717  18        DEC R0
+  0718  e4        CLR A
+  0719  36        ADDC A,@R0
+  071A  f6        MOV @R0,A
+L071B:
+  071B  50dd      JNC L06FA
+L071D:
+  071D  747a      MOV A,#7Ah
+  071F  90031e    MOV DPTR,#031Eh
+  0722  f0        MOVX @DPTR,A
+  0723  740d      MOV A,#0Dh
+  0725  90035e    MOV DPTR,#035Eh
+  0728  f0        MOVX @DPTR,A
+  0729  900555    MOV DPTR,#0555h
+  072C  e4        CLR A
+  072D  f0        MOVX @DPTR,A
+  072E  d204      SETB 20h.4{b04}
+  0730  d299      SETB TI
+L0732:
+  0732  90055b    MOV DPTR,#055Bh
+  0735  e0        MOVX A,@DPTR
+  0736  7f0e      MOV R7,#0Eh
+  0738  904b33    MOV DPTR,#4B33h
+  073B  124e13    LCALL L4E13
+  073E  e4        CLR A
+  073F  93        MOVC A,@A+DPTR
+  0740  7004      JNZ L0746
+  0742  d2f0      SETB B.0
+  0744  8002      SJMP L0748
+L0746:
+  0746  c2f0      CLR B.0
+L0748:
+  0748  300002    JNB 20h.0{b00},L074D
+  074B  b2f0      CPL B.0
+L074D:
+  074D  30f003    JNB B.0,L0753
+  0750  d3        SETB C
+  0751  8001      SJMP L0754
+L0753:
+  0753  c3        CLR C
+L0754:
+  0754  920f      MOV 21h.7{b0F},C
+  0756  90055b    MOV DPTR,#055Bh
+  0759  e0        MOVX A,@DPTR
+  075A  7f0e      MOV R7,#0Eh
+  075C  904b2b    MOV DPTR,#4B2Bh
+  075F  124e13    LCALL L4E13
+  0762  7810      MOV R0,#10h
+  0764  124eb6    LCALL L4EB6
+  0767  90056c    MOV DPTR,#056Ch
+  076A  e4        CLR A
+  076B  f0        MOVX @DPTR,A
+L076C:
+  076C  90056c    MOV DPTR,#056Ch
+  076F  e0        MOVX A,@DPTR
+  0770  fe        MOV R6,A
+  0771  90055c    MOV DPTR,#055Ch
+  0774  e0        MOVX A,@DPTR
+  0775  14        DEC A
+  0776  c3        CLR C
+  0777  9e        SUBB A,R6
+  0778  5003      JNC L077D
+  077A  020839    LJMP L0839
+L077D:
+  077D  90056b    MOV DPTR,#056Bh
+  0780  e4        CLR A
+  0781  f0        MOVX @DPTR,A
+L0782:
+  0782  90056b    MOV DPTR,#056Bh
+  0785  e0        MOVX A,@DPTR
+  0786  fe        MOV R6,A
+  0787  90055d    MOV DPTR,#055Dh
+  078A  e0        MOVX A,@DPTR
+  078B  14        DEC A
+  078C  c3        CLR C
+  078D  9e        SUBB A,R6
+  078E  5003      JNC L0793
+  0790  02082d    LJMP L082D
+L0793:
+  0793  90056b    MOV DPTR,#056Bh
+  0796  e0        MOVX A,@DPTR
+  0797  851083    MOV DPH,10h
+  079A  851182    MOV DPL,11h
+  079D  124e23    LCALL L4E23
+  07A0  e4        CLR A
+  07A1  93        MOVC A,@A+DPTR
+  07A2  f8        MOV R0,A
+  07A3  7401      MOV A,#01h
+  07A5  93        MOVC A,@A+DPTR
+  07A6  9008c8    MOV DPTR,#08C8h
+  07A9  c8        XCH A,R0
+  07AA  f0        MOVX @DPTR,A
+  07AB  a3        INC DPTR
+  07AC  c8        XCH A,R0
+  07AD  f0        MOVX @DPTR,A
+  07AE  90056c    MOV DPTR,#056Ch
+  07B1  e0        MOVX A,@DPTR
+  07B2  90057e    MOV DPTR,#057Eh
+  07B5  124e23    LCALL L4E23
+  07B8  fe        MOV R6,A
+  07B9  e0        MOVX A,@DPTR
+  07BA  ff        MOV R7,A
+  07BB  a3        INC DPTR
+  07BC  e0        MOVX A,@DPTR
+  07BD  fc        MOV R4,A
+  07BE  ee        MOV A,R6
+  07BF  90056c    MOV DPTR,#056Ch
+  07C2  e0        MOVX A,@DPTR
+  07C3  9007ae    MOV DPTR,#07AEh
+  07C6  124e23    LCALL L4E23
+  07C9  e0        MOVX A,@DPTR
+  07CA  fe        MOV R6,A
+  07CB  a3        INC DPTR
+  07CC  e0        MOVX A,@DPTR
+  07CD  fd        MOV R5,A
+  07CE  ef        MOV A,R7
+  07CF  6206      XRL 06h,A
+  07D1  ec        MOV A,R4
+  07D2  6205      XRL 05h,A
+  07D4  9008c8    MOV DPTR,#08C8h
+  07D7  e0        MOVX A,@DPTR
+  07D8  fc        MOV R4,A
+  07D9  a3        INC DPTR
+  07DA  e0        MOVX A,@DPTR
+  07DB  ff        MOV R7,A
+  07DC  ee        MOV A,R6
+  07DD  5204      ANL 04h,A
+  07DF  ed        MOV A,R5
+  07E0  5207      ANL 07h,A
+  07E2  ef        MOV A,R7
+  07E3  4c        ORL A,R4
+  07E4  7005      JNZ L07EB
+  07E6  a210      MOV C,22h.0{b10}
+  07E8  b3        CPL C
+  07E9  5036      JNC L0821
+L07EB:
+  07EB  90056c    MOV DPTR,#056Ch
+  07EE  e0        MOVX A,@DPTR
+  07EF  90057e    MOV DPTR,#057Eh
+  07F2  124e23    LCALL L4E23
+  07F5  e0        MOVX A,@DPTR
+  07F6  fc        MOV R4,A
+  07F7  a3        INC DPTR
+  07F8  e0        MOVX A,@DPTR
+  07F9  fd        MOV R5,A
+  07FA  9008c8    MOV DPTR,#08C8h
+  07FD  e0        MOVX A,@DPTR
+  07FE  fe        MOV R6,A
+  07FF  a3        INC DPTR
+  0800  e0        MOVX A,@DPTR
+  0801  ff        MOV R7,A
+  0802  ec        MOV A,R4
+  0803  5206      ANL 06h,A
+  0805  ed        MOV A,R5
+  0806  5207      ANL 07h,A
+  0808  ef        MOV A,R7
+  0809  4e        ORL A,R6
+  080A  6003      JZ L080F
+  080C  d3        SETB C
+  080D  8001      SJMP L0810
+L080F:
+  080F  c3        CLR C
+L0810:
+  0810  920e      MOV 21h.6{b0E},C
+  0812  300f02    JNB 21h.7{b0F},L0817
+  0815  b20e      CPL 21h.6{b0E}
+L0817:
+  0817  d20c      SETB 21h.4{b0C}
+L0819:
+  0819  300c05    JNB 21h.4{b0C},L0821
+  081C  758781    MOV PCON,#81h
+  081F  80f8      SJMP L0819
+L0821:
+  0821  90056b    MOV DPTR,#056Bh
+  0824  e0        MOVX A,@DPTR
+  0825  2401      ADD A,#01h
+  0827  f0        MOVX @DPTR,A
+  0828  4003      JC L082D
+  082A  020782    LJMP L0782
+L082D:
+  082D  90056c    MOV DPTR,#056Ch
+  0830  e0        MOVX A,@DPTR
+  0831  2401      ADD A,#01h
+  0833  f0        MOVX @DPTR,A
+  0834  4003      JC L0839
+  0836  02076c    LJMP L076C
+L0839:
+  0839  752f00    MOV 2Fh,#00h
+  083C  752e00    MOV 2Eh,#00h
+L083F:
+  083F  ae2e      MOV R6,2Eh
+  0841  af2f      MOV R7,2Fh
+  0843  748b      MOV A,#8Bh
+  0845  be0027    CJNE R6,#00h,L086F
+  0848  9f        SUBB A,R7
+  0849  4024      JC L086F
+  084B  90057e    MOV DPTR,#057Eh
+  084E  12000e    LCALL L000E
+  0851  e0        MOVX A,@DPTR
+  0852  fc        MOV R4,A
+  0853  a3        INC DPTR
+  0854  e0        MOVX A,@DPTR
+  0855  fd        MOV R5,A
+  0856  9007ae    MOV DPTR,#07AEh
+  0859  12000e    LCALL L000E
+  085C  ec        MOV A,R4
+  085D  f0        MOVX @DPTR,A
+  085E  a3        INC DPTR
+  085F  ed        MOV A,R5
+  0860  f0        MOVX @DPTR,A
+  0861  782f      MOV R0,#2Fh
+  0863  7401      MOV A,#01h
+  0865  26        ADD A,@R0
+  0866  f6        MOV @R0,A
+  0867  5004      JNC L086D
+  0869  18        DEC R0
+  086A  e4        CLR A
+  086B  36        ADDC A,@R0
+  086C  f6        MOV @R0,A
+L086D:
+  086D  50d0      JNC L083F
+L086F:
+  086F  900554    MOV DPTR,#0554h
+  0872  e4        CLR A
+  0873  f0        MOVX @DPTR,A
+  0874  22        RET
+L0875:
+  0875  90056d    MOV DPTR,#056Dh
+  0878  e0        MOVX A,@DPTR
+  0879  ff        MOV R7,A
+  087A  7e00      MOV R6,#00h
+  087C  90055b    MOV DPTR,#055Bh
+  087F  e0        MOVX A,@DPTR
+  0880  8e04      MOV 04h,R6
+  0882  8f05      MOV 05h,R7
+  0884  7f10      MOV R7,#10h
+  0886  904c1b    MOV DPTR,#4C1Bh
+  0889  124e13    LCALL L4E13
+  088C  8c06      MOV 06h,R4
+  088E  8d07      MOV 07h,R5
+  0890  124e83    LCALL L4E83
+  0893  e4        CLR A
+  0894  93        MOVC A,@A+DPTR
+  0895  f513      MOV 13h,A
+  0897  90056d    MOV DPTR,#056Dh
+  089A  e0        MOVX A,@DPTR
+  089B  7f05      MOV R7,#05h
+  089D  904d1d    MOV DPTR,#4D1Dh
+  08A0  124e13    LCALL L4E13
+  08A3  e4        CLR A
+  08A4  93        MOVC A,@A+DPTR
+  08A5  f8        MOV R0,A
+  08A6  7401      MOV A,#01h
+  08A8  93        MOVC A,@A+DPTR
+  08A9  9008c6    MOV DPTR,#08C6h
+  08AC  c8        XCH A,R0
+  08AD  f0        MOVX @DPTR,A
+  08AE  a3        INC DPTR
+  08AF  c8        XCH A,R0
+  08B0  f0        MOVX @DPTR,A
+  08B1  9008c6    MOV DPTR,#08C6h
+  08B4  124e77    LCALL L4E77
+  08B7  e4        CLR A
+  08B8  93        MOVC A,@A+DPTR
+  08B9  f515      MOV 15h,A
+  08BB  90056d    MOV DPTR,#056Dh
+  08BE  e0        MOVX A,@DPTR
+  08BF  7f05      MOV R7,#05h
+  08C1  904d1b    MOV DPTR,#4D1Bh
+  08C4  124e13    LCALL L4E13
+  08C7  fe        MOV R6,A
+  08C8  e4        CLR A
+  08C9  93        MOVC A,@A+DPTR
+  08CA  ff        MOV R7,A
+  08CB  7401      MOV A,#01h
+  08CD  93        MOVC A,@A+DPTR
+  08CE  fc        MOV R4,A
+  08CF  ee        MOV A,R6
+  08D0  90056e    MOV DPTR,#056Eh
+  08D3  e0        MOVX A,@DPTR
+  08D4  fe        MOV R6,A
+  08D5  90056d    MOV DPTR,#056Dh
+  08D8  e0        MOVX A,@DPTR
+  08D9  8e05      MOV 05h,R6
+  08DB  8f02      MOV 02h,R7
+  08DD  7f05      MOV R7,#05h
+  08DF  904d1f    MOV DPTR,#4D1Fh
+  08E2  124e13    LCALL L4E13
+  08E5  ed        MOV A,R5
+  08E6  fe        MOV R6,A
+  08E7  e4        CLR A
+  08E8  93        MOVC A,@A+DPTR
+  08E9  ff        MOV R7,A
+  08EA  ee        MOV A,R6
+  08EB  c3        CLR C
+  08EC  9f        SUBB A,R7
+  08ED  fe        MOV R6,A
+  08EE  e515      MOV A,15h
+  08F0  04        INC A
+  08F1  8e00      MOV 00h,R6
+  08F3  88f0      MOV B,R0
+  08F5  a4        MUL AB
+  08F6  ff        MOV R7,A
+  08F7  aef0      MOV R6,B
+  08F9  ec        MOV A,R4
+  08FA  2f        ADD A,R7
+  08FB  ff        MOV R7,A
+  08FC  ea        MOV A,R2
+  08FD  3e        ADDC A,R6
+  08FE  fe        MOV R6,A
+  08FF  8e17      MOV 17h,R6
+  0901  8f18      MOV 18h,R7
+  0903  851783    MOV DPH,17h
+  0906  851882    MOV DPL,18h
+  0909  e4        CLR A
+  090A  93        MOVC A,@A+DPTR
+  090B  f516      MOV 16h,A
+  090D  7e00      MOV R6,#00h
+  090F  7f01      MOV R7,#01h
+  0911  e516      MOV A,16h
+  0913  14        DEC A
+  0914  124e40    LCALL L4E40
+  0917  9008ca    MOV DPTR,#08CAh
+  091A  ee        MOV A,R6
+  091B  f0        MOVX @DPTR,A
+  091C  a3        INC DPTR
+  091D  ef        MOV A,R7
+  091E  f0        MOVX @DPTR,A
+  091F  900569    MOV DPTR,#0569h
+  0922  e0        MOVX A,@DPTR
+  0923  2516      ADD A,16h
+  0925  fc        MOV R4,A
+  0926  90055c    MOV DPTR,#055Ch
+  0929  e0        MOVX A,@DPTR
+  092A  c3        CLR C
+  092B  9c        SUBB A,R4
+  092C  5003      JNC L0931
+  092E  020a24    LJMP L0A24
+L0931:
+  0931  751100    MOV 11h,#00h
+L0934:
+  0934  e516      MOV A,16h
+  0936  14        DEC A
+  0937  c3        CLR C
+  0938  9511      SUBB A,11h
+  093A  5003      JNC L093F
+  093C  020a1a    LJMP L0A1A
+L093F:
+  093F  751200    MOV 12h,#00h
+L0942:
+  0942  e515      MOV A,15h
+  0944  14        DEC A
+  0945  c3        CLR C
+  0946  9512      SUBB A,12h
+  0948  5003      JNC L094D
+  094A  0209f4    LJMP L09F4
+L094D:
+  094D  90055d    MOV DPTR,#055Dh
+  0950  e0        MOVX A,@DPTR
+  0951  14        DEC A
+  0952  fe        MOV R6,A
+  0953  e513      MOV A,13h
+  0955  2512      ADD A,12h
+  0957  f4        CPL A
+  0958  04        INC A
+  0959  2e        ADD A,R6
+  095A  f514      MOV 14h,A
+  095C  90055d    MOV DPTR,#055Dh
+  095F  e0        MOVX A,@DPTR
+  0960  d3        SETB C
+  0961  9514      SUBB A,14h
+  0963  5003      JNC L0968
+  0965  0209e9    LJMP L09E9
+L0968:
+  0968  9008ca    MOV DPTR,#08CAh
+  096B  e0        MOVX A,@DPTR
+  096C  fe        MOV R6,A
+  096D  a3        INC DPTR
+  096E  e0        MOVX A,@DPTR
+  096F  ff        MOV R7,A
+  0970  e512      MOV A,12h
+  0972  8e04      MOV 04h,R6
+  0974  8f05      MOV 05h,R7
+  0976  ff        MOV R7,A
+  0977  7e00      MOV R6,#00h
+  0979  851783    MOV DPH,17h
+  097C  851882    MOV DPL,18h
+  097F  a3        INC DPTR
+  0980  124e83    LCALL L4E83
+  0983  e4        CLR A
+  0984  93        MOVC A,@A+DPTR
+  0985  5205      ANL 05h,A
+  0987  7c00      MOV R4,#00h
+  0989  ed        MOV A,R5
+  098A  4c        ORL A,R4
+  098B  702f      JNZ L09BC
+  098D  7e7f      MOV R6,#7Fh
+  098F  7fff      MOV R7,#FFh
+  0991  e514      MOV A,14h
+  0993  124d96    LCALL L4D96
+  0996  900569    MOV DPTR,#0569h
+  0999  e0        MOVX A,@DPTR
+  099A  90057e    MOV DPTR,#057Eh
+  099D  124e23    LCALL L4E23
+  09A0  e0        MOVX A,@DPTR
+  09A1  fc        MOV R4,A
+  09A2  a3        INC DPTR
+  09A3  e0        MOVX A,@DPTR
+  09A4  fd        MOV R5,A
+  09A5  ec        MOV A,R4
+  09A6  5206      ANL 06h,A
+  09A8  ed        MOV A,R5
+  09A9  5207      ANL 07h,A
+  09AB  900569    MOV DPTR,#0569h
+  09AE  e0        MOVX A,@DPTR
+  09AF  90057e    MOV DPTR,#057Eh
+  09B2  124e23    LCALL L4E23
+  09B5  ee        MOV A,R6
+  09B6  f0        MOVX @DPTR,A
+  09B7  a3        INC DPTR
+  09B8  ef        MOV A,R7
+  09B9  f0        MOVX @DPTR,A
+  09BA  802d      SJMP L09E9
+L09BC:
+  09BC  7e80      MOV R6,#80h
+  09BE  7f00      MOV R7,#00h
+  09C0  e514      MOV A,14h
+  09C2  124d96    LCALL L4D96
+  09C5  900569    MOV DPTR,#0569h
+  09C8  e0        MOVX A,@DPTR
+  09C9  90057e    MOV DPTR,#057Eh
+  09CC  124e23    LCALL L4E23
+  09CF  e0        MOVX A,@DPTR
+  09D0  fc        MOV R4,A
+  09D1  a3        INC DPTR
+  09D2  e0        MOVX A,@DPTR
+  09D3  fd        MOV R5,A
+  09D4  ec        MOV A,R4
+  09D5  4206      ORL 06h,A
+  09D7  ed        MOV A,R5
+  09D8  4207      ORL 07h,A
+  09DA  900569    MOV DPTR,#0569h
+  09DD  e0        MOVX A,@DPTR
+  09DE  90057e    MOV DPTR,#057Eh
+  09E1  124e23    LCALL L4E23
+  09E4  ee        MOV A,R6
+  09E5  f0        MOVX @DPTR,A
+  09E6  a3        INC DPTR
+  09E7  ef        MOV A,R7
+  09E8  f0        MOVX @DPTR,A
+L09E9:
+  09E9  7812      MOV R0,#12h
+  09EB  7401      MOV A,#01h
+  09ED  26        ADD A,@R0
+  09EE  f6        MOV @R0,A
+  09EF  4003      JC L09F4
+  09F1  020942    LJMP L0942
+L09F4:
+  09F4  900569    MOV DPTR,#0569h
+  09F7  e0        MOVX A,@DPTR
+  09F8  04        INC A
+  09F9  f0        MOVX @DPTR,A
+  09FA  9008ca    MOV DPTR,#08CAh
+  09FD  e0        MOVX A,@DPTR
+  09FE  fe        MOV R6,A
+  09FF  a3        INC DPTR
+  0A00  e0        MOVX A,@DPTR
+  0A01  ff        MOV R7,A
+  0A02  7401      MOV A,#01h
+  0A04  124e4e    LCALL L4E4E
+  0A07  9008ca    MOV DPTR,#08CAh
+  0A0A  ee        MOV A,R6
+  0A0B  f0        MOVX @DPTR,A
+  0A0C  a3        INC DPTR
+  0A0D  ef        MOV A,R7
+  0A0E  f0        MOVX @DPTR,A
+  0A0F  7811      MOV R0,#11h
+  0A11  7401      MOV A,#01h
+  0A13  26        ADD A,@R0
+  0A14  f6        MOV @R0,A
+  0A15  4003      JC L0A1A
+  0A17  020934    LJMP L0934
+L0A1A:
+  0A1A  900569    MOV DPTR,#0569h
+  0A1D  e0        MOVX A,@DPTR
+  0A1E  2510      ADD A,10h
+  0A20  900569    MOV DPTR,#0569h
+  0A23  f0        MOVX @DPTR,A
+L0A24:
+  0A24  22        RET
+L0A25:
+  0A25  ae30      MOV R6,30h
+  0A27  af31      MOV R7,31h
+  0A29  900030    MOV DPTR,#0030h
+  0A2C  124e8e    LCALL L4E8E
+  0A2F  e0        MOVX A,@DPTR
+  0A30  90056d    MOV DPTR,#056Dh
+  0A33  f0        MOVX @DPTR,A
+  0A34  8000      SJMP L0A36
+L0A36:
+  0A36  90056d    MOV DPTR,#056Dh
+  0A39  e0        MOVX A,@DPTR
+  0A3A  c3        CLR C
+  0A3B  9430      SUBB A,#30h
+  0A3D  5006      JNC L0A45
+  0A3F  743f      MOV A,#3Fh
+  0A41  90056d    MOV DPTR,#056Dh
+  0A44  f0        MOVX @DPTR,A
+L0A45:
+  0A45  90056d    MOV DPTR,#056Dh
+  0A48  e0        MOVX A,@DPTR
+  0A49  c3        CLR C
+  0A4A  9430      SUBB A,#30h
+  0A4C  90056d    MOV DPTR,#056Dh
+  0A4F  f0        MOVX @DPTR,A
+  0A50  301304    JNB 22h.3{b13},L0A57
+  0A53  c215      CLR 22h.5{b15}
+  0A55  8002      SJMP L0A59
+L0A57:
+  0A57  c214      CLR 22h.4{b14}
+L0A59:
+  0A59  90056d    MOV DPTR,#056Dh
+  0A5C  e0        MOVX A,@DPTR
+  0A5D  d3        SETB C
+  0A5E  940f      SUBB A,#0Fh
+  0A60  4014      JC L0A76
+  0A62  90056d    MOV DPTR,#056Dh
+  0A65  e0        MOVX A,@DPTR
+  0A66  c3        CLR C
+  0A67  9410      SUBB A,#10h
+  0A69  90056d    MOV DPTR,#056Dh
+  0A6C  f0        MOVX @DPTR,A
+  0A6D  301304    JNB 22h.3{b13},L0A74
+  0A70  d215      SETB 22h.5{b15}
+  0A72  8002      SJMP L0A76
+L0A74:
+  0A74  d214      SETB 22h.4{b14}
+L0A76:
+  0A76  22        RET
+L0A77:
+  0A77  90056e    MOV DPTR,#056Eh
+  0A7A  e0        MOVX A,@DPTR
+  0A7B  b40411    CJNE A,#04h,L0A8F
+  0A7E  d210      SETB 22h.0{b10}
+  0A80  e531      MOV A,31h
+  0A82  04        INC A
+  0A83  90056f    MOV DPTR,#056Fh
+  0A86  f0        MOVX @DPTR,A
+  0A87  7531fa    MOV 31h,#FAh
+  0A8A  753000    MOV 30h,#00h
+  0A8D  801d      SJMP L0AAC
+L0A8F:
+  0A8F  90056e    MOV DPTR,#056Eh
+  0A92  e0        MOVX A,@DPTR
+  0A93  640d      XRL A,#0Dh
+  0A95  600a      JZ L0AA1
+  0A97  ae30      MOV R6,30h
+  0A99  af31      MOV R7,31h
+  0A9B  74f9      MOV A,#F9h
+  0A9D  6f        XRL A,R7
+  0A9E  4e        ORL A,R6
+  0A9F  700b      JNZ L0AAC
+L0AA1:
+  0AA1  90056f    MOV DPTR,#056Fh
+  0AA4  e4        CLR A
+  0AA5  f0        MOVX @DPTR,A
+  0AA6  7531fa    MOV 31h,#FAh
+  0AA9  753000    MOV 30h,#00h
+L0AAC:
+  0AAC  90056e    MOV DPTR,#056Eh
+  0AAF  e0        MOVX A,@DPTR
+  0AB0  6404      XRL A,#04h
+  0AB2  600e      JZ L0AC2
+  0AB4  ae30      MOV R6,30h
+  0AB6  af31      MOV R7,31h
+  0AB8  74f9      MOV A,#F9h
+  0ABA  6f        XRL A,R7
+  0ABB  4e        ORL A,R6
+  0ABC  7002      JNZ L0AC0
+  0ABE  8000      SJMP L0AC0
+L0AC0:
+  0AC0  8013      SJMP L0AD5
+L0AC2:
+  0AC2  900554    MOV DPTR,#0554h
+  0AC5  e0        MOVX A,@DPTR
+  0AC6  90031e    MOV DPTR,#031Eh
+  0AC9  124ead    LCALL L4EAD
+  0ACC  740d      MOV A,#0Dh
+  0ACE  f0        MOVX @DPTR,A
+  0ACF  900554    MOV DPTR,#0554h
+  0AD2  e0        MOVX A,@DPTR
+  0AD3  04        INC A
+  0AD4  f0        MOVX @DPTR,A
+L0AD5:
+  0AD5  22        RET
+L0AD6:
+  0AD6  900569    MOV DPTR,#0569h
+  0AD9  e0        MOVX A,@DPTR
+  0ADA  f51a      MOV 1Ah,A
+L0ADC:
+  0ADC  e51a      MOV A,1Ah
+  0ADE  d3        SETB C
+  0ADF  948b      SUBB A,#8Bh
+  0AE1  5018      JNC L0AFB
+  0AE3  e51a      MOV A,1Ah
+  0AE5  90057e    MOV DPTR,#057Eh
+  0AE8  124e23    LCALL L4E23
+  0AEB  7400      MOV A,#00h
+  0AED  f8        MOV R0,A
+  0AEE  e4        CLR A
+  0AEF  f0        MOVX @DPTR,A
+  0AF0  e8        MOV A,R0
+  0AF1  a3        INC DPTR
+  0AF2  f0        MOVX @DPTR,A
+  0AF3  781a      MOV R0,#1Ah
+  0AF5  7401      MOV A,#01h
+  0AF7  26        ADD A,@R0
+  0AF8  f6        MOV @R0,A
+  0AF9  50e1      JNC L0ADC
+L0AFB:
+  0AFB  900569    MOV DPTR,#0569h
+  0AFE  e0        MOVX A,@DPTR
+  0AFF  9008cd    MOV DPTR,#08CDh
+  0B02  f0        MOVX @DPTR,A
+  0B03  c213      CLR 22h.3{b13}
+  0B05  90056f    MOV DPTR,#056Fh
+  0B08  e0        MOVX A,@DPTR
+  0B09  f531      MOV 31h,A
+  0B0B  753000    MOV 30h,#00h
+  0B0E  e531      MOV A,31h
+  0B10  04        INC A
+  0B11  9008cc    MOV DPTR,#08CCh
+  0B14  f0        MOVX @DPTR,A
+  0B15  e4        CLR A
+  0B16  a214      MOV C,22h.4{b14}
+  0B18  33        RLC A
+  0B19  f51a      MOV 1Ah,A
+  0B1B  120a25    LCALL L0A25
+  0B1E  a216      MOV C,22h.6{b16}
+  0B20  8210      ANL C,22h.0{b10}
+  0B22  503f      JNC L0B63
+  0B24  e51a      MOV A,1Ah
+  0B26  6002      JZ L0B2A
+  0B28  d214      SETB 22h.4{b14}
+L0B2A:
+  0B2A  9008cd    MOV DPTR,#08CDh
+  0B2D  e0        MOVX A,@DPTR
+  0B2E  f51a      MOV 1Ah,A
+L0B30:
+  0B30  90055c    MOV DPTR,#055Ch
+  0B33  e0        MOVX A,@DPTR
+  0B34  c3        CLR C
+  0B35  951a      SUBB A,1Ah
+  0B37  402a      JC L0B63
+  0B39  e51a      MOV A,1Ah
+  0B3B  900696    MOV DPTR,#0696h
+  0B3E  124e23    LCALL L4E23
+  0B41  74ff      MOV A,#FFh
+  0B43  fe        MOV R6,A
+  0B44  e0        MOVX A,@DPTR
+  0B45  ff        MOV R7,A
+  0B46  a3        INC DPTR
+  0B47  e0        MOVX A,@DPTR
+  0B48  fc        MOV R4,A
+  0B49  ee        MOV A,R6
+  0B4A  5204      ANL 04h,A
+  0B4C  7f00      MOV R7,#00h
+  0B4E  e51a      MOV A,1Ah
+  0B50  90057e    MOV DPTR,#057Eh
+  0B53  124e23    LCALL L4E23
+  0B56  ef        MOV A,R7
+  0B57  f0        MOVX @DPTR,A
+  0B58  a3        INC DPTR
+  0B59  ec        MOV A,R4
+  0B5A  f0        MOVX @DPTR,A
+  0B5B  781a      MOV R0,#1Ah
+  0B5D  7401      MOV A,#01h
+  0B5F  26        ADD A,@R0
+  0B60  f6        MOV @R0,A
+  0B61  50cd      JNC L0B30
+L0B63:
+  0B63  900573    MOV DPTR,#0573h
+  0B66  e4        CLR A
+  0B67  f0        MOVX @DPTR,A
+  0B68  9008cc    MOV DPTR,#08CCh
+  0B6B  e0        MOVX A,@DPTR
+  0B6C  f531      MOV 31h,A
+  0B6E  753000    MOV 30h,#00h
+L0B71:
+  0B71  ae30      MOV R6,30h
+  0B73  af31      MOV R7,31h
+  0B75  74f9      MOV A,#F9h
+  0B77  be0003    CJNE R6,#00h,L0B7D
+  0B7A  9f        SUBB A,R7
+  0B7B  5003      JNC L0B80
+L0B7D:
+  0B7D  020d50    LJMP L0D50
+L0B80:
+  0B80  900030    MOV DPTR,#0030h
+  0B83  124e8e    LCALL L4E8E
+  0B86  e0        MOVX A,@DPTR
+  0B87  90056e    MOV DPTR,#056Eh
+  0B8A  f0        MOVX @DPTR,A
+  0B8B  90056e    MOV DPTR,#056Eh
+  0B8E  e0        MOVX A,@DPTR
+  0B8F  b40529    CJNE A,#05h,L0BBB
+  0B92  7830      MOV R0,#30h
+  0B94  124ec8    LCALL L4EC8
+  0B97  a214      MOV C,22h.4{b14}
+  0B99  9218      MOV 23h.0{b18},C
+  0B9B  120a25    LCALL L0A25
+  0B9E  a218      MOV C,23h.0{b18}
+  0BA0  301401    JNB 22h.4{b14},L0BA4
+  0BA3  b3        CPL C
+L0BA4:
+  0BA4  400a      JC L0BB0
+  0BA6  900569    MOV DPTR,#0569h
+  0BA9  e0        MOVX A,@DPTR
+  0BAA  2402      ADD A,#02h
+  0BAC  900569    MOV DPTR,#0569h
+  0BAF  f0        MOVX @DPTR,A
+L0BB0:
+  0BB0  900569    MOV DPTR,#0569h
+  0BB3  e0        MOVX A,@DPTR
+  0BB4  900570    MOV DPTR,#0570h
+  0BB7  f0        MOVX @DPTR,A
+  0BB8  020d11    LJMP L0D11
+L0BBB:
+  0BBB  a202      MOV C,20h.2{b02}
+  0BBD  b3        CPL C
+  0BBE  500a      JNC L0BCA
+  0BC0  90056e    MOV DPTR,#056Eh
+  0BC3  e0        MOVX A,@DPTR
+  0BC4  6404      XRL A,#04h
+  0BC6  6002      JZ L0BCA
+  0BC8  8000      SJMP L0BCA
+L0BCA:
+  0BCA  8000      SJMP L0BCC
+L0BCC:
+  0BCC  90056e    MOV DPTR,#056Eh
+  0BCF  e0        MOVX A,@DPTR
+  0BD0  b40375    CJNE A,#03h,L0C48
+  0BD3  7830      MOV R0,#30h
+  0BD5  124ec8    LCALL L4EC8
+  0BD8  d213      SETB 22h.3{b13}
+  0BDA  e4        CLR A
+  0BDB  a215      MOV C,22h.5{b15}
+  0BDD  33        RLC A
+  0BDE  f51a      MOV 1Ah,A
+  0BE0  120a25    LCALL L0A25
+  0BE3  a216      MOV C,22h.6{b16}
+  0BE5  8210      ANL C,22h.0{b10}
+  0BE7  5054      JNC L0C3D
+  0BE9  e51a      MOV A,1Ah
+  0BEB  6002      JZ L0BEF
+  0BED  d215      SETB 22h.5{b15}
+L0BEF:
+  0BEF  9008cd    MOV DPTR,#08CDh
+  0BF2  e0        MOVX A,@DPTR
+  0BF3  f51a      MOV 1Ah,A
+L0BF5:
+  0BF5  90055c    MOV DPTR,#055Ch
+  0BF8  e0        MOVX A,@DPTR
+  0BF9  c3        CLR C
+  0BFA  951a      SUBB A,1Ah
+  0BFC  403f      JC L0C3D
+  0BFE  e51a      MOV A,1Ah
+  0C00  900696    MOV DPTR,#0696h
+  0C03  124e23    LCALL L4E23
+  0C06  7eff      MOV R6,#FFh
+  0C08  7f00      MOV R7,#00h
+  0C0A  e0        MOVX A,@DPTR
+  0C0B  fc        MOV R4,A
+  0C0C  a3        INC DPTR
+  0C0D  e0        MOVX A,@DPTR
+  0C0E  fd        MOV R5,A
+  0C0F  ec        MOV A,R4
+  0C10  5206      ANL 06h,A
+  0C12  ed        MOV A,R5
+  0C13  5207      ANL 07h,A
+  0C15  e51a      MOV A,1Ah
+  0C17  90057e    MOV DPTR,#057Eh
+  0C1A  124e23    LCALL L4E23
+  0C1D  e0        MOVX A,@DPTR
+  0C1E  fc        MOV R4,A
+  0C1F  a3        INC DPTR
+  0C20  e0        MOVX A,@DPTR
+  0C21  fd        MOV R5,A
+  0C22  ec        MOV A,R4
+  0C23  4206      ORL 06h,A
+  0C25  ed        MOV A,R5
+  0C26  4207      ORL 07h,A
+  0C28  e51a      MOV A,1Ah
+  0C2A  90057e    MOV DPTR,#057Eh
+  0C2D  124e23    LCALL L4E23
+  0C30  ee        MOV A,R6
+  0C31  f0        MOVX @DPTR,A
+  0C32  a3        INC DPTR
+  0C33  ef        MOV A,R7
+  0C34  f0        MOVX @DPTR,A
+  0C35  781a      MOV R0,#1Ah
+  0C37  7401      MOV A,#01h
+  0C39  26        ADD A,@R0
+  0C3A  f6        MOV @R0,A
+  0C3B  50b8      JNC L0BF5
+L0C3D:
+  0C3D  900570    MOV DPTR,#0570h
+  0C40  e0        MOVX A,@DPTR
+  0C41  900569    MOV DPTR,#0569h
+  0C44  f0        MOVX @DPTR,A
+  0C45  020d11    LJMP L0D11
+L0C48:
+  0C48  900573    MOV DPTR,#0573h
+  0C4B  e0        MOVX A,@DPTR
+  0C4C  04        INC A
+  0C4D  f0        MOVX @DPTR,A
+  0C4E  120a77    LCALL L0A77
+  0C51  ae30      MOV R6,30h
+  0C53  af31      MOV R7,31h
+  0C55  74f9      MOV A,#F9h
+  0C57  be0004    CJNE R6,#00h,L0C5E
+  0C5A  d3        SETB C
+  0C5B  9f        SUBB A,R7
+  0C5C  5003      JNC L0C61
+L0C5E:
+  0C5E  020d11    LJMP L0D11
+L0C61:
+  0C61  90056d    MOV DPTR,#056Dh
+  0C64  e0        MOVX A,@DPTR
+  0C65  7f05      MOV R7,#05h
+  0C67  904d1d    MOV DPTR,#4D1Dh
+  0C6A  124e13    LCALL L4E13
+  0C6D  e4        CLR A
+  0C6E  93        MOVC A,@A+DPTR
+  0C6F  f8        MOV R0,A
+  0C70  7401      MOV A,#01h
+  0C72  93        MOVC A,@A+DPTR
+  0C73  9008c6    MOV DPTR,#08C6h
+  0C76  c8        XCH A,R0
+  0C77  f0        MOVX @DPTR,A
+  0C78  a3        INC DPTR
+  0C79  c8        XCH A,R0
+  0C7A  f0        MOVX @DPTR,A
+  0C7B  ae30      MOV R6,30h
+  0C7D  af31      MOV R7,31h
+  0C7F  0f        INC R7
+  0C80  bf0001    CJNE R7,#00h,L0C84
+  0C83  0e        INC R6
+L0C84:
+  0C84  900030    MOV DPTR,#0030h
+  0C87  124e8e    LCALL L4E8E
+  0C8A  e0        MOVX A,@DPTR
+  0C8B  fe        MOV R6,A
+  0C8C  9008c6    MOV DPTR,#08C6h
+  0C8F  124e77    LCALL L4E77
+  0C92  a3        INC DPTR
+  0C93  a3        INC DPTR
+  0C94  ee        MOV A,R6
+  0C95  fe        MOV R6,A
+  0C96  e4        CLR A
+  0C97  93        MOVC A,@A+DPTR
+  0C98  ff        MOV R7,A
+  0C99  ee        MOV A,R6
+  0C9A  c3        CLR C
+  0C9B  9f        SUBB A,R7
+  0C9C  405d      JC L0CFB
+  0C9E  ae30      MOV R6,30h
+  0CA0  af31      MOV R7,31h
+  0CA2  900030    MOV DPTR,#0030h
+  0CA5  124e8e    LCALL L4E8E
+  0CA8  e0        MOVX A,@DPTR
+  0CA9  fc        MOV R4,A
+  0CAA  9008c6    MOV DPTR,#08C6h
+  0CAD  124e77    LCALL L4E77
+  0CB0  a3        INC DPTR
+  0CB1  a3        INC DPTR
+  0CB2  ec        MOV A,R4
+  0CB3  fc        MOV R4,A
+  0CB4  e4        CLR A
+  0CB5  93        MOVC A,@A+DPTR
+  0CB6  fd        MOV R5,A
+  0CB7  ec        MOV A,R4
+  0CB8  c3        CLR C
+  0CB9  9d        SUBB A,R5
+  0CBA  403f      JC L0CFB
+  0CBC  0f        INC R7
+  0CBD  bf0001    CJNE R7,#00h,L0CC1
+  0CC0  0e        INC R6
+L0CC1:
+  0CC1  900030    MOV DPTR,#0030h
+  0CC4  124e8e    LCALL L4E8E
+  0CC7  e0        MOVX A,@DPTR
+  0CC8  fe        MOV R6,A
+  0CC9  9008c6    MOV DPTR,#08C6h
+  0CCC  124e77    LCALL L4E77
+  0CCF  a3        INC DPTR
+  0CD0  a3        INC DPTR
+  0CD1  a3        INC DPTR
+  0CD2  ee        MOV A,R6
+  0CD3  fe        MOV R6,A
+  0CD4  e4        CLR A
+  0CD5  93        MOVC A,@A+DPTR
+  0CD6  ff        MOV R7,A
+  0CD7  ee        MOV A,R6
+  0CD8  d3        SETB C
+  0CD9  9f        SUBB A,R7
+  0CDA  501f      JNC L0CFB
+  0CDC  ae30      MOV R6,30h
+  0CDE  af31      MOV R7,31h
+  0CE0  900030    MOV DPTR,#0030h
+  0CE3  124e8e    LCALL L4E8E
+  0CE6  e0        MOVX A,@DPTR
+  0CE7  fc        MOV R4,A
+  0CE8  9008c6    MOV DPTR,#08C6h
+  0CEB  124e77    LCALL L4E77
+  0CEE  a3        INC DPTR
+  0CEF  a3        INC DPTR
+  0CF0  a3        INC DPTR
+  0CF1  ec        MOV A,R4
+  0CF2  fc        MOV R4,A
+  0CF3  e4        CLR A
+  0CF4  93        MOVC A,@A+DPTR
+  0CF5  fd        MOV R5,A
+  0CF6  ec        MOV A,R4
+  0CF7  d3        SETB C
+  0CF8  9d        SUBB A,R5
+  0CF9  4002      JC L0CFD
+L0CFB:
+  0CFB  800e      SJMP L0D0B
+L0CFD:
+  0CFD  751000    MOV 10h,#00h
+  0D00  120875    LCALL L0875
+  0D03  900573    MOV DPTR,#0573h
+  0D06  e0        MOVX A,@DPTR
+  0D07  14        DEC A
+  0D08  f0        MOVX @DPTR,A
+  0D09  8006      SJMP L0D11
+L0D0B:
+  0D0B  851910    MOV 10h,19h
+  0D0E  120875    LCALL L0875
+L0D11:
+  0D11  751a00    MOV 1Ah,#00h
+L0D14:
+  0D14  e51a      MOV A,1Ah
+  0D16  d3        SETB C
+  0D17  948b      SUBB A,#8Bh
+  0D19  5024      JNC L0D3F
+  0D1B  e51a      MOV A,1Ah
+  0D1D  90057e    MOV DPTR,#057Eh
+  0D20  124e23    LCALL L4E23
+  0D23  e51a      MOV A,1Ah
+  0D25  fe        MOV R6,A
+  0D26  e0        MOVX A,@DPTR
+  0D27  ff        MOV R7,A
+  0D28  a3        INC DPTR
+  0D29  e0        MOVX A,@DPTR
+  0D2A  fc        MOV R4,A
+  0D2B  ee        MOV A,R6
+  0D2C  900696    MOV DPTR,#0696h
+  0D2F  124e23    LCALL L4E23
+  0D32  ef        MOV A,R7
+  0D33  f0        MOVX @DPTR,A
+  0D34  a3        INC DPTR
+  0D35  ec        MOV A,R4
+  0D36  f0        MOVX @DPTR,A
+  0D37  781a      MOV R0,#1Ah
+  0D39  7401      MOV A,#01h
+  0D3B  26        ADD A,@R0
+  0D3C  f6        MOV @R0,A
+  0D3D  50d5      JNC L0D14
+L0D3F:
+  0D3F  7831      MOV R0,#31h
+  0D41  7401      MOV A,#01h
+  0D43  26        ADD A,@R0
+  0D44  f6        MOV @R0,A
+  0D45  5004      JNC L0D4B
+  0D47  18        DEC R0
+  0D48  e4        CLR A
+  0D49  36        ADDC A,@R0
+  0D4A  f6        MOV @R0,A
+L0D4B:
+  0D4B  4003      JC L0D50
+  0D4D  020b71    LJMP L0B71
+L0D50:
+  0D50  22        RET
+L0D51:
+  0D51  751000    MOV 10h,#00h
+L0D54:
+  0D54  90055b    MOV DPTR,#055Bh
+  0D57  e0        MOVX A,@DPTR
+  0D58  7f0e      MOV R7,#0Eh
+  0D5A  904b2f    MOV DPTR,#4B2Fh
+  0D5D  124e13    LCALL L4E13
+  0D60  e4        CLR A
+  0D61  93        MOVC A,@A+DPTR
+  0D62  c3        CLR C
+  0D63  9510      SUBB A,10h
+  0D65  4024      JC L0D8B
+  0D67  e510      MOV A,10h
+  0D69  90057e    MOV DPTR,#057Eh
+  0D6C  124e23    LCALL L4E23
+  0D6F  e510      MOV A,10h
+  0D71  fe        MOV R6,A
+  0D72  e0        MOVX A,@DPTR
+  0D73  ff        MOV R7,A
+  0D74  a3        INC DPTR
+  0D75  e0        MOVX A,@DPTR
+  0D76  fc        MOV R4,A
+  0D77  ee        MOV A,R6
+  0D78  900696    MOV DPTR,#0696h
+  0D7B  124e23    LCALL L4E23
+  0D7E  ef        MOV A,R7
+  0D7F  f0        MOVX @DPTR,A
+  0D80  a3        INC DPTR
+  0D81  ec        MOV A,R4
+  0D82  f0        MOVX @DPTR,A
+  0D83  7810      MOV R0,#10h
+  0D85  7401      MOV A,#01h
+  0D87  26        ADD A,@R0
+  0D88  f6        MOV @R0,A
+  0D89  50c9      JNC L0D54
+L0D8B:
+  0D8B  751100    MOV 11h,#00h
+  0D8E  90055b    MOV DPTR,#055Bh
+  0D91  e0        MOVX A,@DPTR
+  0D92  7f0e      MOV R7,#0Eh
+  0D94  904b2f    MOV DPTR,#4B2Fh
+  0D97  124e13    LCALL L4E13
+  0D9A  e4        CLR A
+  0D9B  93        MOVC A,@A+DPTR
+  0D9C  14        DEC A
+  0D9D  f510      MOV 10h,A
+L0D9F:
+  0D9F  e510      MOV A,10h
+  0DA1  90057e    MOV DPTR,#057Eh
+  0DA4  124e23    LCALL L4E23
+  0DA7  e0        MOVX A,@DPTR
+  0DA8  fe        MOV R6,A
+  0DA9  a3        INC DPTR
+  0DAA  e0        MOVX A,@DPTR
+  0DAB  ff        MOV R7,A
+  0DAC  ef        MOV A,R7
+  0DAD  4e        ORL A,R6
+  0DAE  7004      JNZ L0DB4
+  0DB0  e510      MOV A,10h
+  0DB2  7002      JNZ L0DB6
+L0DB4:
+  0DB4  8006      SJMP L0DBC
+L0DB6:
+  0DB6  1510      DEC 10h
+  0DB8  0511      INC 11h
+  0DBA  80e3      SJMP L0D9F
+L0DBC:
+  0DBC  751000    MOV 10h,#00h
+L0DBF:
+  0DBF  e511      MOV A,11h
+  0DC1  75f002    MOV B,#02h
+  0DC4  84        DIV AB
+  0DC5  ff        MOV R7,A
+  0DC6  7e00      MOV R6,#00h
+  0DC8  0f        INC R7
+  0DC9  bf0001    CJNE R7,#00h,L0DCD
+  0DCC  0e        INC R6
+L0DCD:
+  0DCD  e510      MOV A,10h
+  0DCF  be0004    CJNE R6,#00h,L0DD6
+  0DD2  d3        SETB C
+  0DD3  9f        SUBB A,R7
+  0DD4  5018      JNC L0DEE
+L0DD6:
+  0DD6  e510      MOV A,10h
+  0DD8  90057e    MOV DPTR,#057Eh
+  0DDB  124e23    LCALL L4E23
+  0DDE  7400      MOV A,#00h
+  0DE0  f8        MOV R0,A
+  0DE1  e4        CLR A
+  0DE2  f0        MOVX @DPTR,A
+  0DE3  e8        MOV A,R0
+  0DE4  a3        INC DPTR
+  0DE5  f0        MOVX @DPTR,A
+  0DE6  7810      MOV R0,#10h
+  0DE8  7401      MOV A,#01h
+  0DEA  26        ADD A,@R0
+  0DEB  f6        MOV @R0,A
+  0DEC  50d1      JNC L0DBF
+L0DEE:
+  0DEE  751000    MOV 10h,#00h
+L0DF1:
+  0DF1  90055b    MOV DPTR,#055Bh
+  0DF4  e0        MOVX A,@DPTR
+  0DF5  7f0e      MOV R7,#0Eh
+  0DF7  904b2f    MOV DPTR,#4B2Fh
+  0DFA  124e13    LCALL L4E13
+  0DFD  e4        CLR A
+  0DFE  93        MOVC A,@A+DPTR
+  0DFF  c3        CLR C
+  0E00  9510      SUBB A,10h
+  0E02  4030      JC L0E34
+  0E04  e510      MOV A,10h
+  0E06  900696    MOV DPTR,#0696h
+  0E09  124e23    LCALL L4E23
+  0E0C  e511      MOV A,11h
+  0E0E  75f002    MOV B,#02h
+  0E11  84        DIV AB
+  0E12  ff        MOV R7,A
+  0E13  7e00      MOV R6,#00h
+  0E15  e510      MOV A,10h
+  0E17  2f        ADD A,R7
+  0E18  ff        MOV R7,A
+  0E19  5001      JNC L0E1C
+  0E1B  0e        INC R6
+L0E1C:
+  0E1C  e0        MOVX A,@DPTR
+  0E1D  fc        MOV R4,A
+  0E1E  a3        INC DPTR
+  0E1F  e0        MOVX A,@DPTR
+  0E20  fd        MOV R5,A
+  0E21  90057e    MOV DPTR,#057Eh
+  0E24  12000e    LCALL L000E
+  0E27  ec        MOV A,R4
+  0E28  f0        MOVX @DPTR,A
+  0E29  a3        INC DPTR
+  0E2A  ed        MOV A,R5
+  0E2B  f0        MOVX @DPTR,A
+  0E2C  7810      MOV R0,#10h
+  0E2E  7401      MOV A,#01h
+  0E30  26        ADD A,@R0
+  0E31  f6        MOV @R0,A
+  0E32  50bd      JNC L0DF1
+L0E34:
+  0E34  22        RET
+L0E35:
+  0E35  301303    JNB 22h.3{b13},L0E3B
+  0E38  020fe1    LJMP L0FE1
+L0E3B:
+  0E3B  751c00    MOV 1Ch,#00h
+  0E3E  90055c    MOV DPTR,#055Ch
+  0E41  e0        MOVX A,@DPTR
+  0E42  14        DEC A
+  0E43  f51b      MOV 1Bh,A
+L0E45:
+  0E45  e51b      MOV A,1Bh
+  0E47  90057e    MOV DPTR,#057Eh
+  0E4A  124e23    LCALL L4E23
+  0E4D  e0        MOVX A,@DPTR
+  0E4E  fe        MOV R6,A
+  0E4F  a3        INC DPTR
+  0E50  e0        MOVX A,@DPTR
+  0E51  ff        MOV R7,A
+  0E52  ef        MOV A,R7
+  0E53  4e        ORL A,R6
+  0E54  7004      JNZ L0E5A
+  0E56  e51b      MOV A,1Bh
+  0E58  7002      JNZ L0E5C
+L0E5A:
+  0E5A  8006      SJMP L0E62
+L0E5C:
+  0E5C  151b      DEC 1Bh
+  0E5E  051c      INC 1Ch
+  0E60  80e3      SJMP L0E45
+L0E62:
+  0E62  900573    MOV DPTR,#0573h
+  0E65  e0        MOVX A,@DPTR
+  0E66  f5f0      MOV B,A
+  0E68  e51c      MOV A,1Ch
+  0E6A  84        DIV AB
+  0E6B  ff        MOV R7,A
+  0E6C  7e00      MOV R6,#00h
+  0E6E  ef        MOV A,R7
+  0E6F  9008ce    MOV DPTR,#08CEh
+  0E72  f0        MOVX @DPTR,A
+  0E73  ef        MOV A,R7
+  0E74  7006      JNZ L0E7C
+  0E76  9008ce    MOV DPTR,#08CEh
+  0E79  7401      MOV A,#01h
+  0E7B  f0        MOVX @DPTR,A
+L0E7C:
+  0E7C  9008ce    MOV DPTR,#08CEh
+  0E7F  e0        MOVX A,@DPTR
+  0E80  d3        SETB C
+  0E81  9406      SUBB A,#06h
+  0E83  4006      JC L0E8B
+  0E85  7406      MOV A,#06h
+  0E87  9008ce    MOV DPTR,#08CEh
+  0E8A  f0        MOVX @DPTR,A
+L0E8B:
+  0E8B  9008ce    MOV DPTR,#08CEh
+  0E8E  e0        MOVX A,@DPTR
+  0E8F  f519      MOV 19h,A
+  0E91  120ad6    LCALL L0AD6
+  0E94  751c00    MOV 1Ch,#00h
+  0E97  90055c    MOV DPTR,#055Ch
+  0E9A  e0        MOVX A,@DPTR
+  0E9B  14        DEC A
+  0E9C  f51b      MOV 1Bh,A
+L0E9E:
+  0E9E  e51b      MOV A,1Bh
+  0EA0  90057e    MOV DPTR,#057Eh
+  0EA3  124e23    LCALL L4E23
+  0EA6  e0        MOVX A,@DPTR
+  0EA7  fe        MOV R6,A
+  0EA8  a3        INC DPTR
+  0EA9  e0        MOVX A,@DPTR
+  0EAA  ff        MOV R7,A
+  0EAB  ef        MOV A,R7
+  0EAC  4e        ORL A,R6
+  0EAD  7004      JNZ L0EB3
+  0EAF  e51b      MOV A,1Bh
+  0EB1  7002      JNZ L0EB5
+L0EB3:
+  0EB3  8006      SJMP L0EBB
+L0EB5:
+  0EB5  151b      DEC 1Bh
+  0EB7  051c      INC 1Ch
+  0EB9  80e3      SJMP L0E9E
+L0EBB:
+  0EBB  751b00    MOV 1Bh,#00h
+L0EBE:
+  0EBE  e51c      MOV A,1Ch
+  0EC0  75f002    MOV B,#02h
+  0EC3  84        DIV AB
+  0EC4  ff        MOV R7,A
+  0EC5  7e00      MOV R6,#00h
+  0EC7  0f        INC R7
+  0EC8  bf0001    CJNE R7,#00h,L0ECC
+  0ECB  0e        INC R6
+L0ECC:
+  0ECC  e51b      MOV A,1Bh
+  0ECE  be0004    CJNE R6,#00h,L0ED5
+  0ED1  d3        SETB C
+  0ED2  9f        SUBB A,R7
+  0ED3  501c      JNC L0EF1
+L0ED5:
+  0ED5  900570    MOV DPTR,#0570h
+  0ED8  e0        MOVX A,@DPTR
+  0ED9  251b      ADD A,1Bh
+  0EDB  90057e    MOV DPTR,#057Eh
+  0EDE  124e23    LCALL L4E23
+  0EE1  7400      MOV A,#00h
+  0EE3  f8        MOV R0,A
+  0EE4  e4        CLR A
+  0EE5  f0        MOVX @DPTR,A
+  0EE6  e8        MOV A,R0
+  0EE7  a3        INC DPTR
+  0EE8  f0        MOVX @DPTR,A
+  0EE9  781b      MOV R0,#1Bh
+  0EEB  7401      MOV A,#01h
+  0EED  26        ADD A,@R0
+  0EEE  f6        MOV @R0,A
+  0EEF  50cd      JNC L0EBE
+L0EF1:
+  0EF1  900570    MOV DPTR,#0570h
+  0EF4  e0        MOVX A,@DPTR
+  0EF5  f51b      MOV 1Bh,A
+L0EF7:
+  0EF7  e51c      MOV A,1Ch
+  0EF9  75f002    MOV B,#02h
+  0EFC  84        DIV AB
+  0EFD  ff        MOV R7,A
+  0EFE  7e00      MOV R6,#00h
+  0F00  90055c    MOV DPTR,#055Ch
+  0F03  e0        MOVX A,@DPTR
+  0F04  c3        CLR C
+  0F05  9f        SUBB A,R7
+  0F06  ff        MOV R7,A
+  0F07  e4        CLR A
+  0F08  9e        SUBB A,R6
+  0F09  fe        MOV R6,A
+  0F0A  e51b      MOV A,1Bh
+  0F0C  be0004    CJNE R6,#00h,L0F13
+  0F0F  d3        SETB C
+  0F10  9f        SUBB A,R7
+  0F11  5030      JNC L0F43
+L0F13:
+  0F13  e51b      MOV A,1Bh
+  0F15  900696    MOV DPTR,#0696h
+  0F18  124e23    LCALL L4E23
+  0F1B  e51c      MOV A,1Ch
+  0F1D  75f002    MOV B,#02h
+  0F20  84        DIV AB
+  0F21  ff        MOV R7,A
+  0F22  7e00      MOV R6,#00h
+  0F24  e51b      MOV A,1Bh
+  0F26  2f        ADD A,R7
+  0F27  ff        MOV R7,A
+  0F28  5001      JNC L0F2B
+  0F2A  0e        INC R6
+L0F2B:
+  0F2B  e0        MOVX A,@DPTR
+  0F2C  fc        MOV R4,A
+  0F2D  a3        INC DPTR
+  0F2E  e0        MOVX A,@DPTR
+  0F2F  fd        MOV R5,A
+  0F30  90057e    MOV DPTR,#057Eh
+  0F33  12000e    LCALL L000E
+  0F36  ec        MOV A,R4
+  0F37  f0        MOVX @DPTR,A
+  0F38  a3        INC DPTR
+  0F39  ed        MOV A,R5
+  0F3A  f0        MOVX @DPTR,A
+  0F3B  781b      MOV R0,#1Bh
+  0F3D  7401      MOV A,#01h
+  0F3F  26        ADD A,@R0
+  0F40  f6        MOV @R0,A
+  0F41  50b4      JNC L0EF7
+L0F43:
+  0F43  d219      SETB 23h.1{b19}
+  0F45  900570    MOV DPTR,#0570h
+  0F48  e0        MOVX A,@DPTR
+  0F49  f52f      MOV 2Fh,A
+  0F4B  752e00    MOV 2Eh,#00h
+L0F4E:
+  0F4E  90055c    MOV DPTR,#055Ch
+  0F51  e0        MOVX A,@DPTR
+  0F52  a82e      MOV R0,2Eh
+  0F54  b80031    CJNE R0,#00h,L0F88
+  0F57  952f      SUBB A,2Fh
+  0F59  402d      JC L0F88
+  0F5B  ae2e      MOV R6,2Eh
+  0F5D  af2f      MOV R7,2Fh
+  0F5F  90057e    MOV DPTR,#057Eh
+  0F62  12000e    LCALL L000E
+  0F65  7ce0      MOV R4,#E0h
+  0F67  7d00      MOV R5,#00h
+  0F69  e0        MOVX A,@DPTR
+  0F6A  fa        MOV R2,A
+  0F6B  a3        INC DPTR
+  0F6C  e0        MOVX A,@DPTR
+  0F6D  fb        MOV R3,A
+  0F6E  ea        MOV A,R2
+  0F6F  5204      ANL 04h,A
+  0F71  eb        MOV A,R3
+  0F72  5205      ANL 05h,A
+  0F74  ed        MOV A,R5
+  0F75  4c        ORL A,R4
+  0F76  6002      JZ L0F7A
+  0F78  c219      CLR 23h.1{b19}
+L0F7A:
+  0F7A  782f      MOV R0,#2Fh
+  0F7C  7401      MOV A,#01h
+  0F7E  26        ADD A,@R0
+  0F7F  f6        MOV @R0,A
+  0F80  5004      JNC L0F86
+  0F82  18        DEC R0
+  0F83  e4        CLR A
+  0F84  36        ADDC A,@R0
+  0F85  f6        MOV @R0,A
+L0F86:
+  0F86  50c6      JNC L0F4E
+L0F88:
+  0F88  a219      MOV C,23h.1{b19}
+  0F8A  b3        CPL C
+  0F8B  4051      JC L0FDE
+  0F8D  900570    MOV DPTR,#0570h
+  0F90  e0        MOVX A,@DPTR
+  0F91  f52f      MOV 2Fh,A
+  0F93  752e00    MOV 2Eh,#00h
+L0F96:
+  0F96  90055c    MOV DPTR,#055Ch
+  0F99  e0        MOVX A,@DPTR
+  0F9A  a82e      MOV R0,2Eh
+  0F9C  b8003f    CJNE R0,#00h,L0FDE
+  0F9F  952f      SUBB A,2Fh
+  0FA1  403b      JC L0FDE
+  0FA3  ae2e      MOV R6,2Eh
+  0FA5  af2f      MOV R7,2Fh
+  0FA7  90057e    MOV DPTR,#057Eh
+  0FAA  12000e    LCALL L000E
+  0FAD  7401      MOV A,#01h
+  0FAF  fc        MOV R4,A
+  0FB0  e0        MOVX A,@DPTR
+  0FB1  fd        MOV R5,A
+  0FB2  a3        INC DPTR
+  0FB3  e0        MOVX A,@DPTR
+  0FB4  fa        MOV R2,A
+  0FB5  ec        MOV A,R4
+  0FB6  8d06      MOV 06h,R5
+  0FB8  8a07      MOV 07h,R2
+  0FBA  124e40    LCALL L4E40
+  0FBD  8f04      MOV 04h,R7
+  0FBF  8e05      MOV 05h,R6
+  0FC1  ae2e      MOV R6,2Eh
+  0FC3  af2f      MOV R7,2Fh
+  0FC5  90057e    MOV DPTR,#057Eh
+  0FC8  12000e    LCALL L000E
+  0FCB  ed        MOV A,R5
+  0FCC  f0        MOVX @DPTR,A
+  0FCD  a3        INC DPTR
+  0FCE  ec        MOV A,R4
+  0FCF  f0        MOVX @DPTR,A
+  0FD0  782f      MOV R0,#2Fh
+  0FD2  7401      MOV A,#01h
+  0FD4  26        ADD A,@R0
+  0FD5  f6        MOV @R0,A
+  0FD6  5004      JNC L0FDC
+  0FD8  18        DEC R0
+  0FD9  e4        CLR A
+  0FDA  36        ADDC A,@R0
+  0FDB  f6        MOV @R0,A
+L0FDC:
+  0FDC  50b8      JNC L0F96
+L0FDE:
+  0FDE  0212a8    LJMP L12A8
+L0FE1:
+  0FE1  751901    MOV 19h,#01h
+  0FE4  120ad6    LCALL L0AD6
+  0FE7  201403    JB 22h.4{b14},L0FED
+  0FEA  0210d7    LJMP L10D7
+L0FED:
+  0FED  751c00    MOV 1Ch,#00h
+  0FF0  90055c    MOV DPTR,#055Ch
+  0FF3  e0        MOVX A,@DPTR
+  0FF4  14        DEC A
+  0FF5  f51b      MOV 1Bh,A
+L0FF7:
+  0FF7  e51b      MOV A,1Bh
+  0FF9  90057e    MOV DPTR,#057Eh
+  0FFC  124e23    LCALL L4E23
+  0FFF  74ff      MOV A,#FFh
+  1001  fe        MOV R6,A
+  1002  e0        MOVX A,@DPTR
+  1003  ff        MOV R7,A
+  1004  a3        INC DPTR
+  1005  e0        MOVX A,@DPTR
+  1006  fc        MOV R4,A
+  1007  ee        MOV A,R6
+  1008  5204      ANL 04h,A
+  100A  7f00      MOV R7,#00h
+  100C  ec        MOV A,R4
+  100D  4f        ORL A,R7
+  100E  7004      JNZ L1014
+  1010  e51b      MOV A,1Bh
+  1012  7002      JNZ L1016
+L1014:
+  1014  8006      SJMP L101C
+L1016:
+  1016  151b      DEC 1Bh
+  1018  051c      INC 1Ch
+  101A  80db      SJMP L0FF7
+L101C:
+  101C  900570    MOV DPTR,#0570h
+  101F  e0        MOVX A,@DPTR
+  1020  f51b      MOV 1Bh,A
+L1022:
+  1022  90055c    MOV DPTR,#055Ch
+  1025  e0        MOVX A,@DPTR
+  1026  14        DEC A
+  1027  c3        CLR C
+  1028  951b      SUBB A,1Bh
+  102A  402c      JC L1058
+  102C  e51b      MOV A,1Bh
+  102E  90057e    MOV DPTR,#057Eh
+  1031  124e23    LCALL L4E23
+  1034  7eff      MOV R6,#FFh
+  1036  7f00      MOV R7,#00h
+  1038  e0        MOVX A,@DPTR
+  1039  fc        MOV R4,A
+  103A  a3        INC DPTR
+  103B  e0        MOVX A,@DPTR
+  103C  fd        MOV R5,A
+  103D  ec        MOV A,R4
+  103E  5206      ANL 06h,A
+  1040  ed        MOV A,R5
+  1041  5207      ANL 07h,A
+  1043  e51b      MOV A,1Bh
+  1045  90057e    MOV DPTR,#057Eh
+  1048  124e23    LCALL L4E23
+  104B  ee        MOV A,R6
+  104C  f0        MOVX @DPTR,A
+  104D  a3        INC DPTR
+  104E  ef        MOV A,R7
+  104F  f0        MOVX @DPTR,A
+  1050  781b      MOV R0,#1Bh
+  1052  7401      MOV A,#01h
+  1054  26        ADD A,@R0
+  1055  f6        MOV @R0,A
+  1056  50ca      JNC L1022
+L1058:
+  1058  900570    MOV DPTR,#0570h
+  105B  e0        MOVX A,@DPTR
+  105C  f51b      MOV 1Bh,A
+L105E:
+  105E  e51c      MOV A,1Ch
+  1060  75f002    MOV B,#02h
+  1063  84        DIV AB
+  1064  ff        MOV R7,A
+  1065  7e00      MOV R6,#00h
+  1067  90055c    MOV DPTR,#055Ch
+  106A  e0        MOVX A,@DPTR
+  106B  c3        CLR C
+  106C  9f        SUBB A,R7
+  106D  ff        MOV R7,A
+  106E  e4        CLR A
+  106F  9e        SUBB A,R6
+  1070  fe        MOV R6,A
+  1071  e51b      MOV A,1Bh
+  1073  be0004    CJNE R6,#00h,L107A
+  1076  d3        SETB C
+  1077  9f        SUBB A,R7
+  1078  505d      JNC L10D7
+L107A:
+  107A  e51c      MOV A,1Ch
+  107C  75f002    MOV B,#02h
+  107F  84        DIV AB
+  1080  ff        MOV R7,A
+  1081  7e00      MOV R6,#00h
+  1083  e51b      MOV A,1Bh
+  1085  2f        ADD A,R7
+  1086  ff        MOV R7,A
+  1087  5001      JNC L108A
+  1089  0e        INC R6
+L108A:
+  108A  90057e    MOV DPTR,#057Eh
+  108D  12000e    LCALL L000E
+  1090  e51b      MOV A,1Bh
+  1092  fe        MOV R6,A
+  1093  e0        MOVX A,@DPTR
+  1094  ff        MOV R7,A
+  1095  a3        INC DPTR
+  1096  e0        MOVX A,@DPTR
+  1097  fc        MOV R4,A
+  1098  ee        MOV A,R6
+  1099  900696    MOV DPTR,#0696h
+  109C  124e23    LCALL L4E23
+  109F  74ff      MOV A,#FFh
+  10A1  fe        MOV R6,A
+  10A2  e0        MOVX A,@DPTR
+  10A3  fd        MOV R5,A
+  10A4  a3        INC DPTR
+  10A5  e0        MOVX A,@DPTR
+  10A6  fa        MOV R2,A
+  10A7  ee        MOV A,R6
+  10A8  5202      ANL 02h,A
+  10AA  7d00      MOV R5,#00h
+  10AC  ef        MOV A,R7
+  10AD  4205      ORL 05h,A
+  10AF  ec        MOV A,R4
+  10B0  4202      ORL 02h,A
+  10B2  e51c      MOV A,1Ch
+  10B4  75f002    MOV B,#02h
+  10B7  84        DIV AB
+  10B8  fc        MOV R4,A
+  10B9  7e00      MOV R6,#00h
+  10BB  e51b      MOV A,1Bh
+  10BD  2c        ADD A,R4
+  10BE  fc        MOV R4,A
+  10BF  5001      JNC L10C2
+  10C1  0e        INC R6
+L10C2:
+  10C2  8c07      MOV 07h,R4
+  10C4  90057e    MOV DPTR,#057Eh
+  10C7  12000e    LCALL L000E
+  10CA  ed        MOV A,R5
+  10CB  f0        MOVX @DPTR,A
+  10CC  a3        INC DPTR
+  10CD  ea        MOV A,R2
+  10CE  f0        MOVX @DPTR,A
+  10CF  781b      MOV R0,#1Bh
+  10D1  7401      MOV A,#01h
+  10D3  26        ADD A,@R0
+  10D4  f6        MOV @R0,A
+  10D5  5087      JNC L105E
+L10D7:
+  10D7  201503    JB 22h.5{b15},L10DD
+  10DA  0212a8    LJMP L12A8
+L10DD:
+  10DD  d219      SETB 23h.1{b19}
+  10DF  900570    MOV DPTR,#0570h
+  10E2  e0        MOVX A,@DPTR
+  10E3  f52f      MOV 2Fh,A
+  10E5  752e00    MOV 2Eh,#00h
+L10E8:
+  10E8  90055c    MOV DPTR,#055Ch
+  10EB  e0        MOVX A,@DPTR
+  10EC  a82e      MOV R0,2Eh
+  10EE  b80031    CJNE R0,#00h,L1122
+  10F1  952f      SUBB A,2Fh
+  10F3  402d      JC L1122
+  10F5  ae2e      MOV R6,2Eh
+  10F7  af2f      MOV R7,2Fh
+  10F9  90057e    MOV DPTR,#057Eh
+  10FC  12000e    LCALL L000E
+  10FF  7c80      MOV R4,#80h
+  1101  7d00      MOV R5,#00h
+  1103  e0        MOVX A,@DPTR
+  1104  fa        MOV R2,A
+  1105  a3        INC DPTR
+  1106  e0        MOVX A,@DPTR
+  1107  fb        MOV R3,A
+  1108  ea        MOV A,R2
+  1109  5204      ANL 04h,A
+  110B  eb        MOV A,R3
+  110C  5205      ANL 05h,A
+  110E  ed        MOV A,R5
+  110F  4c        ORL A,R4
+  1110  6002      JZ L1114
+  1112  c219      CLR 23h.1{b19}
+L1114:
+  1114  782f      MOV R0,#2Fh
+  1116  7401      MOV A,#01h
+  1118  26        ADD A,@R0
+  1119  f6        MOV @R0,A
+  111A  5004      JNC L1120
+  111C  18        DEC R0
+  111D  e4        CLR A
+  111E  36        ADDC A,@R0
+  111F  f6        MOV @R0,A
+L1120:
+  1120  50c6      JNC L10E8
+L1122:
+  1122  751c00    MOV 1Ch,#00h
+  1125  90055c    MOV DPTR,#055Ch
+  1128  e0        MOVX A,@DPTR
+  1129  14        DEC A
+  112A  f51b      MOV 1Bh,A
+L112C:
+  112C  e51b      MOV A,1Bh
+  112E  90057e    MOV DPTR,#057Eh
+  1131  124e23    LCALL L4E23
+  1134  7eff      MOV R6,#FFh
+  1136  7f00      MOV R7,#00h
+  1138  e0        MOVX A,@DPTR
+  1139  fc        MOV R4,A
+  113A  a3        INC DPTR
+  113B  e0        MOVX A,@DPTR
+  113C  fd        MOV R5,A
+  113D  ec        MOV A,R4
+  113E  5206      ANL 06h,A
+  1140  ed        MOV A,R5
+  1141  5207      ANL 07h,A
+  1143  ef        MOV A,R7
+  1144  4e        ORL A,R6
+  1145  7004      JNZ L114B
+  1147  e51b      MOV A,1Bh
+  1149  7002      JNZ L114D
+L114B:
+  114B  8006      SJMP L1153
+L114D:
+  114D  151b      DEC 1Bh
+  114F  051c      INC 1Ch
+  1151  80d9      SJMP L112C
+L1153:
+  1153  900570    MOV DPTR,#0570h
+  1156  e0        MOVX A,@DPTR
+  1157  f51b      MOV 1Bh,A
+L1159:
+  1159  90055c    MOV DPTR,#055Ch
+  115C  e0        MOVX A,@DPTR
+  115D  14        DEC A
+  115E  c3        CLR C
+  115F  951b      SUBB A,1Bh
+  1161  402a      JC L118D
+  1163  e51b      MOV A,1Bh
+  1165  90057e    MOV DPTR,#057Eh
+  1168  124e23    LCALL L4E23
+  116B  74ff      MOV A,#FFh
+  116D  fe        MOV R6,A
+  116E  e0        MOVX A,@DPTR
+  116F  ff        MOV R7,A
+  1170  a3        INC DPTR
+  1171  e0        MOVX A,@DPTR
+  1172  fc        MOV R4,A
+  1173  ee        MOV A,R6
+  1174  5204      ANL 04h,A
+  1176  7f00      MOV R7,#00h
+  1178  e51b      MOV A,1Bh
+  117A  90057e    MOV DPTR,#057Eh
+  117D  124e23    LCALL L4E23
+  1180  ef        MOV A,R7
+  1181  f0        MOVX @DPTR,A
+  1182  a3        INC DPTR
+  1183  ec        MOV A,R4
+  1184  f0        MOVX @DPTR,A
+  1185  781b      MOV R0,#1Bh
+  1187  7401      MOV A,#01h
+  1189  26        ADD A,@R0
+  118A  f6        MOV @R0,A
+  118B  50cc      JNC L1159
+L118D:
+  118D  a219      MOV C,23h.1{b19}
+  118F  b3        CPL C
+  1190  4003      JC L1195
+  1192  02121d    LJMP L121D
+L1195:
+  1195  900570    MOV DPTR,#0570h
+  1198  e0        MOVX A,@DPTR
+  1199  f51b      MOV 1Bh,A
+L119B:
+  119B  e51c      MOV A,1Ch
+  119D  75f002    MOV B,#02h
+  11A0  84        DIV AB
+  11A1  ff        MOV R7,A
+  11A2  7e00      MOV R6,#00h
+  11A4  90055c    MOV DPTR,#055Ch
+  11A7  e0        MOVX A,@DPTR
+  11A8  c3        CLR C
+  11A9  9f        SUBB A,R7
+  11AA  ff        MOV R7,A
+  11AB  e4        CLR A
+  11AC  9e        SUBB A,R6
+  11AD  fe        MOV R6,A
+  11AE  e51b      MOV A,1Bh
+  11B0  be0004    CJNE R6,#00h,L11B7
+  11B3  d3        SETB C
+  11B4  9f        SUBB A,R7
+  11B5  5063      JNC L121A
+L11B7:
+  11B7  e51b      MOV A,1Bh
+  11B9  900696    MOV DPTR,#0696h
+  11BC  124e23    LCALL L4E23
+  11BF  7eff      MOV R6,#FFh
+  11C1  7f00      MOV R7,#00h
+  11C3  e0        MOVX A,@DPTR
+  11C4  fc        MOV R4,A
+  11C5  a3        INC DPTR
+  11C6  e0        MOVX A,@DPTR
+  11C7  fd        MOV R5,A
+  11C8  ec        MOV A,R4
+  11C9  5206      ANL 06h,A
+  11CB  ed        MOV A,R5
+  11CC  5207      ANL 07h,A
+  11CE  e51c      MOV A,1Ch
+  11D0  75f002    MOV B,#02h
+  11D3  84        DIV AB
+  11D4  fd        MOV R5,A
+  11D5  7c00      MOV R4,#00h
+  11D7  e51b      MOV A,1Bh
+  11D9  2d        ADD A,R5
+  11DA  fd        MOV R5,A
+  11DB  5001      JNC L11DE
+  11DD  0c        INC R4
+L11DE:
+  11DE  8f02      MOV 02h,R7
+  11E0  8e03      MOV 03h,R6
+  11E2  8c06      MOV 06h,R4
+  11E4  8d07      MOV 07h,R5
+  11E6  90057e    MOV DPTR,#057Eh
+  11E9  12000e    LCALL L000E
+  11EC  e0        MOVX A,@DPTR
+  11ED  fe        MOV R6,A
+  11EE  a3        INC DPTR
+  11EF  e0        MOVX A,@DPTR
+  11F0  ff        MOV R7,A
+  11F1  ee        MOV A,R6
+  11F2  4203      ORL 03h,A
+  11F4  ef        MOV A,R7
+  11F5  4202      ORL 02h,A
+  11F7  e51c      MOV A,1Ch
+  11F9  75f002    MOV B,#02h
+  11FC  84        DIV AB
+  11FD  ff        MOV R7,A
+  11FE  7e00      MOV R6,#00h
+  1200  e51b      MOV A,1Bh
+  1202  2f        ADD A,R7
+  1203  ff        MOV R7,A
+  1204  5001      JNC L1207
+  1206  0e        INC R6
+L1207:
+  1207  90057e    MOV DPTR,#057Eh
+  120A  12000e    LCALL L000E
+  120D  eb        MOV A,R3
+  120E  f0        MOVX @DPTR,A
+  120F  a3        INC DPTR
+  1210  ea        MOV A,R2
+  1211  f0        MOVX @DPTR,A
+  1212  781b      MOV R0,#1Bh
+  1214  7401      MOV A,#01h
+  1216  26        ADD A,@R0
+  1217  f6        MOV @R0,A
+  1218  5081      JNC L119B
+L121A:
+  121A  0212a8    LJMP L12A8
+L121D:
+  121D  900570    MOV DPTR,#0570h
+  1220  e0        MOVX A,@DPTR
+  1221  f51b      MOV 1Bh,A
+L1223:
+  1223  e51c      MOV A,1Ch
+  1225  75f002    MOV B,#02h
+  1228  84        DIV AB
+  1229  ff        MOV R7,A
+  122A  7e00      MOV R6,#00h
+  122C  90055c    MOV DPTR,#055Ch
+  122F  e0        MOVX A,@DPTR
+  1230  c3        CLR C
+  1231  9f        SUBB A,R7
+  1232  ff        MOV R7,A
+  1233  e4        CLR A
+  1234  9e        SUBB A,R6
+  1235  fe        MOV R6,A
+  1236  e51b      MOV A,1Bh
+  1238  be0004    CJNE R6,#00h,L123F
+  123B  d3        SETB C
+  123C  9f        SUBB A,R7
+  123D  5069      JNC L12A8
+L123F:
+  123F  e51b      MOV A,1Bh
+  1241  900696    MOV DPTR,#0696h
+  1244  124e23    LCALL L4E23
+  1247  7401      MOV A,#01h
+  1249  fe        MOV R6,A
+  124A  e0        MOVX A,@DPTR
+  124B  ff        MOV R7,A
+  124C  a3        INC DPTR
+  124D  e0        MOVX A,@DPTR
+  124E  fc        MOV R4,A
+  124F  ee        MOV A,R6
+  1250  8f06      MOV 06h,R7
+  1252  8c07      MOV 07h,R4
+  1254  124e40    LCALL L4E40
+  1257  7cfe      MOV R4,#FEh
+  1259  7d00      MOV R5,#00h
+  125B  ee        MOV A,R6
+  125C  5204      ANL 04h,A
+  125E  ef        MOV A,R7
+  125F  5205      ANL 05h,A
+  1261  e51c      MOV A,1Ch
+  1263  75f002    MOV B,#02h
+  1266  84        DIV AB
+  1267  ff        MOV R7,A
+  1268  7e00      MOV R6,#00h
+  126A  e51b      MOV A,1Bh
+  126C  2f        ADD A,R7
+  126D  ff        MOV R7,A
+  126E  5001      JNC L1271
+  1270  0e        INC R6
+L1271:
+  1271  90057e    MOV DPTR,#057Eh
+  1274  12000e    LCALL L000E
+  1277  e0        MOVX A,@DPTR
+  1278  fe        MOV R6,A
+  1279  a3        INC DPTR
+  127A  e0        MOVX A,@DPTR
+  127B  ff        MOV R7,A
+  127C  ee        MOV A,R6
+  127D  4204      ORL 04h,A
+  127F  ef        MOV A,R7
+  1280  4205      ORL 05h,A
+  1282  e51c      MOV A,1Ch
+  1284  75f002    MOV B,#02h
+  1287  84        DIV AB
+  1288  ff        MOV R7,A
+  1289  7e00      MOV R6,#00h
+  128B  e51b      MOV A,1Bh
+  128D  2f        ADD A,R7
+  128E  ff        MOV R7,A
+  128F  5001      JNC L1292
+  1291  0e        INC R6
+L1292:
+  1292  90057e    MOV DPTR,#057Eh
+  1295  12000e    LCALL L000E
+  1298  ec        MOV A,R4
+  1299  f0        MOVX @DPTR,A
+  129A  a3        INC DPTR
+  129B  ed        MOV A,R5
+  129C  f0        MOVX @DPTR,A
+  129D  781b      MOV R0,#1Bh
+  129F  7401      MOV A,#01h
+  12A1  26        ADD A,@R0
+  12A2  f6        MOV @R0,A
+  12A3  4003      JC L12A8
+  12A5  021223    LJMP L1223
+L12A8:
+  12A8  22        RET
+L12A9:
+  12A9  751001    MOV 10h,#01h
+L12AC:
+  12AC  e510      MOV A,10h
+  12AE  d3        SETB C
+  12AF  9403      SUBB A,#03h
+  12B1  500a      JNC L12BD
+  12B3  e510      MOV A,10h
+  12B5  2424      ADD A,#24h
+  12B7  f8        MOV R0,A
+  12B8  e6        MOV A,@R0
+  12B9  6430      XRL A,#30h
+  12BB  6002      JZ L12BF
+L12BD:
+  12BD  8004      SJMP L12C3
+L12BF:
+  12BF  0510      INC 10h
+  12C1  80e9      SJMP L12AC
+L12C3:
+  12C3  751101    MOV 11h,#01h
+L12C6:
+  12C6  e510      MOV A,10h
+  12C8  d3        SETB C
+  12C9  9403      SUBB A,#03h
+  12CB  5014      JNC L12E1
+  12CD  e510      MOV A,10h
+  12CF  2424      ADD A,#24h
+  12D1  f8        MOV R0,A
+  12D2  e511      MOV A,11h
+  12D4  8606      MOV 06h,@R0
+  12D6  2424      ADD A,#24h
+  12D8  f8        MOV R0,A
+  12D9  a606      MOV @R0,06h
+  12DB  0510      INC 10h
+  12DD  0511      INC 11h
+  12DF  80e5      SJMP L12C6
+L12E1:
+  12E1  e511      MOV A,11h
+  12E3  d3        SETB C
+  12E4  9403      SUBB A,#03h
+  12E6  500b      JNC L12F3
+  12E8  e511      MOV A,11h
+  12EA  2424      ADD A,#24h
+  12EC  f8        MOV R0,A
+  12ED  7620      MOV @R0,#20h
+  12EF  0511      INC 11h
+  12F1  80ee      SJMP L12E1
+L12F3:
+  12F3  22        RET
+L12F4:
+  12F4  751100    MOV 11h,#00h
+  12F7  751000    MOV 10h,#00h
+L12FA:
+  12FA  e510      MOV A,10h
+  12FC  d3        SETB C
+  12FD  94f9      SUBB A,#F9h
+  12FF  4003      JC L1304
+  1301  02151f    LJMP L151F
+L1304:
+  1304  e510      MOV A,10h
+  1306  900224    MOV DPTR,#0224h
+  1309  124ead    LCALL L4EAD
+  130C  e0        MOVX A,@DPTR
+  130D  b40a08    CJNE A,#0Ah,L1318
+  1310  e510      MOV A,10h
+  1312  04        INC A
+  1313  f511      MOV 11h,A
+  1315  021514    LJMP L1514
+L1318:
+  1318  e510      MOV A,10h
+  131A  900224    MOV DPTR,#0224h
+  131D  124ead    LCALL L4EAD
+  1320  e0        MOVX A,@DPTR
+  1321  b40d06    CJNE A,#0Dh,L132A
+  1324  7510ff    MOV 10h,#FFh
+  1327  021514    LJMP L1514
+L132A:
+  132A  e510      MOV A,10h
+  132C  900224    MOV DPTR,#0224h
+  132F  124ead    LCALL L4EAD
+  1332  e0        MOVX A,@DPTR
+  1333  6420      XRL A,#20h
+  1335  6033      JZ L136A
+  1337  e510      MOV A,10h
+  1339  900224    MOV DPTR,#0224h
+  133C  124ead    LCALL L4EAD
+  133F  e0        MOVX A,@DPTR
+  1340  642d      XRL A,#2Dh
+  1342  6026      JZ L136A
+  1344  e510      MOV A,10h
+  1346  900224    MOV DPTR,#0224h
+  1349  124ead    LCALL L4EAD
+  134C  e0        MOVX A,@DPTR
+  134D  642e      XRL A,#2Eh
+  134F  6019      JZ L136A
+  1351  e510      MOV A,10h
+  1353  900224    MOV DPTR,#0224h
+  1356  124ead    LCALL L4EAD
+  1359  e0        MOVX A,@DPTR
+  135A  642f      XRL A,#2Fh
+  135C  600c      JZ L136A
+  135E  e510      MOV A,10h
+  1360  900224    MOV DPTR,#0224h
+  1363  124ead    LCALL L4EAD
+  1366  e0        MOVX A,@DPTR
+  1367  b42808    CJNE A,#28h,L1372
+L136A:
+  136A  e510      MOV A,10h
+  136C  04        INC A
+  136D  f511      MOV 11h,A
+  136F  021514    LJMP L1514
+L1372:
+  1372  e510      MOV A,10h
+  1374  b51102    CJNE A,11h,L1379
+  1377  8003      SJMP L137C
+L1379:
+  1379  0214e0    LJMP L14E0
+L137C:
+  137C  e510      MOV A,10h
+  137E  900224    MOV DPTR,#0224h
+  1381  124ead    LCALL L4EAD
+  1384  e0        MOVX A,@DPTR
+  1385  b45d26    CJNE A,#5Dh,L13AE
+  1388  e510      MOV A,10h
+  138A  04        INC A
+  138B  900224    MOV DPTR,#0224h
+  138E  124ead    LCALL L4EAD
+  1391  e0        MOVX A,@DPTR
+  1392  b44219    CJNE A,#42h,L13AE
+  1395  e510      MOV A,10h
+  1397  900226    MOV DPTR,#0226h
+  139A  124ead    LCALL L4EAD
+  139D  e0        MOVX A,@DPTR
+  139E  b4450d    CJNE A,#45h,L13AE
+  13A1  e510      MOV A,10h
+  13A3  900227    MOV DPTR,#0227h
+  13A6  124ead    LCALL L4EAD
+  13A9  e0        MOVX A,@DPTR
+  13AA  6452      XRL A,#52h
+  13AC  6002      JZ L13B0
+L13AE:
+  13AE  800b      SJMP L13BB
+L13B0:
+  13B0  e510      MOV A,10h
+  13B2  900224    MOV DPTR,#0224h
+  13B5  124ead    LCALL L4EAD
+  13B8  747d      MOV A,#7Dh
+  13BA  f0        MOVX @DPTR,A
+L13BB:
+  13BB  e510      MOV A,10h
+  13BD  900224    MOV DPTR,#0224h
+  13C0  124ead    LCALL L4EAD
+  13C3  e0        MOVX A,@DPTR
+  13C4  b45d1a    CJNE A,#5Dh,L13E1
+  13C7  e510      MOV A,10h
+  13C9  04        INC A
+  13CA  900224    MOV DPTR,#0224h
+  13CD  124ead    LCALL L4EAD
+  13D0  e0        MOVX A,@DPTR
+  13D1  b4420d    CJNE A,#42h,L13E1
+  13D4  e510      MOV A,10h
+  13D6  900226    MOV DPTR,#0226h
+  13D9  124ead    LCALL L4EAD
+  13DC  e0        MOVX A,@DPTR
+  13DD  642e      XRL A,#2Eh
+  13DF  6002      JZ L13E3
+L13E1:
+  13E1  800b      SJMP L13EE
+L13E3:
+  13E3  e510      MOV A,10h
+  13E5  900224    MOV DPTR,#0224h
+  13E8  124ead    LCALL L4EAD
+  13EB  747d      MOV A,#7Dh
+  13ED  f0        MOVX @DPTR,A
+L13EE:
+  13EE  e510      MOV A,10h
+  13F0  900224    MOV DPTR,#0224h
+  13F3  124ead    LCALL L4EAD
+  13F6  e0        MOVX A,@DPTR
+  13F7  b45d0e    CJNE A,#5Dh,L1408
+  13FA  e510      MOV A,10h
+  13FC  04        INC A
+  13FD  900224    MOV DPTR,#0224h
+  1400  124ead    LCALL L4EAD
+  1403  e0        MOVX A,@DPTR
+  1404  642e      XRL A,#2Eh
+  1406  6002      JZ L140A
+L1408:
+  1408  800b      SJMP L1415
+L140A:
+  140A  e510      MOV A,10h
+  140C  900224    MOV DPTR,#0224h
+  140F  124ead    LCALL L4EAD
+  1412  747d      MOV A,#7Dh
+  1414  f0        MOVX @DPTR,A
+L1415:
+  1415  e510      MOV A,10h
+  1417  900224    MOV DPTR,#0224h
+  141A  124ead    LCALL L4EAD
+  141D  e0        MOVX A,@DPTR
+  141E  b4561a    CJNE A,#56h,L143B
+  1421  e510      MOV A,10h
+  1423  04        INC A
+  1424  900224    MOV DPTR,#0224h
+  1427  124ead    LCALL L4EAD
+  142A  e0        MOVX A,@DPTR
+  142B  b4490d    CJNE A,#49h,L143B
+  142E  e510      MOV A,10h
+  1430  900226    MOV DPTR,#0226h
+  1433  124ead    LCALL L4EAD
+  1436  e0        MOVX A,@DPTR
+  1437  6441      XRL A,#41h
+  1439  6002      JZ L143D
+L143B:
+  143B  800b      SJMP L1448
+L143D:
+  143D  e510      MOV A,10h
+  143F  900224    MOV DPTR,#0224h
+  1442  124ead    LCALL L4EAD
+  1445  7476      MOV A,#76h
+  1447  f0        MOVX @DPTR,A
+L1448:
+  1448  e510      MOV A,10h
+  144A  900224    MOV DPTR,#0224h
+  144D  124ead    LCALL L4EAD
+  1450  e0        MOVX A,@DPTR
+  1451  b4481a    CJNE A,#48h,L146E
+  1454  e510      MOV A,10h
+  1456  04        INC A
+  1457  900224    MOV DPTR,#0224h
+  145A  124ead    LCALL L4EAD
+  145D  e0        MOVX A,@DPTR
+  145E  b4420d    CJNE A,#42h,L146E
+  1461  e510      MOV A,10h
+  1463  900226    MOV DPTR,#0226h
+  1466  124ead    LCALL L4EAD
+  1469  e0        MOVX A,@DPTR
+  146A  6446      XRL A,#46h
+  146C  6002      JZ L1470
+L146E:
+  146E  8006      SJMP L1476
+L1470:
+  1470  e510      MOV A,10h
+  1472  2402      ADD A,#02h
+  1474  f510      MOV 10h,A
+L1476:
+  1476  e510      MOV A,10h
+  1478  900224    MOV DPTR,#0224h
+  147B  124ead    LCALL L4EAD
+  147E  e0        MOVX A,@DPTR
+  147F  b45a1a    CJNE A,#5Ah,L149C
+  1482  e510      MOV A,10h
+  1484  04        INC A
+  1485  900224    MOV DPTR,#0224h
+  1488  124ead    LCALL L4EAD
+  148B  e0        MOVX A,@DPTR
+  148C  b44f0d    CJNE A,#4Fh,L149C
+  148F  e510      MOV A,10h
+  1491  900226    MOV DPTR,#0226h
+  1494  124ead    LCALL L4EAD
+  1497  e0        MOVX A,@DPTR
+  1498  6442      XRL A,#42h
+  149A  6002      JZ L149E
+L149C:
+  149C  8006      SJMP L14A4
+L149E:
+  149E  e510      MOV A,10h
+  14A0  2402      ADD A,#02h
+  14A2  f510      MOV 10h,A
+L14A4:
+  14A4  e510      MOV A,10h
+  14A6  900224    MOV DPTR,#0224h
+  14A9  124ead    LCALL L4EAD
+  14AC  e0        MOVX A,@DPTR
+  14AD  b44b26    CJNE A,#4Bh,L14D6
+  14B0  e510      MOV A,10h
+  14B2  04        INC A
+  14B3  900224    MOV DPTR,#0224h
+  14B6  124ead    LCALL L4EAD
+  14B9  e0        MOVX A,@DPTR
+  14BA  b45619    CJNE A,#56h,L14D6
+  14BD  e510      MOV A,10h
+  14BF  900226    MOV DPTR,#0226h
+  14C2  124ead    LCALL L4EAD
+  14C5  e0        MOVX A,@DPTR
+  14C6  b4410d    CJNE A,#41h,L14D6
+  14C9  e510      MOV A,10h
+  14CB  900227    MOV DPTR,#0227h
+  14CE  124ead    LCALL L4EAD
+  14D1  e0        MOVX A,@DPTR
+  14D2  6447      XRL A,#47h
+  14D4  6002      JZ L14D8
+L14D6:
+  14D6  8006      SJMP L14DE
+L14D8:
+  14D8  e510      MOV A,10h
+  14DA  2403      ADD A,#03h
+  14DC  f510      MOV 10h,A
+L14DE:
+  14DE  8034      SJMP L1514
+L14E0:
+  14E0  e510      MOV A,10h
+  14E2  900224    MOV DPTR,#0224h
+  14E5  124ead    LCALL L4EAD
+  14E8  e0        MOVX A,@DPTR
+  14E9  d3        SETB C
+  14EA  9440      SUBB A,#40h
+  14EC  400e      JC L14FC
+  14EE  e510      MOV A,10h
+  14F0  900224    MOV DPTR,#0224h
+  14F3  124ead    LCALL L4EAD
+  14F6  e0        MOVX A,@DPTR
+  14F7  d3        SETB C
+  14F8  945d      SUBB A,#5Dh
+  14FA  4002      JC L14FE
+L14FC:
+  14FC  8016      SJMP L1514
+L14FE:
+  14FE  e510      MOV A,10h
+  1500  900224    MOV DPTR,#0224h
+  1503  124ead    LCALL L4EAD
+  1506  e0        MOVX A,@DPTR
+  1507  2420      ADD A,#20h
+  1509  fe        MOV R6,A
+  150A  e510      MOV A,10h
+  150C  900224    MOV DPTR,#0224h
+  150F  124ead    LCALL L4EAD
+  1512  ee        MOV A,R6
+  1513  f0        MOVX @DPTR,A
+L1514:
+  1514  7810      MOV R0,#10h
+  1516  7401      MOV A,#01h
+  1518  26        ADD A,@R0
+  1519  f6        MOV @R0,A
+  151A  4003      JC L151F
+  151C  0212fa    LJMP L12FA
+L151F:
+  151F  22        RET
+L1520:
+  1520  120a25    LCALL L0A25
+  1523  90056d    MOV DPTR,#056Dh
+  1526  e0        MOVX A,@DPTR
+  1527  7f05      MOV R7,#05h
+  1529  904d1d    MOV DPTR,#4D1Dh
+  152C  124e13    LCALL L4E13
+  152F  e4        CLR A
+  1530  93        MOVC A,@A+DPTR
+  1531  f8        MOV R0,A
+  1532  7401      MOV A,#01h
+  1534  93        MOVC A,@A+DPTR
+  1535  9008c6    MOV DPTR,#08C6h
+  1538  c8        XCH A,R0
+  1539  f0        MOVX @DPTR,A
+  153A  a3        INC DPTR
+  153B  c8        XCH A,R0
+  153C  f0        MOVX @DPTR,A
+  153D  9008cf    MOV DPTR,#08CFh
+  1540  e4        CLR A
+  1541  f0        MOVX @DPTR,A
+  1542  90055b    MOV DPTR,#055Bh
+  1545  e0        MOVX A,@DPTR
+  1546  7f0e      MOV R7,#0Eh
+  1548  904b34    MOV DPTR,#4B34h
+  154B  124e13    LCALL L4E13
+  154E  e4        CLR A
+  154F  93        MOVC A,@A+DPTR
+  1550  7015      JNZ L1567
+  1552  90055b    MOV DPTR,#055Bh
+  1555  e0        MOVX A,@DPTR
+  1556  7f0e      MOV R7,#0Eh
+  1558  904b31    MOV DPTR,#4B31h
+  155B  124e13    LCALL L4E13
+  155E  e4        CLR A
+  155F  93        MOVC A,@A+DPTR
+  1560  04        INC A
+  1561  9008d0    MOV DPTR,#08D0h
+  1564  f0        MOVX @DPTR,A
+  1565  8011      SJMP L1578
+L1567:
+  1567  90055c    MOV DPTR,#055Ch
+  156A  e0        MOVX A,@DPTR
+  156B  fe        MOV R6,A
+  156C  90056a    MOV DPTR,#056Ah
+  156F  e0        MOVX A,@DPTR
+  1570  f4        CPL A
+  1571  04        INC A
+  1572  2e        ADD A,R6
+  1573  04        INC A
+  1574  9008d0    MOV DPTR,#08D0h
+  1577  f0        MOVX @DPTR,A
+L1578:
+  1578  ae30      MOV R6,30h
+  157A  af31      MOV R7,31h
+  157C  0f        INC R7
+  157D  bf0001    CJNE R7,#00h,L1581
+  1580  0e        INC R6
+L1581:
+  1581  900030    MOV DPTR,#0030h
+  1584  124e8e    LCALL L4E8E
+  1587  e0        MOVX A,@DPTR
+  1588  6403      XRL A,#03h
+  158A  6027      JZ L15B3
+  158C  ae30      MOV R6,30h
+  158E  af31      MOV R7,31h
+  1590  0f        INC R7
+  1591  bf0001    CJNE R7,#00h,L1595
+  1594  0e        INC R6
+L1595:
+  1595  900030    MOV DPTR,#0030h
+  1598  124e8e    LCALL L4E8E
+  159B  e0        MOVX A,@DPTR
+  159C  6404      XRL A,#04h
+  159E  6013      JZ L15B3
+  15A0  ae30      MOV R6,30h
+  15A2  af31      MOV R7,31h
+  15A4  0f        INC R7
+  15A5  bf0001    CJNE R7,#00h,L15A9
+  15A8  0e        INC R6
+L15A9:
+  15A9  900030    MOV DPTR,#0030h
+  15AC  124e8e    LCALL L4E8E
+  15AF  e0        MOVX A,@DPTR
+  15B0  b40d02    CJNE A,#0Dh,L15B5
+L15B3:
+  15B3  806e      SJMP L1623
+L15B5:
+  15B5  7830      MOV R0,#30h
+  15B7  124ec8    LCALL L4EC8
+  15BA  90056d    MOV DPTR,#056Dh
+  15BD  e0        MOVX A,@DPTR
+  15BE  7f05      MOV R7,#05h
+  15C0  904d1b    MOV DPTR,#4D1Bh
+  15C3  124e13    LCALL L4E13
+  15C6  ae30      MOV R6,30h
+  15C8  af31      MOV R7,31h
+  15CA  e4        CLR A
+  15CB  93        MOVC A,@A+DPTR
+  15CC  fc        MOV R4,A
+  15CD  7401      MOV A,#01h
+  15CF  93        MOVC A,@A+DPTR
+  15D0  fd        MOV R5,A
+  15D1  900030    MOV DPTR,#0030h
+  15D4  124e8e    LCALL L4E8E
+  15D7  fa        MOV R2,A
+  15D8  e0        MOVX A,@DPTR
+  15D9  fb        MOV R3,A
+  15DA  ea        MOV A,R2
+  15DB  90056d    MOV DPTR,#056Dh
+  15DE  e0        MOVX A,@DPTR
+  15DF  7f05      MOV R7,#05h
+  15E1  904d1f    MOV DPTR,#4D1Fh
+  15E4  124e13    LCALL L4E13
+  15E7  eb        MOV A,R3
+  15E8  fe        MOV R6,A
+  15E9  e4        CLR A
+  15EA  93        MOVC A,@A+DPTR
+  15EB  ff        MOV R7,A
+  15EC  ee        MOV A,R6
+  15ED  c3        CLR C
+  15EE  9f        SUBB A,R7
+  15EF  fe        MOV R6,A
+  15F0  9008c6    MOV DPTR,#08C6h
+  15F3  124e77    LCALL L4E77
+  15F6  e4        CLR A
+  15F7  93        MOVC A,@A+DPTR
+  15F8  04        INC A
+  15F9  8e00      MOV 00h,R6
+  15FB  88f0      MOV B,R0
+  15FD  a4        MUL AB
+  15FE  ff        MOV R7,A
+  15FF  aef0      MOV R6,B
+  1601  ed        MOV A,R5
+  1602  2f        ADD A,R7
+  1603  ff        MOV R7,A
+  1604  ec        MOV A,R4
+  1605  3e        ADDC A,R6
+  1606  fe        MOV R6,A
+  1607  8e10      MOV 10h,R6
+  1609  8f11      MOV 11h,R7
+  160B  9008cf    MOV DPTR,#08CFh
+  160E  e0        MOVX A,@DPTR
+  160F  851083    MOV DPH,10h
+  1612  851182    MOV DPL,11h
+  1615  fc        MOV R4,A
+  1616  e4        CLR A
+  1617  93        MOVC A,@A+DPTR
+  1618  fd        MOV R5,A
+  1619  ec        MOV A,R4
+  161A  2d        ADD A,R5
+  161B  04        INC A
+  161C  9008cf    MOV DPTR,#08CFh
+  161F  f0        MOVX @DPTR,A
+  1620  021578    LJMP L1578
+L1623:
+  1623  ae30      MOV R6,30h
+  1625  af31      MOV R7,31h
+  1627  0f        INC R7
+  1628  bf0001    CJNE R7,#00h,L162C
+  162B  0e        INC R6
+L162C:
+  162C  900030    MOV DPTR,#0030h
+  162F  124e8e    LCALL L4E8E
+  1632  e0        MOVX A,@DPTR
+  1633  b40d06    CJNE A,#0Dh,L163C
+  1636  752f01    MOV 2Fh,#01h
+  1639  752e00    MOV 2Eh,#00h
+L163C:
+  163C  9008cf    MOV DPTR,#08CFh
+  163F  e0        MOVX A,@DPTR
+  1640  fe        MOV R6,A
+  1641  9008d0    MOV DPTR,#08D0h
+  1644  e0        MOVX A,@DPTR
+  1645  c3        CLR C
+  1646  9e        SUBB A,R6
+  1647  5004      JNC L164D
+  1649  d217      SETB 22h.7{b17}
+  164B  8002      SJMP L164F
+L164D:
+  164D  c217      CLR 22h.7{b17}
+L164F:
+  164F  22        RET
+L1650:
+  1650  900557    MOV DPTR,#0557h
+  1653  e4        CLR A
+  1654  f0        MOVX @DPTR,A
+  1655  a3        INC DPTR
+  1656  f0        MOVX @DPTR,A
+  1657  753100    MOV 31h,#00h
+  165A  753000    MOV 30h,#00h
+  165D  900559    MOV DPTR,#0559h
+  1660  e4        CLR A
+  1661  f0        MOVX @DPTR,A
+  1662  a3        INC DPTR
+  1663  f0        MOVX @DPTR,A
+  1664  752f00    MOV 2Fh,#00h
+  1667  752e00    MOV 2Eh,#00h
+  166A  851231    MOV 31h,12h
+  166D  753000    MOV 30h,#00h
+L1670:
+  1670  e52f      MOV A,2Fh
+  1672  452e      ORL A,2Eh
+  1674  6003      JZ L1679
+  1676  02177d    LJMP L177D
+L1679:
+  1679  900557    MOV DPTR,#0557h
+  167C  e530      MOV A,30h
+  167E  f0        MOVX @DPTR,A
+  167F  a3        INC DPTR
+  1680  e531      MOV A,31h
+  1682  f0        MOVX @DPTR,A
+  1683  900559    MOV DPTR,#0559h
+  1686  e530      MOV A,30h
+  1688  f0        MOVX @DPTR,A
+  1689  a3        INC DPTR
+  168A  e531      MOV A,31h
+  168C  f0        MOVX @DPTR,A
+  168D  ae30      MOV R6,30h
+  168F  af31      MOV R7,31h
+  1691  900030    MOV DPTR,#0030h
+  1694  124e8e    LCALL L4E8E
+  1697  e0        MOVX A,@DPTR
+  1698  b44204    CJNE A,#42h,L169F
+  169B  c213      CLR 22h.3{b13}
+  169D  8002      SJMP L16A1
+L169F:
+  169F  d213      SETB 22h.3{b13}
+L16A1:
+  16A1  201303    JB 22h.3{b13},L16A7
+  16A4  021733    LJMP L1733
+L16A7:
+  16A7  121520    LCALL L1520
+  16AA  301711    JNB 22h.7{b17},L16BE
+  16AD  900557    MOV DPTR,#0557h
+  16B0  e0        MOVX A,@DPTR
+  16B1  fe        MOV R6,A
+  16B2  a3        INC DPTR
+  16B3  e0        MOVX A,@DPTR
+  16B4  ff        MOV R7,A
+  16B5  900030    MOV DPTR,#0030h
+  16B8  124e8e    LCALL L4E8E
+  16BB  7448      MOV A,#48h
+  16BD  f0        MOVX @DPTR,A
+L16BE:
+  16BE  ae30      MOV R6,30h
+  16C0  af31      MOV R7,31h
+  16C2  7402      MOV A,#02h
+  16C4  2f        ADD A,R7
+  16C5  ff        MOV R7,A
+  16C6  5001      JNC L16C9
+  16C8  0e        INC R6
+L16C9:
+  16C9  8e30      MOV 30h,R6
+  16CB  8f31      MOV 31h,R7
+  16CD  900557    MOV DPTR,#0557h
+  16D0  e530      MOV A,30h
+  16D2  f0        MOVX @DPTR,A
+  16D3  a3        INC DPTR
+  16D4  e531      MOV A,31h
+  16D6  f0        MOVX @DPTR,A
+  16D7  900559    MOV DPTR,#0559h
+  16DA  e0        MOVX A,@DPTR
+  16DB  fe        MOV R6,A
+  16DC  a3        INC DPTR
+  16DD  e0        MOVX A,@DPTR
+  16DE  ff        MOV R7,A
+  16DF  900030    MOV DPTR,#0030h
+  16E2  124e8e    LCALL L4E8E
+  16E5  e0        MOVX A,@DPTR
+  16E6  b44811    CJNE A,#48h,L16FA
+  16E9  900557    MOV DPTR,#0557h
+  16EC  e0        MOVX A,@DPTR
+  16ED  fe        MOV R6,A
+  16EE  a3        INC DPTR
+  16EF  e0        MOVX A,@DPTR
+  16F0  ff        MOV R7,A
+  16F1  900030    MOV DPTR,#0030h
+  16F4  124e8e    LCALL L4E8E
+  16F7  7444      MOV A,#44h
+  16F9  f0        MOVX @DPTR,A
+L16FA:
+  16FA  121520    LCALL L1520
+  16FD  301722    JNB 22h.7{b17},L1722
+  1700  900557    MOV DPTR,#0557h
+  1703  e0        MOVX A,@DPTR
+  1704  fe        MOV R6,A
+  1705  a3        INC DPTR
+  1706  e0        MOVX A,@DPTR
+  1707  ff        MOV R7,A
+  1708  900030    MOV DPTR,#0030h
+  170B  124e8e    LCALL L4E8E
+  170E  7444      MOV A,#44h
+  1710  f0        MOVX @DPTR,A
+  1711  900559    MOV DPTR,#0559h
+  1714  e0        MOVX A,@DPTR
+  1715  fe        MOV R6,A
+  1716  a3        INC DPTR
+  1717  e0        MOVX A,@DPTR
+  1718  ff        MOV R7,A
+  1719  900030    MOV DPTR,#0030h
+  171C  124e8e    LCALL L4E8E
+  171F  7448      MOV A,#48h
+  1721  f0        MOVX @DPTR,A
+L1722:
+  1722  ae30      MOV R6,30h
+  1724  af31      MOV R7,31h
+  1726  7402      MOV A,#02h
+  1728  2f        ADD A,R7
+  1729  ff        MOV R7,A
+  172A  5001      JNC L172D
+  172C  0e        INC R6
+L172D:
+  172D  8e30      MOV 30h,R6
+  172F  8f31      MOV 31h,R7
+  1731  8047      SJMP L177A
+L1733:
+  1733  121520    LCALL L1520
+  1736  301732    JNB 22h.7{b17},L176B
+  1739  900557    MOV DPTR,#0557h
+  173C  e0        MOVX A,@DPTR
+  173D  fe        MOV R6,A
+  173E  a3        INC DPTR
+  173F  e0        MOVX A,@DPTR
+  1740  ff        MOV R7,A
+  1741  900030    MOV DPTR,#0030h
+  1744  124e8e    LCALL L4E8E
+  1747  7447      MOV A,#47h
+  1749  f0        MOVX @DPTR,A
+  174A  900557    MOV DPTR,#0557h
+  174D  e0        MOVX A,@DPTR
+  174E  f530      MOV 30h,A
+  1750  a3        INC DPTR
+  1751  e0        MOVX A,@DPTR
+  1752  f531      MOV 31h,A
+  1754  121520    LCALL L1520
+  1757  301711    JNB 22h.7{b17},L176B
+  175A  900557    MOV DPTR,#0557h
+  175D  e0        MOVX A,@DPTR
+  175E  fe        MOV R6,A
+  175F  a3        INC DPTR
+  1760  e0        MOVX A,@DPTR
+  1761  ff        MOV R7,A
+  1762  900030    MOV DPTR,#0030h
+  1765  124e8e    LCALL L4E8E
+  1768  7446      MOV A,#46h
+  176A  f0        MOVX @DPTR,A
+L176B:
+  176B  ae30      MOV R6,30h
+  176D  af31      MOV R7,31h
+  176F  7402      MOV A,#02h
+  1771  2f        ADD A,R7
+  1772  ff        MOV R7,A
+  1773  5001      JNC L1776
+  1775  0e        INC R6
+L1776:
+  1776  8e30      MOV 30h,R6
+  1778  8f31      MOV 31h,R7
+L177A:
+  177A  021670    LJMP L1670
+L177D:
+  177D  22        RET
+L177E:
+  177E  8000      SJMP L1780
+L1780:
+  1780  753401    MOV 34h,#01h
+  1783  753532    MOV 35h,#32h
+  1786  752f00    MOV 2Fh,#00h
+  1789  752e00    MOV 2Eh,#00h
+L178C:
+  178C  ae2e      MOV R6,2Eh
+  178E  af2f      MOV R7,2Fh
+  1790  74f1      MOV A,#F1h
+  1792  be002d    CJNE R6,#00h,L17C2
+  1795  9f        SUBB A,R7
+  1796  402a      JC L17C2
+  1798  853483    MOV DPH,34h
+  179B  853582    MOV DPL,35h
+  179E  124e8e    LCALL L4E8E
+  17A1  e0        MOVX A,@DPTR
+  17A2  fc        MOV R4,A
+  17A3  900224    MOV DPTR,#0224h
+  17A6  124e8e    LCALL L4E8E
+  17A9  ec        MOV A,R4
+  17AA  f0        MOVX @DPTR,A
+  17AB  900030    MOV DPTR,#0030h
+  17AE  124e8e    LCALL L4E8E
+  17B1  740d      MOV A,#0Dh
+  17B3  f0        MOVX @DPTR,A
+  17B4  782f      MOV R0,#2Fh
+  17B6  7401      MOV A,#01h
+  17B8  26        ADD A,@R0
+  17B9  f6        MOV @R0,A
+  17BA  5004      JNC L17C0
+  17BC  18        DEC R0
+  17BD  e4        CLR A
+  17BE  36        ADDC A,@R0
+  17BF  f6        MOV @R0,A
+L17C0:
+  17C0  50ca      JNC L178C
+L17C2:
+  17C2  a294      MOV C,P1.4
+  17C4  b3        CPL C
+  17C5  5003      JNC L17CA
+  17C7  1212f4    LCALL L12F4
+L17CA:
+  17CA  74f9      MOV A,#F9h
+  17CC  900557    MOV DPTR,#0557h
+  17CF  f8        MOV R0,A
+  17D0  e4        CLR A
+  17D1  f0        MOVX @DPTR,A
+  17D2  e8        MOV A,R0
+  17D3  a3        INC DPTR
+  17D4  f0        MOVX @DPTR,A
+  17D5  752f00    MOV 2Fh,#00h
+  17D8  752e00    MOV 2Eh,#00h
+L17DB:
+  17DB  ae2e      MOV R6,2Eh
+  17DD  af2f      MOV R7,2Fh
+  17DF  900224    MOV DPTR,#0224h
+  17E2  124e8e    LCALL L4E8E
+  17E5  e0        MOVX A,@DPTR
+  17E6  640d      XRL A,#0Dh
+  17E8  601c      JZ L1806
+  17EA  900224    MOV DPTR,#0224h
+  17ED  124e8e    LCALL L4E8E
+  17F0  e0        MOVX A,@DPTR
+  17F1  6420      XRL A,#20h
+  17F3  600a      JZ L17FF
+  17F5  900557    MOV DPTR,#0557h
+  17F8  e52e      MOV A,2Eh
+  17FA  f0        MOVX @DPTR,A
+  17FB  a3        INC DPTR
+  17FC  e52f      MOV A,2Fh
+  17FE  f0        MOVX @DPTR,A
+L17FF:
+  17FF  782e      MOV R0,#2Eh
+  1801  124ec8    LCALL L4EC8
+  1804  80d5      SJMP L17DB
+L1806:
+  1806  900557    MOV DPTR,#0557h
+  1809  e0        MOVX A,@DPTR
+  180A  fe        MOV R6,A
+  180B  a3        INC DPTR
+  180C  e0        MOVX A,@DPTR
+  180D  ff        MOV R7,A
+  180E  0f        INC R7
+  180F  bf0001    CJNE R7,#00h,L1813
+  1812  0e        INC R6
+L1813:
+  1813  900224    MOV DPTR,#0224h
+  1816  124e8e    LCALL L4E8E
+  1819  740d      MOV A,#0Dh
+  181B  f0        MOVX @DPTR,A
+  181C  900557    MOV DPTR,#0557h
+  181F  e0        MOVX A,@DPTR
+  1820  fe        MOV R6,A
+  1821  a3        INC DPTR
+  1822  e0        MOVX A,@DPTR
+  1823  ff        MOV R7,A
+  1824  900226    MOV DPTR,#0226h
+  1827  124e8e    LCALL L4E8E
+  182A  740d      MOV A,#0Dh
+  182C  f0        MOVX @DPTR,A
+  182D  900557    MOV DPTR,#0557h
+  1830  e4        CLR A
+  1831  f0        MOVX @DPTR,A
+  1832  a3        INC DPTR
+  1833  f0        MOVX @DPTR,A
+  1834  753100    MOV 31h,#00h
+  1837  753000    MOV 30h,#00h
+  183A  752f00    MOV 2Fh,#00h
+  183D  752e00    MOV 2Eh,#00h
+  1840  900559    MOV DPTR,#0559h
+  1843  e4        CLR A
+  1844  f0        MOVX @DPTR,A
+  1845  a3        INC DPTR
+  1846  f0        MOVX @DPTR,A
+  1847  753402    MOV 34h,#02h
+  184A  753524    MOV 35h,#24h
+L184D:
+  184D  ae30      MOV R6,30h
+  184F  af31      MOV R7,31h
+  1851  853483    MOV DPH,34h
+  1854  853582    MOV DPL,35h
+  1857  124e8e    LCALL L4E8E
+  185A  e0        MOVX A,@DPTR
+  185B  640d      XRL A,#0Dh
+  185D  6009      JZ L1868
+  185F  74fa      MOV A,#FAh
+  1861  be0004    CJNE R6,#00h,L1868
+  1864  d3        SETB C
+  1865  9f        SUBB A,R7
+  1866  5003      JNC L186B
+L1868:
+  1868  02199a    LJMP L199A
+L186B:
+  186B  ae2e      MOV R6,2Eh
+  186D  af2f      MOV R7,2Fh
+  186F  900030    MOV DPTR,#0030h
+  1872  124e8e    LCALL L4E8E
+  1875  7449      MOV A,#49h
+  1877  f0        MOVX @DPTR,A
+  1878  900557    MOV DPTR,#0557h
+  187B  e52e      MOV A,2Eh
+  187D  f0        MOVX @DPTR,A
+  187E  a3        INC DPTR
+  187F  e52f      MOV A,2Fh
+  1881  f0        MOVX @DPTR,A
+  1882  782e      MOV R0,#2Eh
+  1884  124ec8    LCALL L4EC8
+  1887  d213      SETB 22h.3{b13}
+L1889:
+  1889  ae30      MOV R6,30h
+  188B  af31      MOV R7,31h
+  188D  853483    MOV DPH,34h
+  1890  853582    MOV DPL,35h
+  1893  124e8e    LCALL L4E8E
+  1896  e0        MOVX A,@DPTR
+  1897  640a      XRL A,#0Ah
+  1899  6023      JZ L18BE
+  189B  853483    MOV DPH,34h
+  189E  853582    MOV DPL,35h
+  18A1  124e8e    LCALL L4E8E
+  18A4  ae2e      MOV R6,2Eh
+  18A6  af2f      MOV R7,2Fh
+  18A8  e0        MOVX A,@DPTR
+  18A9  fc        MOV R4,A
+  18AA  900030    MOV DPTR,#0030h
+  18AD  124e8e    LCALL L4E8E
+  18B0  ec        MOV A,R4
+  18B1  f0        MOVX @DPTR,A
+  18B2  782e      MOV R0,#2Eh
+  18B4  124ec8    LCALL L4EC8
+  18B7  7830      MOV R0,#30h
+  18B9  124ec8    LCALL L4EC8
+  18BC  80cb      SJMP L1889
+L18BE:
+  18BE  7830      MOV R0,#30h
+  18C0  124ec8    LCALL L4EC8
+  18C3  ae30      MOV R6,30h
+  18C5  af31      MOV R7,31h
+  18C7  853483    MOV DPH,34h
+  18CA  853582    MOV DPL,35h
+  18CD  124e8e    LCALL L4E8E
+  18D0  e0        MOVX A,@DPTR
+  18D1  b40a18    CJNE A,#0Ah,L18EC
+  18D4  c213      CLR 22h.3{b13}
+  18D6  900557    MOV DPTR,#0557h
+  18D9  e0        MOVX A,@DPTR
+  18DA  fe        MOV R6,A
+  18DB  a3        INC DPTR
+  18DC  e0        MOVX A,@DPTR
+  18DD  ff        MOV R7,A
+  18DE  900030    MOV DPTR,#0030h
+  18E1  124e8e    LCALL L4E8E
+  18E4  7442      MOV A,#42h
+  18E6  f0        MOVX @DPTR,A
+  18E7  7830      MOV R0,#30h
+  18E9  124ec8    LCALL L4EC8
+L18EC:
+  18EC  30135e    JNB 22h.3{b13},L194D
+  18EF  ae2e      MOV R6,2Eh
+  18F1  af2f      MOV R7,2Fh
+  18F3  900030    MOV DPTR,#0030h
+  18F6  124e8e    LCALL L4E8E
+  18F9  7403      MOV A,#03h
+  18FB  f0        MOVX @DPTR,A
+  18FC  782e      MOV R0,#2Eh
+  18FE  124ec8    LCALL L4EC8
+  1901  ae2e      MOV R6,2Eh
+  1903  af2f      MOV R7,2Fh
+  1905  900030    MOV DPTR,#0030h
+  1908  124e8e    LCALL L4E8E
+  190B  7445      MOV A,#45h
+  190D  f0        MOVX @DPTR,A
+  190E  782e      MOV R0,#2Eh
+  1910  124ec8    LCALL L4EC8
+L1913:
+  1913  ae30      MOV R6,30h
+  1915  af31      MOV R7,31h
+  1917  853483    MOV DPH,34h
+  191A  853582    MOV DPL,35h
+  191D  124e8e    LCALL L4E8E
+  1920  e0        MOVX A,@DPTR
+  1921  640a      XRL A,#0Ah
+  1923  6023      JZ L1948
+  1925  853483    MOV DPH,34h
+  1928  853582    MOV DPL,35h
+  192B  124e8e    LCALL L4E8E
+  192E  ae2e      MOV R6,2Eh
+  1930  af2f      MOV R7,2Fh
+  1932  e0        MOVX A,@DPTR
+  1933  fc        MOV R4,A
+  1934  900030    MOV DPTR,#0030h
+  1937  124e8e    LCALL L4E8E
+  193A  ec        MOV A,R4
+  193B  f0        MOVX @DPTR,A
+  193C  782e      MOV R0,#2Eh
+  193E  124ec8    LCALL L4EC8
+  1941  7830      MOV R0,#30h
+  1943  124ec8    LCALL L4EC8
+  1946  80cb      SJMP L1913
+L1948:
+  1948  7830      MOV R0,#30h
+  194A  124ec8    LCALL L4EC8
+L194D:
+  194D  7830      MOV R0,#30h
+  194F  124ec8    LCALL L4EC8
+  1952  ae30      MOV R6,30h
+  1954  af31      MOV R7,31h
+  1956  853483    MOV DPH,34h
+  1959  853582    MOV DPL,35h
+  195C  124e8e    LCALL L4E8E
+  195F  e0        MOVX A,@DPTR
+  1960  640a      XRL A,#0Ah
+  1962  600d      JZ L1971
+  1964  853483    MOV DPH,34h
+  1967  853582    MOV DPL,35h
+  196A  124e8e    LCALL L4E8E
+  196D  e0        MOVX A,@DPTR
+  196E  b40d02    CJNE A,#0Dh,L1973
+L1971:
+  1971  8024      SJMP L1997
+L1973:
+  1973  30110f    JNB 22h.1{b11},L1985
+  1976  ae2e      MOV R6,2Eh
+  1978  af2f      MOV R7,2Fh
+  197A  900030    MOV DPTR,#0030h
+  197D  124e8e    LCALL L4E8E
+  1980  740d      MOV A,#0Dh
+  1982  f0        MOVX @DPTR,A
+  1983  800d      SJMP L1992
+L1985:
+  1985  ae2e      MOV R6,2Eh
+  1987  af2f      MOV R7,2Fh
+  1989  900030    MOV DPTR,#0030h
+  198C  124e8e    LCALL L4E8E
+  198F  7404      MOV A,#04h
+  1991  f0        MOVX @DPTR,A
+L1992:
+  1992  782e      MOV R0,#2Eh
+  1994  124ec8    LCALL L4EC8
+L1997:
+  1997  02184d    LJMP L184D
+L199A:
+  199A  ae2e      MOV R6,2Eh
+  199C  af2f      MOV R7,2Fh
+  199E  900030    MOV DPTR,#0030h
+  19A1  124e8e    LCALL L4E8E
+  19A4  740d      MOV A,#0Dh
+  19A6  f0        MOVX @DPTR,A
+  19A7  751200    MOV 12h,#00h
+  19AA  121650    LCALL L1650
+  19AD  02210b    LJMP L210B
+  19B0  db 02 20 23 AE 2E AF 2F 74 F3 BE 00 2D 9F 40 2A 85  ; . #.../t...-.@*.
+  19C0  db 34 83 85 35 82 12 4E 8E E0 FC 90 02 24 12 4E 8E  ; 4..5..N.....$.N.
+  19D0  db EC F0 90 00 30 12 4E 8E 74 0D F0 78 2F 74 01 26  ; ....0.N.t..x/t.&
+  19E0  db F6 50 04 18 E4 36 F6 50 CA 74 F9 90 05 57 F8 E4  ; .P...6.P.t...W..
+  19F0  db F0 E8 A3 F0 75 2F 00 75 2E 00 AE 2E AF 2F 90 02  ; ....u/.u...../..
+  1A00  db 24 12 4E 8E E0 64 0D 60 1C 90 02 24 12 4E 8E E0  ; $.N..d.`...$.N..
+  1A10  db 64 20 60 0A 90 05 57 E5 2E F0 A3 E5 2F F0 78 2E  ; d `...W...../.x.
+  1A20  db 12 4E C8 80 D5 90 05 57 E0 FE A3 E0 FF 0F BF 00  ; .N.....W........
+  1A30  db 01 0E 90 02 24 12 4E 8E 74 0D F0 90 05 57 E0 FE  ; ....$.N.t....W..
+  1A40  db A3 E0 FF 90 02 26 12 4E 8E 74 0D F0 90 05 57 E4  ; .....&.N.t....W.
+  1A50  db F0 A3 F0 75 31 00 75 30 00 75 2F 00 75 2E 00 90  ; ...u1.u0.u/.u...
+  1A60  db 05 59 E4 F0 A3 F0 75 34 02 75 35 24 AE 30 AF 31  ; .Y....u4.u5$.0.1
+  1A70  db 85 34 83 85 35 82 12 4E 8E E0 B4 0A 26 0F BF 00  ; .4..5..N....&...
+  1A80  db 01 0E 85 34 83 85 35 82 12 4E 8E E0 B4 2E 14 AE  ; ...4..5..N......
+  1A90  db 30 AF 31 85 34 83 85 35 82 A3 A3 12 4E 8E E0 64  ; 0.1.4..5....N..d
+  1AA0  db 59 60 07 78 34 12 4E C8 80 C2 AE 34 AF 35 74 03  ; Y`.x4.N....4.5t.
+  1AB0  db 2F FF 50 01 0E 8E 34 8F 35 90 05 57 E4 F0 A3 F0  ; /.P...4.5..W....
+  1AC0  db 90 05 57 E0 FE A3 E0 FF 74 03 BE 00 2C 9F 40 29  ; ..W.....t...,.@)
+  1AD0  db 85 34 83 85 35 82 12 4E 8E FC E0 FD EC 90 05 58  ; .4..5..N.......X
+  1AE0  db E0 04 24 24 F8 A6 05 90 05 58 E0 24 01 F0 50 07  ; ..$$.....X.$..P.
+  1AF0  db 90 05 57 E0 34 00 F0 50 C7 85 34 83 85 35 82 A3  ; ..W.4..P..4..5..
+  1B00  db A3 A3 A3 E0 C3 94 30 40 32 85 34 83 85 35 82 A3  ; ......0@2.4..5..
+  1B10  db A3 A3 A3 E0 D3 94 39 50 22 85 34 83 85 35 82 7F  ; ......9P".4..5..
+  1B20  db 05 12 4E 99 E0 C3 94 30 40 11 85 34 83 85 35 82  ; ..N....0@..4..5.
+  1B30  db 7F 05 12 4E 99 E0 D3 94 39 40 02 80 35 85 34 83  ; ...N....9@..5.4.
+  1B40  db 85 35 82 A3 A3 A3 A3 E0 C3 94 30 75 F0 0A A4 FF  ; .5........0u....
+  1B50  db AE F0 85 34 83 85 35 82 8F 04 7F 05 12 4E 99 E0  ; ...4..5......N..
+  1B60  db C3 94 30 2C FC 50 01 0E 90 00 05 EE F0 A3 EC F0  ; ..0,.P..........
+  1B70  db 80 07 90 00 05 E4 F0 A3 F0 12 12 A9 12 00 26 90  ; ..............&.
+  1B80  db 05 57 E4 F0 A3 F0 90 05 58 E0 04 24 24 F8 E6 64  ; .W......X..$$..d
+  1B90  db 0D 60 20 90 05 58 E0 04 24 24 F8 90 05 57 E0 FE  ; .` ..X..$$...W..
+  1BA0  db A3 E0 FF 90 00 30 12 4E 8E E6 F0 90 05 57 12 4E  ; .....0.N.....W.N
+  1BB0  db 6A 80 D3 90 05 57 E0 FE A3 E0 FF 90 00 30 12 4E  ; j....W.......0.N
+  1BC0  db 8E 74 05 F0 90 05 57 12 4E 6A 90 05 57 E0 F8 A3  ; .t....W.Nj..W...
+  1BD0  db E0 90 05 59 C8 F0 A3 C8 F0 90 05 57 E0 F5 2E A3  ; ...Y.......W....
+  1BE0  db E0 F5 2F 90 05 58 E0 F5 16 75 34 02 75 35 24 90  ; ../..X...u4.u5$.
+  1BF0  db 05 57 E4 F0 A3 F0 75 31 00 75 30 00 AE 30 AF 31  ; .W....u1.u0..0.1
+  1C00  db 85 34 83 85 35 82 12 4E 8E E0 64 0D 60 10 90 05  ; .4..5..N..d.`...
+  1C10  db 57 E0 FC A3 E0 FD ED B4 FF 07 EC B4 FF 03 02 1F  ; W...............
+  1C20  db 38 AE 30 AF 31 85 34 83 85 35 82 12 4E 8E E0 B4  ; 8.0.1.4..5..N...
+  1C30  db 0A 02 80 03 02 1E CA 78 30 12 4E C8 AE 30 AF 31  ; .......x0.N..0.1
+  1C40  db 85 34 83 85 35 82 12 4E 8E E0 B4 2E 02 80 03 02  ; .4..5..N........
+  1C50  db 1E 36 78 30 12 4E C8 AE 30 AF 31 85 34 83 85 35  ; .6x0.N..0.1.4..5
+  1C60  db 82 12 4E 8E E0 B4 57 17 C2 13 AE 2E AF 2F 90 00  ; ..N...W....../..
+  1C70  db 30 12 4E 8E 74 42 F0 78 2E 12 4E C8 02 1E 2E AE  ; 0.N.tB.x..N.....
+  1C80  db 30 AF 31 85 34 83 85 35 82 12 4E 8E E0 B4 58 17  ; 0.1.4..5..N...X.
+  1C90  db D2 13 AE 2E AF 2F 90 00 30 12 4E 8E 74 49 F0 78  ; ...../..0.N.tI.x
+  1CA0  db 2E 12 4E C8 02 1E 2E AE 30 AF 31 85 34 83 85 35  ; ..N.....0.1.4..5
+  1CB0  db 82 12 4E 8E E0 B4 43 1A 90 05 57 74 FF F0 A3 74  ; ..N...C...Wt...t
+  1CC0  db FF F0 AE 2E AF 2F 90 00 2E 12 4E 8E 74 0D F0 02  ; ...../....N.t...
+  1CD0  db 1E 2E AE 30 AF 31 85 34 83 85 35 82 12 4E 8E E0  ; ...0.1.4..5..N..
+  1CE0  db B4 59 1A 90 05 57 74 FF F0 A3 74 FF F0 AE 2E AF  ; .Y...Wt...t.....
+  1CF0  db 2F 90 00 2E 12 4E 8E 74 0D F0 02 1E 2E AE 30 AF  ; /....N.t......0.
+  1D00  db 31 85 34 83 85 35 82 12 4E 8E E0 B4 2B 05 C2 18  ; 1.4..5..N...+...
+  1D10  db 02 1E 2E AE 30 AF 31 85 34 83 85 35 82 12 4E 8E  ; ....0.1.4..5..N.
+  1D20  db E0 B4 2D 05 D2 18 02 1E 2E AE 30 AF 31 85 34 83  ; ..-.......0.1.4.
+  1D30  db 85 35 82 12 4E 8E AE 2E AF 2F E0 FC 90 00 30 12  ; .5..N..../....0.
+  1D40  db 4E 8E EC F0 AC 30 AD 31 85 34 83 85 35 82 8C 06  ; N....0.1.4..5...
+  1D50  db 8D 07 12 4E 8E E0 B4 41 06 A2 18 B3 B3 40 02 80  ; ...N...A.....@..
+  1D60  db 0D AE 2E AF 2F 90 00 30 12 4E 8E 74 5B F0 AE 30  ; ..../..0.N.t[..0
+  1D70  db AF 31 85 34 83 85 35 82 12 4E 8E E0 B4 4F 06 A2  ; .1.4..5..N...O..
+  1D80  db 18 B3 B3 40 02 80 0D AE 2E AF 2F 90 00 30 12 4E  ; ...@....../..0.N
+  1D90  db 8E 74 5C F0 AE 30 AF 31 85 34 83 85 35 82 12 4E  ; .t\..0.1.4..5..N
+  1DA0  db 8E E0 B4 55 06 A2 18 B3 B3 40 02 80 0D AE 2E AF  ; ...U.....@......
+  1DB0  db 2F 90 00 30 12 4E 8E 74 5D F0 AE 30 AF 31 85 34  ; /..0.N.t]..0.1.4
+  1DC0  db 83 85 35 82 12 4E 8E E0 B4 41 05 A2 18 B3 40 02  ; ..5..N...A....@.
+  1DD0  db 80 0D AE 2E AF 2F 90 00 30 12 4E 8E 74 7B F0 AE  ; ...../..0.N.t{..
+  1DE0  db 30 AF 31 85 34 83 85 35 82 12 4E 8E E0 B4 4F 05  ; 0.1.4..5..N...O.
+  1DF0  db A2 18 B3 40 02 80 0D AE 2E AF 2F 90 00 30 12 4E  ; ...@....../..0.N
+  1E00  db 8E 74 7C F0 AE 30 AF 31 85 34 83 85 35 82 12 4E  ; .t|..0.1.4..5..N
+  1E10  db 8E E0 B4 55 05 A2 18 B3 40 02 80 0D AE 2E AF 2F  ; ...U....@....../
+  1E20  db 90 00 30 12 4E 8E 74 7D F0 78 2E 12 4E C8 78 30  ; ..0.N.t}.x..N.x0
+  1E30  db 12 4E C8 02 1E C8 A2 19 50 03 02 1E C8 A2 13 40  ; .N......P......@
+  1E40  db 28 05 15 AE 2E AF 2F 90 00 30 12 4E 8E 74 04 F0  ; (...../..0.N.t..
+  1E50  db 78 2E 12 4E C8 AE 2E AF 2F 90 00 30 12 4E 8E 74  ; x..N..../..0.N.t
+  1E60  db 42 F0 78 2E 12 4E C8 80 5B E5 15 64 01 60 0B E5  ; B.x..N..[..d.`..
+  1E70  db 15 64 03 60 05 E5 15 B4 05 26 AE 2E AF 2F 90 00  ; .d.`.....&.../..
+  1E80  db 30 12 4E 8E 74 03 F0 78 2E 12 4E C8 AE 2E AF 2F  ; 0.N.t..x..N..../
+  1E90  db 90 00 30 12 4E 8E 74 45 F0 78 2E 12 4E C8 80 24  ; ..0.N.tE.x..N..$
+  1EA0  db AE 2E AF 2F 90 00 30 12 4E 8E 74 04 F0 78 2E 12  ; .../..0.N.t..x..
+  1EB0  db 4E C8 AE 2E AF 2F 90 00 30 12 4E 8E 74 49 F0 78  ; N..../..0.N.tI.x
+  1EC0  db 2E 12 4E C8 05 15 D2 19 80 6B A2 19 B3 B3 50 12  ; ..N......k....P.
+  1ED0  db AE 30 AF 31 85 34 83 85 35 82 12 4E 8E E0 64 20  ; .0.1.4..5..N..d 
+  1EE0  db 60 02 80 07 78 30 12 4E C8 80 4A A2 18 40 1F AE  ; `...x0.N..J..@..
+  1EF0  db 30 AF 31 85 34 83 85 35 82 12 4E 8E E0 24 20 AE  ; 0.1.4..5..N..$ .
+  1F00  db 2E AF 2F FC 90 00 30 12 4E 8E EC F0 80 1B AE 30  ; ../...0.N......0
+  1F10  db AF 31 85 34 83 85 35 82 12 4E 8E AE 2E AF 2F E0  ; .1.4..5..N..../.
+  1F20  db FC 90 00 30 12 4E 8E EC F0 C2 19 78 2E 12 4E C8  ; ...0.N.....x..N.
+  1F30  db 78 30 12 4E C8 02 1B FC 90 05 5B E0 7F 0E 90 4B  ; x0.N......[....K
+  1F40  db 2F 12 4E 13 E4 93 60 12 90 05 5B E0 7F 0E 90 4B  ; /.N...`...[....K
+  1F50  db 34 12 4E 13 E4 93 64 01 60 02 80 5D 74 04 90 05  ; 4.N...d.`..]t...
+  1F60  db 72 F0 E5 28 64 20 60 05 E5 28 B4 0D 38 74 03 90  ; r..(d `..(..8t..
+  1F70  db 05 72 F0 E5 27 64 20 60 05 E5 27 B4 0D 27 74 02  ; .r..'d `..'..'t.
+  1F80  db 90 05 72 F0 E5 26 64 20 60 05 E5 26 B4 0D 16 90  ; ..r..&d `..&....
+  1F90  db 05 72 74 01 F0 E5 25 64 20 60 05 E5 25 B4 0D 05  ; .rt...%d `..%...
+  1FA0  db 90 05 72 E4 F0 90 05 72 E0 7F 03 90 4B 1D 12 4E  ; ..r....r....K..N
+  1FB0  db 13 E4 93 90 05 6A F0 80 12 90 05 5B E0 7F 0E 90  ; .....j.....[....
+  1FC0  db 4B 2F 12 4E 13 E4 93 90 05 6A F0 85 16 12 12 16  ; K/.N.....j......
+  1FD0  db 50 75 2F 00 75 2E 00 AE 2E AF 2F E5 16 2F FF 50  ; Pu/.u...../../.P
+  1FE0  db 01 0E 90 00 30 12 4E 8E E0 64 0D 60 26 AE 2E AF  ; ....0.N..d.`&...
+  1FF0  db 2F E5 16 2F FF 50 01 0E 90 00 30 12 4E 8E AE 2E  ; /../.P....0.N...
+  2000  db AF 2F E0 FC 90 02 24 12 4E 8E EC F0 78 2E 12 4E  ; ./....$.N...x..N
+  2010  db C8 80 C4 AE 2E AF 2F 90 02 24 12 4E 8E 74 0D F0  ; ....../..$.N.t..
+  2020  db 02 21 0B 90 4D 6B 78 34 12 4E B6 C2 0B 75 2F 00  ; .!..Mkx4.N...u/.
+  2030  db 75 2E 00 AE 2E AF 2F AC 13 AD 14 ED C3 9F EC 9E  ; u...../.........
+  2040  db 50 03 02 21 0B AA 34 AB 35 8A 44 8B 45 74 0D F5  ; P..!..4.5.D.Et..
+  2050  db 46 7E FF 7F FF 8A 04 8B 05 12 00 03 8E 47 8F 48  ; F~...........G.H
+  2060  db 12 4D A2 90 05 57 EE F0 A3 EF F0 EF B4 FF 23 EE  ; .M...W........#.
+  2070  db B4 FF 1F D2 0B 90 4D 6B 78 34 12 4E B6 90 05 57  ; ......Mkx4.N...W
+  2080  db E4 F0 A3 04 F0 AE 13 AF 14 0F BF 00 01 0E 8E 2E  ; ................
+  2090  db 8F 2F AE 34 AF 35 90 05 57 E0 FC A3 E0 FD EF 2D  ; ./.4.5..W......-
+  20A0  db FD EE 3C FC 74 02 2D FD 50 01 0C 8C 34 8D 35 90  ; ..<.t.-.P...4.5.
+  20B0  db 05 57 E4 F0 A3 F0 90 05 57 E0 FE A3 E0 FF 85 34  ; .W......W......4
+  20C0  db 83 85 35 82 12 4E 8E E0 B4 41 08 90 05 57 12 4E  ; ..5..N...A...W.N
+  20D0  db 6A 80 E3 90 05 57 E0 FE A3 E0 FF 74 03 BE 00 03  ; j....W.....t....
+  20E0  db 9F 50 17 D2 0B 90 4D 6B 78 34 12 4E B6 AC 13 AD  ; .P....Mkx4.N....
+  20F0  db 14 0D BD 00 01 0C 8C 2E 8D 2F 78 2F 74 01 26 F6  ; ........./x/t.&.
+  2100  db 50 04 18 E4 36 F6 40 03 02 20 33  ; P...6.@.. 3
+L210B:
+  210B  22        RET
+L210C:
+  210C  758921    MOV TMOD,#21h
+  210F  758850    MOV TCON,#50h
+  2112  7598d8    MOV SCON,#D8h
+  2115  758b00    MOV TL1,#00h
+  2118  8000      SJMP L211A
+L211A:
+  211A  758de6    MOV TH1,#E6h
+  211D  758a0c    MOV TL0,#0Ch
+  2120  758cfe    MOV TH0,#FEh
+  2123  75b800    MOV IP,#00h
+  2126  758780    MOV PCON,#80h
+  2129  752f01    MOV 2Fh,#01h
+  212C  752e00    MOV 2Eh,#00h
+L212F:
+  212F  ae2e      MOV R6,2Eh
+  2131  af2f      MOV R7,2Fh
+  2133  7406      MOV A,#06h
+  2135  be0018    CJNE R6,#00h,L2150
+  2138  9f        SUBB A,R7
+  2139  4015      JC L2150
+  213B  e52f      MOV A,2Fh
+  213D  2424      ADD A,#24h
+  213F  f8        MOV R0,A
+  2140  7620      MOV @R0,#20h
+  2142  782f      MOV R0,#2Fh
+  2144  7401      MOV A,#01h
+  2146  26        ADD A,@R0
+  2147  f6        MOV @R0,A
+  2148  5004      JNC L214E
+  214A  18        DEC R0
+  214B  e4        CLR A
+  214C  36        ADDC A,@R0
+  214D  f6        MOV @R0,A
+L214E:
+  214E  50df      JNC L212F
+L2150:
+  2150  752439    MOV 24h,#39h
+  2153  900015    MOV DPTR,#0015h
+  2156  e4        CLR A
+  2157  f0        MOVX @DPTR,A
+  2158  a3        INC DPTR
+  2159  f0        MOVX @DPTR,A
+  215A  900019    MOV DPTR,#0019h
+  215D  e4        CLR A
+  215E  f0        MOVX @DPTR,A
+  215F  a3        INC DPTR
+  2160  f0        MOVX @DPTR,A
+  2161  90001d    MOV DPTR,#001Dh
+  2164  e4        CLR A
+  2165  f0        MOVX @DPTR,A
+  2166  a3        INC DPTR
+  2167  f0        MOVX @DPTR,A
+  2168  900023    MOV DPTR,#0023h
+  216B  e4        CLR A
+  216C  f0        MOVX @DPTR,A
+  216D  a3        INC DPTR
+  216E  f0        MOVX @DPTR,A
+  216F  900029    MOV DPTR,#0029h
+  2172  e4        CLR A
+  2173  f0        MOVX @DPTR,A
+  2174  a3        INC DPTR
+  2175  f0        MOVX @DPTR,A
+  2176  75290d    MOV 29h,#0Dh
+  2179  900001    MOV DPTR,#0001h
+  217C  e4        CLR A
+  217D  f0        MOVX @DPTR,A
+  217E  900000    MOV DPTR,#0000h
+  2181  e4        CLR A
+  2182  f0        MOVX @DPTR,A
+  2183  c20e      CLR 21h.6{b0E}
+  2185  d2b4      SETB T0
+  2187  c20c      CLR 21h.4{b0C}
+  2189  90056c    MOV DPTR,#056Ch
+  218C  e4        CLR A
+  218D  f0        MOVX @DPTR,A
+  218E  90056b    MOV DPTR,#056Bh
+  2191  e4        CLR A
+  2192  f0        MOVX @DPTR,A
+  2193  c212      CLR 22h.2{b12}
+  2195  753100    MOV 31h,#00h
+  2198  753000    MOV 30h,#00h
+  219B  c213      CLR 22h.3{b13}
+  219D  c215      CLR 22h.5{b15}
+  219F  c214      CLR 22h.4{b14}
+  21A1  c216      CLR 22h.6{b16}
+  21A3  7402      MOV A,#02h
+  21A5  90056d    MOV DPTR,#056Dh
+  21A8  f0        MOVX @DPTR,A
+  21A9  c210      CLR 22h.0{b10}
+  21AB  c211      CLR 22h.1{b11}
+  21AD  753300    MOV 33h,#00h
+  21B0  753200    MOV 32h,#00h
+  21B3  90002d    MOV DPTR,#002Dh
+  21B6  e4        CLR A
+  21B7  f0        MOVX @DPTR,A
+  21B8  900555    MOV DPTR,#0555h
+  21BB  e4        CLR A
+  21BC  f0        MOVX @DPTR,A
+  21BD  c204      CLR 20h.4{b04}
+  21BF  c205      CLR 20h.5{b05}
+  21C1  900554    MOV DPTR,#0554h
+  21C4  e4        CLR A
+  21C5  f0        MOVX @DPTR,A
+  21C6  d202      SETB 20h.2{b02}
+  21C8  900553    MOV DPTR,#0553h
+  21CB  e4        CLR A
+  21CC  f0        MOVX @DPTR,A
+  21CD  752d00    MOV 2Dh,#00h
+  21D0  c201      CLR 20h.1{b01}
+  21D2  d206      SETB 20h.6{b06}
+  21D4  c208      CLR 21h.0{b08}
+  21D6  74ff      MOV A,#FFh
+  21D8  90002e    MOV DPTR,#002Eh
+  21DB  f0        MOVX @DPTR,A
+  21DC  c209      CLR 21h.1{b09}
+  21DE  c20a      CLR 21h.2{b0A}
+  21E0  c20b      CLR 21h.3{b0B}
+  21E2  900570    MOV DPTR,#0570h
+  21E5  e4        CLR A
+  21E6  f0        MOVX @DPTR,A
+  21E7  900569    MOV DPTR,#0569h
+  21EA  e4        CLR A
+  21EB  f0        MOVX @DPTR,A
+  21EC  90056a    MOV DPTR,#056Ah
+  21EF  e4        CLR A
+  21F0  f0        MOVX @DPTR,A
+  21F1  900571    MOV DPTR,#0571h
+  21F4  e4        CLR A
+  21F5  f0        MOVX @DPTR,A
+  21F6  c200      CLR 20h.0{b00}
+  21F8  900560    MOV DPTR,#0560h
+  21FB  7416      MOV A,#16h
+  21FD  f0        MOVX @DPTR,A
+  21FE  a3        INC DPTR
+  21FF  7400      MOV A,#00h
+  2201  f0        MOVX @DPTR,A
+  2202  752b2f    MOV 2Bh,#2Fh
+  2205  752cff    MOV 2Ch,#FFh
+  2208  900562    MOV DPTR,#0562h
+  220B  74ff      MOV A,#FFh
+  220D  f0        MOVX @DPTR,A
+  220E  a3        INC DPTR
+  220F  74ff      MOV A,#FFh
+  2211  f0        MOVX @DPTR,A
+  2212  900556    MOV DPTR,#0556h
+  2215  e4        CLR A
+  2216  f0        MOVX @DPTR,A
+  2217  752f00    MOV 2Fh,#00h
+  221A  752e00    MOV 2Eh,#00h
+L221D:
+  221D  ae2e      MOV R6,2Eh
+  221F  af2f      MOV R7,2Fh
+  2221  748b      MOV A,#8Bh
+  2223  be003b    CJNE R6,#00h,L2261
+  2226  9f        SUBB A,R7
+  2227  4038      JC L2261
+  2229  90057e    MOV DPTR,#057Eh
+  222C  12000e    LCALL L000E
+  222F  7400      MOV A,#00h
+  2231  f8        MOV R0,A
+  2232  e4        CLR A
+  2233  f0        MOVX @DPTR,A
+  2234  e8        MOV A,R0
+  2235  a3        INC DPTR
+  2236  f0        MOVX @DPTR,A
+  2237  900696    MOV DPTR,#0696h
+  223A  12000e    LCALL L000E
+  223D  7400      MOV A,#00h
+  223F  f8        MOV R0,A
+  2240  e4        CLR A
+  2241  f0        MOVX @DPTR,A
+  2242  e8        MOV A,R0
+  2243  a3        INC DPTR
+  2244  f0        MOVX @DPTR,A
+  2245  9007ae    MOV DPTR,#07AEh
+  2248  12000e    LCALL L000E
+  224B  7400      MOV A,#00h
+  224D  f8        MOV R0,A
+  224E  e4        CLR A
+  224F  f0        MOVX @DPTR,A
+  2250  e8        MOV A,R0
+  2251  a3        INC DPTR
+  2252  f0        MOVX @DPTR,A
+  2253  782f      MOV R0,#2Fh
+  2255  7401      MOV A,#01h
+  2257  26        ADD A,@R0
+  2258  f6        MOV @R0,A
+  2259  5004      JNC L225F
+  225B  18        DEC R0
+  225C  e4        CLR A
+  225D  36        ADDC A,@R0
+  225E  f6        MOV @R0,A
+L225F:
+  225F  50bc      JNC L221D
+L2261:
+  2261  7442      MOV A,#42h
+  2263  900030    MOV DPTR,#0030h
+  2266  f0        MOVX @DPTR,A
+  2267  7420      MOV A,#20h
+  2269  900031    MOV DPTR,#0031h
+  226C  f0        MOVX @DPTR,A
+  226D  740d      MOV A,#0Dh
+  226F  900032    MOV DPTR,#0032h
+  2272  f0        MOVX @DPTR,A
+  2273  e590      MOV A,P1
+  2275  f4        CPL A
+  2276  5401      ANL A,#01h
+  2278  fe        MOV R6,A
+  2279  e590      MOV A,P1
+  227B  f4        CPL A
+  227C  5404      ANL A,#04h
+  227E  c3        CLR C
+  227F  13        RRC A
+  2280  4e        ORL A,R6
+  2281  fe        MOV R6,A
+  2282  e590      MOV A,P1
+  2284  f4        CPL A
+  2285  5402      ANL A,#02h
+  2287  c3        CLR C
+  2288  33        RLC A
+  2289  4e        ORL A,R6
+  228A  fe        MOV R6,A
+  228B  e590      MOV A,P1
+  228D  f4        CPL A
+  228E  5408      ANL A,#08h
+  2290  4e        ORL A,R6
+  2291  90055b    MOV DPTR,#055Bh
+  2294  f0        MOVX @DPTR,A
+  2295  90055b    MOV DPTR,#055Bh
+  2298  e0        MOVX A,@DPTR
+  2299  7f0e      MOV R7,#0Eh
+  229B  904b2f    MOV DPTR,#4B2Fh
+  229E  124e13    LCALL L4E13
+  22A1  fe        MOV R6,A
+  22A2  e4        CLR A
+  22A3  93        MOVC A,@A+DPTR
+  22A4  ff        MOV R7,A
+  22A5  ee        MOV A,R6
+  22A6  90055b    MOV DPTR,#055Bh
+  22A9  e0        MOVX A,@DPTR
+  22AA  8f04      MOV 04h,R7
+  22AC  7f0e      MOV R7,#0Eh
+  22AE  904b31    MOV DPTR,#4B31h
+  22B1  124e13    LCALL L4E13
+  22B4  ec        MOV A,R4
+  22B5  fe        MOV R6,A
+  22B6  e4        CLR A
+  22B7  93        MOVC A,@A+DPTR
+  22B8  ff        MOV R7,A
+  22B9  ee        MOV A,R6
+  22BA  2f        ADD A,R7
+  22BB  90055c    MOV DPTR,#055Ch
+  22BE  f0        MOVX @DPTR,A
+  22BF  90055b    MOV DPTR,#055Bh
+  22C2  e0        MOVX A,@DPTR
+  22C3  7f0e      MOV R7,#0Eh
+  22C5  904b30    MOV DPTR,#4B30h
+  22C8  124e13    LCALL L4E13
+  22CB  e4        CLR A
+  22CC  93        MOVC A,@A+DPTR
+  22CD  90055d    MOV DPTR,#055Dh
+  22D0  f0        MOVX @DPTR,A
+  22D1  90055b    MOV DPTR,#055Bh
+  22D4  e0        MOVX A,@DPTR
+  22D5  7f0e      MOV R7,#0Eh
+  22D7  904b2d    MOV DPTR,#4B2Dh
+  22DA  124e13    LCALL L4E13
+  22DD  7836      MOV R0,#36h
+  22DF  124eb6    LCALL L4EB6
+  22E2  90055b    MOV DPTR,#055Bh
+  22E5  e0        MOVX A,@DPTR
+  22E6  7f0e      MOV R7,#0Eh
+  22E8  904b38    MOV DPTR,#4B38h
+  22EB  124e13    LCALL L4E13
+  22EE  e4        CLR A
+  22EF  93        MOVC A,@A+DPTR
+  22F0  f524      MOV 24h,A
+  22F2  752f00    MOV 2Fh,#00h
+  22F5  752e00    MOV 2Eh,#00h
+L22F8:
+  22F8  ae2e      MOV R6,2Eh
+  22FA  af2f      MOV R7,2Fh
+  22FC  7440      MOV A,#40h
+  22FE  be001a    CJNE R6,#00h,L231B
+  2301  9f        SUBB A,R7
+  2302  4017      JC L231B
+  2304  90031e    MOV DPTR,#031Eh
+  2307  124e8e    LCALL L4E8E
+  230A  7420      MOV A,#20h
+  230C  f0        MOVX @DPTR,A
+  230D  782f      MOV R0,#2Fh
+  230F  7401      MOV A,#01h
+  2311  26        ADD A,@R0
+  2312  f6        MOV @R0,A
+  2313  5004      JNC L2319
+  2315  18        DEC R0
+  2316  e4        CLR A
+  2317  36        ADDC A,@R0
+  2318  f6        MOV @R0,A
+L2319:
+  2319  50dd      JNC L22F8
+L231B:
+  231B  22        RET
+L231C:
+  231C  75a800    MOV IE,#00h
+  231F  12210c    LCALL L210C
+  2322  75a882    MOV IE,#82h
+  2325  75a892    MOV IE,#92h
+  2328  120692    LCALL L0692
+  232B  75a892    MOV IE,#92h
+L232E:
+  232E  a204      MOV C,20h.4{b04}
+  2330  b3        CPL C
+  2331  8201      ANL C,20h.1{b01}
+  2333  4003      JC L2338
+  2335  02242b    LJMP L242B
+L2338:
+  2338  900562    MOV DPTR,#0562h
+  233B  74ff      MOV A,#FFh
+  233D  f0        MOVX @DPTR,A
+  233E  a3        INC DPTR
+  233F  74ff      MOV A,#FFh
+  2341  f0        MOVX @DPTR,A
+  2342  c201      CLR 20h.1{b01}
+  2344  300605    JNB 20h.6{b06},L234C
+  2347  c210      CLR 22h.0{b10}
+  2349  0223e0    LJMP L23E0
+L234C:
+  234C  8000      SJMP L234E
+L234E:
+  234E  8000      SJMP L2350
+L2350:
+  2350  900556    MOV DPTR,#0556h
+  2353  e0        MOVX A,@DPTR
+  2354  6401      XRL A,#01h
+  2356  6000      JZ L2358
+L2358:
+  2358  754403    MOV 44h,#03h
+  235B  75455f    MOV 45h,#5Fh
+  235E  740d      MOV A,#0Dh
+  2360  f546      MOV 46h,A
+  2362  7548f9    MOV 48h,#F9h
+  2365  754700    MOV 47h,#00h
+  2368  124da2    LCALL L4DA2
+  236B  900557    MOV DPTR,#0557h
+  236E  ee        MOV A,R6
+  236F  f0        MOVX @DPTR,A
+  2370  a3        INC DPTR
+  2371  ef        MOV A,R7
+  2372  f0        MOVX @DPTR,A
+  2373  74f9      MOV A,#F9h
+  2375  be0003    CJNE R6,#00h,L237B
+  2378  9f        SUBB A,R7
+  2379  5011      JNC L238C
+L237B:
+  237B  740d      MOV A,#0Dh
+  237D  900458    MOV DPTR,#0458h
+  2380  f0        MOVX @DPTR,A
+  2381  74f9      MOV A,#F9h
+  2383  900557    MOV DPTR,#0557h
+  2386  f8        MOV R0,A
+  2387  e4        CLR A
+  2388  f0        MOVX @DPTR,A
+  2389  e8        MOV A,R0
+  238A  a3        INC DPTR
+  238B  f0        MOVX @DPTR,A
+L238C:
+  238C  8052      SJMP L23E0
+  238E  db AE 2E AF 2F 90 05 57 E0 FC A3 E0 FD ED C3 9F EC  ; .../..W.........
+  239E  db 9E 40 3A 90 01 2A 12 4E 8E E0 FA 90 03 5F 12 4E  ; .@:..*.N....._.N
+  23AE  db 8E EA FA E0 FB EA 6B 60 16 D2 12 C2 10 C2 11 90  ; ......k`........
+  23BE  db 03 5F 12 4E 8E E0 FA 90 01 2A 12 4E 8E EA F0 78  ; ._.N.....*.N...x
+  23CE  db 2F 74 01 26 F6 50 04 18 E4 36 F6 50 B3 90 05 56  ; /t.&.P...6.P...V
+  23DE  db E4 F0  ; ..
+L23E0:
+  23E0  300743    JNB 20h.7{b07},L2426
+  23E3  a212      MOV C,22h.2{b12}
+  23E5  b3        CPL C
+  23E6  501d      JNC L2405
+  23E8  90055e    MOV DPTR,#055Eh
+  23EB  e0        MOVX A,@DPTR
+  23EC  fe        MOV R6,A
+  23ED  a3        INC DPTR
+  23EE  e0        MOVX A,@DPTR
+  23EF  ff        MOV R7,A
+  23F0  7401      MOV A,#01h
+  23F2  be0003    CJNE R6,#00h,L23F8
+  23F5  9f        SUBB A,R7
+  23F6  500d      JNC L2405
+L23F8:
+  23F8  a210      MOV C,22h.0{b10}
+  23FA  b3        CPL C
+  23FB  5008      JNC L2405
+  23FD  90055b    MOV DPTR,#055Bh
+  2400  e0        MOVX A,@DPTR
+  2401  64ff      XRL A,#FFh
+  2403  6002      JZ L2407
+L2405:
+  2405  8002      SJMP L2409
+L2407:
+  2407  d212      SETB 22h.2{b12}
+L2409:
+  2409  c207      CLR 20h.7{b07}
+  240B  90055e    MOV DPTR,#055Eh
+  240E  e0        MOVX A,@DPTR
+  240F  fe        MOV R6,A
+  2410  a3        INC DPTR
+  2411  e0        MOVX A,@DPTR
+  2412  ff        MOV R7,A
+  2413  ef        MOV A,R7
+  2414  4e        ORL A,R6
+  2415  700f      JNZ L2426
+  2417  900560    MOV DPTR,#0560h
+  241A  e0        MOVX A,@DPTR
+  241B  f8        MOV R0,A
+  241C  a3        INC DPTR
+  241D  e0        MOVX A,@DPTR
+  241E  90055e    MOV DPTR,#055Eh
+  2421  c8        XCH A,R0
+  2422  f0        MOVX @DPTR,A
+  2423  a3        INC DPTR
+  2424  c8        XCH A,R0
+  2425  f0        MOVX @DPTR,A
+L2426:
+  2426  90002d    MOV DPTR,#002Dh
+  2429  e4        CLR A
+  242A  f0        MOVX @DPTR,A
+L242B:
+  242B  300905    JNB 21h.1{b09},L2433
+  242E  900556    MOV DPTR,#0556h
+  2431  e4        CLR A
+  2432  f0        MOVX @DPTR,A
+L2433:
+  2433  8000      SJMP L2435
+L2435:
+  2435  900556    MOV DPTR,#0556h
+  2438  e0        MOVX A,@DPTR
+  2439  6005      JZ L2440
+  243B  a206      MOV C,20h.6{b06}
+  243D  b3        CPL C
+  243E  4002      JC L2442
+L2440:
+  2440  8051      SJMP L2493
+L2442:
+  2442  752f00    MOV 2Fh,#00h
+  2445  752e00    MOV 2Eh,#00h
+L2448:
+  2448  ae2e      MOV R6,2Eh
+  244A  af2f      MOV R7,2Fh
+  244C  74f8      MOV A,#F8h
+  244E  be0031    CJNE R6,#00h,L2482
+  2451  9f        SUBB A,R7
+  2452  402e      JC L2482
+  2454  900459    MOV DPTR,#0459h
+  2457  124e8e    LCALL L4E8E
+  245A  e0        MOVX A,@DPTR
+  245B  fc        MOV R4,A
+  245C  90012a    MOV DPTR,#012Ah
+  245F  124e8e    LCALL L4E8E
+  2462  ec        MOV A,R4
+  2463  f0        MOVX @DPTR,A
+  2464  900459    MOV DPTR,#0459h
+  2467  124e8e    LCALL L4E8E
+  246A  e0        MOVX A,@DPTR
+  246B  b40d06    CJNE A,#0Dh,L2474
+  246E  752ffb    MOV 2Fh,#FBh
+  2471  752e00    MOV 2Eh,#00h
+L2474:
+  2474  782f      MOV R0,#2Fh
+  2476  7401      MOV A,#01h
+  2478  26        ADD A,@R0
+  2479  f6        MOV @R0,A
+  247A  5004      JNC L2480
+  247C  18        DEC R0
+  247D  e4        CLR A
+  247E  36        ADDC A,@R0
+  247F  f6        MOV @R0,A
+L2480:
+  2480  50c6      JNC L2448
+L2482:
+  2482  740d      MOV A,#0Dh
+  2484  900223    MOV DPTR,#0223h
+  2487  f0        MOVX @DPTR,A
+  2488  d212      SETB 22h.2{b12}
+  248A  c210      CLR 22h.0{b10}
+  248C  c211      CLR 22h.1{b11}
+  248E  900556    MOV DPTR,#0556h
+  2491  e4        CLR A
+  2492  f0        MOVX @DPTR,A
+L2493:
+  2493  201203    JB 22h.2{b12},L2499
+  2496  022d77    LJMP L2D77
+L2499:
+  2499  c212      CLR 22h.2{b12}
+  249B  900569    MOV DPTR,#0569h
+  249E  e4        CLR A
+  249F  f0        MOVX @DPTR,A
+  24A0  900570    MOV DPTR,#0570h
+  24A3  e4        CLR A
+  24A4  f0        MOVX @DPTR,A
+  24A5  753205    MOV 32h,#05h
+  24A8  7533dc    MOV 33h,#DCh
+  24AB  90056f    MOV DPTR,#056Fh
+  24AE  e4        CLR A
+  24AF  f0        MOVX @DPTR,A
+  24B0  8000      SJMP L24B2
+L24B2:
+  24B2  8023      SJMP L24D7
+  24B4  db AE 2E AF 2F 74 40 BE 00 1A 9F 40 17 90 03 1E 12  ; .../t@....@.....
+  24C4  db 4E 8E 74 20 F0 78 2F 74 01 26 F6 50 04 18 E4 36  ; N.t .x/t.&.P...6
+  24D4  db F6 50 DD  ; .P.
+L24D7:
+  24D7  900554    MOV DPTR,#0554h
+  24DA  e4        CLR A
+  24DB  f0        MOVX @DPTR,A
+  24DC  022698    LJMP L2698
+  24DF  db AE 2E AF 2F 74 04 BE 00 18 9F 40 15 E5 2F 24 24  ; .../t.....@../$$
+  24EF  db F8 76 20 78 2F 74 01 26 F6 50 04 18 E4 36 F6 50  ; .v x/t.&.P...6.P
+  24FF  db DF AE 34 AF 35 8E 44 8F 45 74 0D F5 46 75 48 FA  ; ..4.5.D.Et..FuH.
+  250F  db 75 47 00 12 4D A2 8E 30 8F 31 EF B4 FF 0A EE B4  ; uG..M..0.1......
+  251F  db FF 06 75 31 F9 75 30 00 AE 34 AF 35 8E 44 8F 45  ; ..u1.u0..4.5.D.E
+  252F  db 74 05 F5 46 85 30 47 85 31 48 12 4D A2 90 05 57  ; t..F.0G.1H.M...W
+  253F  db EE F0 A3 EF F0 EF B4 FF 33 EE B4 FF 2F AC 34 AD  ; ........3.../.4.
+  254F  db 35 8C 44 8D 45 74 03 F5 46 85 30 47 85 31 48 12  ; 5.D.Et..F.0G.1H.
+  255F  db 4D A2 90 05 57 EE F0 A3 EF F0 74 06 BE 00 03 9F  ; M...W.....t.....
+  256F  db 50 0A 90 05 57 74 FF F0 A3 74 FF F0 90 05 57 12  ; P...Wt...t....W.
+  257F  db 4E 6A 75 2F 01 75 2E 00 80 5E 90 05 57 E0 FE A3  ; Nju/.u...^..W...
+  258F  db E0 FF AC 2E AD 2F EF D3 9D EE 9C 40 21 1D BD FF  ; ...../.....@!...
+  259F  db 01 1C 85 34 83 85 35 82 8C 06 8D 07 12 4E 8E E5  ; ...4..5......N..
+  25AF  db 2F 14 24 24 F8 E0 F6 78 2E 12 4E C8 80 CC E5 24  ; /.$$...x..N....$
+  25BF  db B4 20 03 75 24 39 90 05 5B E0 7F 0E 90 4B 37 12  ; . .u$9..[....K7.
+  25CF  db 4E 13 E4 93 70 10 90 05 5B E0 7F 0E 90 4B 38 12  ; N...p...[....K8.
+  25DF  db 4E 13 E4 93 F5 24 80 4A 90 05 57 E0 FE A3 E0 FF  ; N....$.J..W.....
+  25EF  db AC 2E AD 2F EF D3 9D EE 9C 40 20 1D BD FF 01 1C  ; .../.....@ .....
+  25FF  db 85 34 83 85 35 82 8C 06 8D 07 12 4E 8E E5 2F 24  ; .4..5......N../$
+  260F  db 24 F8 E0 F6 78 2E 12 4E C8 80 CD E5 2F 24 24 F8  ; $...x..N..../$$.
+  261F  db 76 0D 90 05 5B E0 7F 0E 90 4B 38 12 4E 13 E4 93  ; v...[....K8.N...
+  262F  db F5 24 80 13 90 05 5B E0 7F 0E 90 4B 38 12 4E 13  ; .$....[....K8.N.
+  263F  db E4 93 F5 24 12 12 A9 90 05 5B E0 7F 0E 90 4B 2F  ; ...$.....[....K/
+  264F  db 12 4E 13 E4 93 60 20 90 05 5B E0 7F 0E 90 4B 34  ; .N...` ..[....K4
+  265F  db 12 4E 13 E4 93 70 10 90 05 5B E0 7F 0E 90 4B 36  ; .N...p...[....K6
+  266F  db 12 4E 13 E4 93 60 02 80 03 12 00 26 AE 34 AF 35  ; .N...`.....&.4.5
+  267F  db 90 05 57 E0 FC A3 E0 FD EF 2D FD EE 3C FC 90 05  ; ..W......-..<...
+  268F  db 66 EC F0 A3 ED F0 02 28 A6  ; f......(.
+L2698:
+  2698  753401    MOV 34h,#01h
+  269B  75352e    MOV 35h,#2Eh
+  269E  752f00    MOV 2Fh,#00h
+  26A1  752e00    MOV 2Eh,#00h
+L26A4:
+  26A4  ae2e      MOV R6,2Eh
+  26A6  af2f      MOV R7,2Fh
+  26A8  7402      MOV A,#02h
+  26AA  be0024    CJNE R6,#00h,L26D1
+  26AD  9f        SUBB A,R7
+  26AE  4021      JC L26D1
+  26B0  853483    MOV DPH,34h
+  26B3  853582    MOV DPL,35h
+  26B6  124e8e    LCALL L4E8E
+  26B9  e0        MOVX A,@DPTR
+  26BA  fc        MOV R4,A
+  26BB  900224    MOV DPTR,#0224h
+  26BE  124e8e    LCALL L4E8E
+  26C1  ec        MOV A,R4
+  26C2  f0        MOVX @DPTR,A
+  26C3  782f      MOV R0,#2Fh
+  26C5  7401      MOV A,#01h
+  26C7  26        ADD A,@R0
+  26C8  f6        MOV @R0,A
+  26C9  5004      JNC L26CF
+  26CB  18        DEC R0
+  26CC  e4        CLR A
+  26CD  36        ADDC A,@R0
+  26CE  f6        MOV @R0,A
+L26CF:
+  26CF  50d3      JNC L26A4
+L26D1:
+  26D1  752f01    MOV 2Fh,#01h
+  26D4  752e00    MOV 2Eh,#00h
+L26D7:
+  26D7  ae2e      MOV R6,2Eh
+  26D9  af2f      MOV R7,2Fh
+  26DB  7403      MOV A,#03h
+  26DD  be0023    CJNE R6,#00h,L2703
+  26E0  9f        SUBB A,R7
+  26E1  4020      JC L2703
+  26E3  1f        DEC R7
+  26E4  bfff01    CJNE R7,#FFh,L26E8
+  26E7  1e        DEC R6
+L26E8:
+  26E8  900224    MOV DPTR,#0224h
+  26EB  124e8e    LCALL L4E8E
+  26EE  e52f      MOV A,2Fh
+  26F0  2424      ADD A,#24h
+  26F2  f8        MOV R0,A
+  26F3  e0        MOVX A,@DPTR
+  26F4  f6        MOV @R0,A
+  26F5  782f      MOV R0,#2Fh
+  26F7  7401      MOV A,#01h
+  26F9  26        ADD A,@R0
+  26FA  f6        MOV @R0,A
+  26FB  5004      JNC L2701
+  26FD  18        DEC R0
+  26FE  e4        CLR A
+  26FF  36        ADDC A,@R0
+  2700  f6        MOV @R0,A
+L2701:
+  2701  50d4      JNC L26D7
+L2703:
+  2703  1212a9    LCALL L12A9
+  2706  0228a6    LJMP L28A6
+  2709  db 90 00 03 E0 FE A3 E0 FF 7C 07 7D D0 EF 2D FD EE  ; ........|.}..-..
+  2719  db 3C FC 8C 13 8D 14 12 17 7E 75 2F 00 75 2E 00 AE  ; <.......~u/.u...
+  2729  db 2E AF 2F 74 04 BE 00 18 9F 40 15 E5 2F 24 24 F8  ; ../t.....@../$$.
+  2739  db 76 20 78 2F 74 01 26 F6 50 04 18 E4 36 F6 50 DF  ; v x/t.&.P...6.P.
+  2749  db 75 29 0D AE 34 AF 35 8E 44 8F 45 74 0D F5 46 75  ; u)..4.5.D.Et..Fu
+  2759  db 48 FA 75 47 00 12 4D A2 8E 30 8F 31 EF B4 FF 0A  ; H.uG..M..0.1....
+  2769  db EE B4 FF 06 75 31 F9 75 30 00 AE 34 AF 35 8E 44  ; ....u1.u0..4.5.D
+  2779  db 8F 45 74 05 F5 46 85 30 47 85 31 48 12 4D A2 90  ; .Et..F.0G.1H.M..
+  2789  db 05 57 EE F0 A3 EF F0 EF B4 FF 33 EE B4 FF 2F AC  ; .W........3.../.
+  2799  db 34 AD 35 8C 44 8D 45 74 03 F5 46 85 30 47 85 31  ; 4.5.D.Et..F.0G.1
+  27A9  db 48 12 4D A2 90 05 57 EE F0 A3 EF F0 74 06 BE 00  ; H.M...W.....t...
+  27B9  db 03 9F 50 0A 90 05 57 74 FF F0 A3 74 FF F0 90 05  ; ..P...Wt...t....
+  27C9  db 57 E0 FE A3 E0 FF EF B4 FF 3A EE B4 FF 36 AC 34  ; W........:...6.4
+  27D9  db AD 35 8C 44 8D 45 74 0D F5 46 AA 30 AB 31 0B BB  ; .5.D.Et..F.0.1..
+  27E9  db 00 01 0A 8A 47 8B 48 12 4D A2 90 05 57 EE F0 A3  ; ....G.H.M...W...
+  27F9  db EF F0 74 06 BE 00 03 9F 50 0A 90 05 57 74 FF F0  ; ..t.....P...Wt..
+  2809  db A3 74 FF F0 90 05 57 12 4E 6A 75 2F 01 75 2E 00  ; .t....W.Nju/.u..
+  2819  db 90 05 57 E0 FE A3 E0 FF AC 2E AD 2F EF D3 9D EE  ; ..W......../....
+  2829  db 9C 40 1B 85 34 83 85 35 82 8C 06 8D 07 12 4E 8E  ; .@..4..5......N.
+  2839  db E5 2F 24 24 F8 E0 F6 78 2E 12 4E C8 80 D2 E5 2F  ; ./$$...x..N..../
+  2849  db 24 24 F8 76 0D E5 25 B4 20 06 E5 26 64 0D 60 05  ; $$.v..%. ..&d.`.
+  2859  db E5 25 B4 0D 38 75 2F 01 75 2E 00 AE 2E AF 2F 74  ; .%..8u/.u...../t
+  2869  db 03 BE 00 23 9F 40 20 1F BF FF 01 1E 90 00 11 12  ; ...#.@ .........
+  2879  db 4E 8E E5 2F 24 24 F8 E0 F6 78 2F 74 01 26 F6 50  ; N../$$...x/t.&.P
+  2889  db 04 18 E4 36 F6 50 D4 12 12 A9 75 28 0D 90 05 5B  ; ...6.P....u(...[
+  2899  db E0 7F 0E 90 4B 38 12 4E 13 E4 93 F5 24  ; ....K8.N....$
+L28A6:
+  28A6  752f00    MOV 2Fh,#00h
+  28A9  752e00    MOV 2Eh,#00h
+L28AC:
+  28AC  ae2e      MOV R6,2Eh
+  28AE  af2f      MOV R7,2Fh
+  28B0  748b      MOV A,#8Bh
+  28B2  be001f    CJNE R6,#00h,L28D4
+  28B5  9f        SUBB A,R7
+  28B6  401c      JC L28D4
+  28B8  90057e    MOV DPTR,#057Eh
+  28BB  12000e    LCALL L000E
+  28BE  7400      MOV A,#00h
+  28C0  f8        MOV R0,A
+  28C1  e4        CLR A
+  28C2  f0        MOVX @DPTR,A
+  28C3  e8        MOV A,R0
+  28C4  a3        INC DPTR
+  28C5  f0        MOVX @DPTR,A
+  28C6  782f      MOV R0,#2Fh
+  28C8  7401      MOV A,#01h
+  28CA  26        ADD A,@R0
+  28CB  f6        MOV @R0,A
+  28CC  5004      JNC L28D2
+  28CE  18        DEC R0
+  28CF  e4        CLR A
+  28D0  36        ADDC A,@R0
+  28D1  f6        MOV @R0,A
+L28D2:
+  28D2  50d8      JNC L28AC
+L28D4:
+  28D4  90056a    MOV DPTR,#056Ah
+  28D7  e4        CLR A
+  28D8  f0        MOVX @DPTR,A
+  28D9  900569    MOV DPTR,#0569h
+  28DC  e4        CLR A
+  28DD  f0        MOVX @DPTR,A
+  28DE  900570    MOV DPTR,#0570h
+  28E1  e4        CLR A
+  28E2  f0        MOVX @DPTR,A
+  28E3  90055b    MOV DPTR,#055Bh
+  28E6  e0        MOVX A,@DPTR
+  28E7  7f0e      MOV R7,#0Eh
+  28E9  904b2f    MOV DPTR,#4B2Fh
+  28EC  124e13    LCALL L4E13
+  28EF  e4        CLR A
+  28F0  93        MOVC A,@A+DPTR
+  28F1  6021      JZ L2914
+  28F3  90055b    MOV DPTR,#055Bh
+  28F6  e0        MOVX A,@DPTR
+  28F7  7f0e      MOV R7,#0Eh
+  28F9  904b34    MOV DPTR,#4B34h
+  28FC  124e13    LCALL L4E13
+  28FF  e4        CLR A
+  2900  93        MOVC A,@A+DPTR
+  2901  b40110    CJNE A,#01h,L2914
+  2904  90055b    MOV DPTR,#055Bh
+  2907  e0        MOVX A,@DPTR
+  2908  7f0e      MOV R7,#0Eh
+  290A  904b37    MOV DPTR,#4B37h
+  290D  124e13    LCALL L4E13
+  2910  e4        CLR A
+  2911  93        MOVC A,@A+DPTR
+  2912  6003      JZ L2917
+L2914:
+  2914  0229db    LJMP L29DB
+L2917:
+  2917  75290d    MOV 29h,#0Dh
+  291A  752f00    MOV 2Fh,#00h
+  291D  752e00    MOV 2Eh,#00h
+L2920:
+  2920  ae2e      MOV R6,2Eh
+  2922  af2f      MOV R7,2Fh
+  2924  7406      MOV A,#06h
+  2926  be001e    CJNE R6,#00h,L2947
+  2929  9f        SUBB A,R7
+  292A  401b      JC L2947
+  292C  e52f      MOV A,2Fh
+  292E  2424      ADD A,#24h
+  2930  f8        MOV R0,A
+  2931  900030    MOV DPTR,#0030h
+  2934  124e8e    LCALL L4E8E
+  2937  e6        MOV A,@R0
+  2938  f0        MOVX @DPTR,A
+  2939  782f      MOV R0,#2Fh
+  293B  7401      MOV A,#01h
+  293D  26        ADD A,@R0
+  293E  f6        MOV @R0,A
+  293F  5004      JNC L2945
+  2941  18        DEC R0
+  2942  e4        CLR A
+  2943  36        ADDC A,@R0
+  2944  f6        MOV @R0,A
+L2945:
+  2945  50d9      JNC L2920
+L2947:
+  2947  7404      MOV A,#04h
+  2949  900572    MOV DPTR,#0572h
+  294C  f0        MOVX @DPTR,A
+  294D  e528      MOV A,28h
+  294F  6420      XRL A,#20h
+  2951  6005      JZ L2958
+  2953  e528      MOV A,28h
+  2955  b40d38    CJNE A,#0Dh,L2990
+L2958:
+  2958  7403      MOV A,#03h
+  295A  900572    MOV DPTR,#0572h
+  295D  f0        MOVX @DPTR,A
+  295E  e527      MOV A,27h
+  2960  6420      XRL A,#20h
+  2962  6005      JZ L2969
+  2964  e527      MOV A,27h
+  2966  b40d27    CJNE A,#0Dh,L2990
+L2969:
+  2969  7402      MOV A,#02h
+  296B  900572    MOV DPTR,#0572h
+  296E  f0        MOVX @DPTR,A
+  296F  e526      MOV A,26h
+  2971  6420      XRL A,#20h
+  2973  6005      JZ L297A
+  2975  e526      MOV A,26h
+  2977  b40d16    CJNE A,#0Dh,L2990
+L297A:
+  297A  900572    MOV DPTR,#0572h
+  297D  7401      MOV A,#01h
+  297F  f0        MOVX @DPTR,A
+  2980  e525      MOV A,25h
+  2982  6420      XRL A,#20h
+  2984  6005      JZ L298B
+  2986  e525      MOV A,25h
+  2988  b40d05    CJNE A,#0Dh,L2990
+L298B:
+  298B  900572    MOV DPTR,#0572h
+  298E  e4        CLR A
+  298F  f0        MOVX @DPTR,A
+L2990:
+  2990  900572    MOV DPTR,#0572h
+  2993  e0        MOVX A,@DPTR
+  2994  7f03      MOV R7,#03h
+  2996  904b1d    MOV DPTR,#4B1Dh
+  2999  124e13    LCALL L4E13
+  299C  e4        CLR A
+  299D  93        MOVC A,@A+DPTR
+  299E  90056a    MOV DPTR,#056Ah
+  29A1  f0        MOVX @DPTR,A
+  29A2  900572    MOV DPTR,#0572h
+  29A5  e0        MOVX A,@DPTR
+  29A6  7f03      MOV R7,#03h
+  29A8  904b1c    MOV DPTR,#4B1Ch
+  29AB  124e13    LCALL L4E13
+  29AE  e4        CLR A
+  29AF  93        MOVC A,@A+DPTR
+  29B0  900569    MOV DPTR,#0569h
+  29B3  f0        MOVX @DPTR,A
+  29B4  c202      CLR 20h.2{b02}
+  29B6  900572    MOV DPTR,#0572h
+  29B9  e0        MOVX A,@DPTR
+  29BA  7f03      MOV R7,#03h
+  29BC  904b1e    MOV DPTR,#4B1Eh
+  29BF  124e13    LCALL L4E13
+  29C2  e4        CLR A
+  29C3  93        MOVC A,@A+DPTR
+  29C4  f519      MOV 19h,A
+  29C6  120ad6    LCALL L0AD6
+  29C9  8000      SJMP L29CB
+L29CB:
+  29CB  90056a    MOV DPTR,#056Ah
+  29CE  e0        MOVX A,@DPTR
+  29CF  900569    MOV DPTR,#0569h
+  29D2  f0        MOVX @DPTR,A
+  29D3  900569    MOV DPTR,#0569h
+  29D6  e0        MOVX A,@DPTR
+  29D7  900570    MOV DPTR,#0570h
+  29DA  f0        MOVX @DPTR,A
+L29DB:
+  29DB  90055b    MOV DPTR,#055Bh
+  29DE  e0        MOVX A,@DPTR
+  29DF  7f0e      MOV R7,#0Eh
+  29E1  904b2f    MOV DPTR,#4B2Fh
+  29E4  124e13    LCALL L4E13
+  29E7  e4        CLR A
+  29E8  93        MOVC A,@A+DPTR
+  29E9  6023      JZ L2A0E
+  29EB  90055b    MOV DPTR,#055Bh
+  29EE  e0        MOVX A,@DPTR
+  29EF  7f0e      MOV R7,#0Eh
+  29F1  904b34    MOV DPTR,#4B34h
+  29F4  124e13    LCALL L4E13
+  29F7  e4        CLR A
+  29F8  93        MOVC A,@A+DPTR
+  29F9  b40112    CJNE A,#01h,L2A0E
+  29FC  90055b    MOV DPTR,#055Bh
+  29FF  e0        MOVX A,@DPTR
+  2A00  7f0e      MOV R7,#0Eh
+  2A02  904b37    MOV DPTR,#4B37h
+  2A05  124e13    LCALL L4E13
+  2A08  e4        CLR A
+  2A09  93        MOVC A,@A+DPTR
+  2A0A  6401      XRL A,#01h
+  2A0C  6003      JZ L2A11
+L2A0E:
+  2A0E  022aa8    LJMP L2AA8
+L2A11:
+  2A11  75290d    MOV 29h,#0Dh
+  2A14  752f00    MOV 2Fh,#00h
+  2A17  752e00    MOV 2Eh,#00h
+L2A1A:
+  2A1A  ae2e      MOV R6,2Eh
+  2A1C  af2f      MOV R7,2Fh
+  2A1E  7406      MOV A,#06h
+  2A20  be001e    CJNE R6,#00h,L2A41
+  2A23  9f        SUBB A,R7
+  2A24  401b      JC L2A41
+  2A26  e52f      MOV A,2Fh
+  2A28  2424      ADD A,#24h
+  2A2A  f8        MOV R0,A
+  2A2B  900030    MOV DPTR,#0030h
+  2A2E  124e8e    LCALL L4E8E
+  2A31  e6        MOV A,@R0
+  2A32  f0        MOVX @DPTR,A
+  2A33  782f      MOV R0,#2Fh
+  2A35  7401      MOV A,#01h
+  2A37  26        ADD A,@R0
+  2A38  f6        MOV @R0,A
+  2A39  5004      JNC L2A3F
+  2A3B  18        DEC R0
+  2A3C  e4        CLR A
+  2A3D  36        ADDC A,@R0
+  2A3E  f6        MOV @R0,A
+L2A3F:
+  2A3F  50d9      JNC L2A1A
+L2A41:
+  2A41  900569    MOV DPTR,#0569h
+  2A44  e4        CLR A
+  2A45  f0        MOVX @DPTR,A
+  2A46  c202      CLR 20h.2{b02}
+  2A48  90055b    MOV DPTR,#055Bh
+  2A4B  e0        MOVX A,@DPTR
+  2A4C  7f0e      MOV R7,#0Eh
+  2A4E  904b35    MOV DPTR,#4B35h
+  2A51  124e13    LCALL L4E13
+  2A54  e4        CLR A
+  2A55  93        MOVC A,@A+DPTR
+  2A56  f519      MOV 19h,A
+  2A58  120ad6    LCALL L0AD6
+  2A5B  8000      SJMP L2A5D
+L2A5D:
+  2A5D  90056a    MOV DPTR,#056Ah
+  2A60  e4        CLR A
+  2A61  f0        MOVX @DPTR,A
+  2A62  752f00    MOV 2Fh,#00h
+  2A65  752e00    MOV 2Eh,#00h
+L2A68:
+  2A68  ae2e      MOV R6,2Eh
+  2A6A  af2f      MOV R7,2Fh
+  2A6C  748b      MOV A,#8Bh
+  2A6E  be0027    CJNE R6,#00h,L2A98
+  2A71  9f        SUBB A,R7
+  2A72  4024      JC L2A98
+  2A74  90057e    MOV DPTR,#057Eh
+  2A77  12000e    LCALL L000E
+  2A7A  e0        MOVX A,@DPTR
+  2A7B  fc        MOV R4,A
+  2A7C  a3        INC DPTR
+  2A7D  e0        MOVX A,@DPTR
+  2A7E  fd        MOV R5,A
+  2A7F  ed        MOV A,R5
+  2A80  4c        ORL A,R4
+  2A81  6007      JZ L2A8A
+  2A83  e52f      MOV A,2Fh
+  2A85  04        INC A
+  2A86  90056a    MOV DPTR,#056Ah
+  2A89  f0        MOVX @DPTR,A
+L2A8A:
+  2A8A  782f      MOV R0,#2Fh
+  2A8C  7401      MOV A,#01h
+  2A8E  26        ADD A,@R0
+  2A8F  f6        MOV @R0,A
+  2A90  5004      JNC L2A96
+  2A92  18        DEC R0
+  2A93  e4        CLR A
+  2A94  36        ADDC A,@R0
+  2A95  f6        MOV @R0,A
+L2A96:
+  2A96  50d0      JNC L2A68
+L2A98:
+  2A98  90056a    MOV DPTR,#056Ah
+  2A9B  e0        MOVX A,@DPTR
+  2A9C  900569    MOV DPTR,#0569h
+  2A9F  f0        MOVX @DPTR,A
+  2AA0  900569    MOV DPTR,#0569h
+  2AA3  e0        MOVX A,@DPTR
+  2AA4  900570    MOV DPTR,#0570h
+  2AA7  f0        MOVX @DPTR,A
+L2AA8:
+  2AA8  90055b    MOV DPTR,#055Bh
+  2AAB  e0        MOVX A,@DPTR
+  2AAC  7f0e      MOV R7,#0Eh
+  2AAE  904b2f    MOV DPTR,#4B2Fh
+  2AB1  124e13    LCALL L4E13
+  2AB4  e4        CLR A
+  2AB5  93        MOVC A,@A+DPTR
+  2AB6  6020      JZ L2AD8
+  2AB8  90055b    MOV DPTR,#055Bh
+  2ABB  e0        MOVX A,@DPTR
+  2ABC  7f0e      MOV R7,#0Eh
+  2ABE  904b34    MOV DPTR,#4B34h
+  2AC1  124e13    LCALL L4E13
+  2AC4  e4        CLR A
+  2AC5  93        MOVC A,@A+DPTR
+  2AC6  7010      JNZ L2AD8
+  2AC8  90055b    MOV DPTR,#055Bh
+  2ACB  e0        MOVX A,@DPTR
+  2ACC  7f0e      MOV R7,#0Eh
+  2ACE  904b36    MOV DPTR,#4B36h
+  2AD1  124e13    LCALL L4E13
+  2AD4  e4        CLR A
+  2AD5  93        MOVC A,@A+DPTR
+  2AD6  6002      JZ L2ADA
+L2AD8:
+  2AD8  806e      SJMP L2B48
+L2ADA:
+  2ADA  75290d    MOV 29h,#0Dh
+  2ADD  752f00    MOV 2Fh,#00h
+  2AE0  752e00    MOV 2Eh,#00h
+L2AE3:
+  2AE3  ae2e      MOV R6,2Eh
+  2AE5  af2f      MOV R7,2Fh
+  2AE7  7406      MOV A,#06h
+  2AE9  be001e    CJNE R6,#00h,L2B0A
+  2AEC  9f        SUBB A,R7
+  2AED  401b      JC L2B0A
+  2AEF  e52f      MOV A,2Fh
+  2AF1  2424      ADD A,#24h
+  2AF3  f8        MOV R0,A
+  2AF4  900030    MOV DPTR,#0030h
+  2AF7  124e8e    LCALL L4E8E
+  2AFA  e6        MOV A,@R0
+  2AFB  f0        MOVX @DPTR,A
+  2AFC  782f      MOV R0,#2Fh
+  2AFE  7401      MOV A,#01h
+  2B00  26        ADD A,@R0
+  2B01  f6        MOV @R0,A
+  2B02  5004      JNC L2B08
+  2B04  18        DEC R0
+  2B05  e4        CLR A
+  2B06  36        ADDC A,@R0
+  2B07  f6        MOV @R0,A
+L2B08:
+  2B08  50d9      JNC L2AE3
+L2B0A:
+  2B0A  900569    MOV DPTR,#0569h
+  2B0D  e4        CLR A
+  2B0E  f0        MOVX @DPTR,A
+  2B0F  c202      CLR 20h.2{b02}
+  2B11  90055b    MOV DPTR,#055Bh
+  2B14  e0        MOVX A,@DPTR
+  2B15  7f0e      MOV R7,#0Eh
+  2B17  904b35    MOV DPTR,#4B35h
+  2B1A  124e13    LCALL L4E13
+  2B1D  e4        CLR A
+  2B1E  93        MOVC A,@A+DPTR
+  2B1F  f519      MOV 19h,A
+  2B21  120ad6    LCALL L0AD6
+  2B24  8000      SJMP L2B26
+L2B26:
+  2B26  90055b    MOV DPTR,#055Bh
+  2B29  e0        MOVX A,@DPTR
+  2B2A  7f0e      MOV R7,#0Eh
+  2B2C  904b2f    MOV DPTR,#4B2Fh
+  2B2F  124e13    LCALL L4E13
+  2B32  e4        CLR A
+  2B33  93        MOVC A,@A+DPTR
+  2B34  90056a    MOV DPTR,#056Ah
+  2B37  f0        MOVX @DPTR,A
+  2B38  90056a    MOV DPTR,#056Ah
+  2B3B  e0        MOVX A,@DPTR
+  2B3C  900569    MOV DPTR,#0569h
+  2B3F  f0        MOVX @DPTR,A
+  2B40  900569    MOV DPTR,#0569h
+  2B43  e0        MOVX A,@DPTR
+  2B44  900570    MOV DPTR,#0570h
+  2B47  f0        MOVX @DPTR,A
+L2B48:
+  2B48  90055b    MOV DPTR,#055Bh
+  2B4B  e0        MOVX A,@DPTR
+  2B4C  7f0e      MOV R7,#0Eh
+  2B4E  904b2f    MOV DPTR,#4B2Fh
+  2B51  124e13    LCALL L4E13
+  2B54  e4        CLR A
+  2B55  93        MOVC A,@A+DPTR
+  2B56  6012      JZ L2B6A
+  2B58  90055b    MOV DPTR,#055Bh
+  2B5B  e0        MOVX A,@DPTR
+  2B5C  7f0e      MOV R7,#0Eh
+  2B5E  904b36    MOV DPTR,#4B36h
+  2B61  124e13    LCALL L4E13
+  2B64  e4        CLR A
+  2B65  93        MOVC A,@A+DPTR
+  2B66  6401      XRL A,#01h
+  2B68  6002      JZ L2B6C
+L2B6A:
+  2B6A  8071      SJMP L2BDD
+L2B6C:
+  2B6C  75290d    MOV 29h,#0Dh
+  2B6F  752f00    MOV 2Fh,#00h
+  2B72  752e00    MOV 2Eh,#00h
+L2B75:
+  2B75  ae2e      MOV R6,2Eh
+  2B77  af2f      MOV R7,2Fh
+  2B79  7406      MOV A,#06h
+  2B7B  be001e    CJNE R6,#00h,L2B9C
+  2B7E  9f        SUBB A,R7
+  2B7F  401b      JC L2B9C
+  2B81  e52f      MOV A,2Fh
+  2B83  2424      ADD A,#24h
+  2B85  f8        MOV R0,A
+  2B86  900030    MOV DPTR,#0030h
+  2B89  124e8e    LCALL L4E8E
+  2B8C  e6        MOV A,@R0
+  2B8D  f0        MOVX @DPTR,A
+  2B8E  782f      MOV R0,#2Fh
+  2B90  7401      MOV A,#01h
+  2B92  26        ADD A,@R0
+  2B93  f6        MOV @R0,A
+  2B94  5004      JNC L2B9A
+  2B96  18        DEC R0
+  2B97  e4        CLR A
+  2B98  36        ADDC A,@R0
+  2B99  f6        MOV @R0,A
+L2B9A:
+  2B9A  50d9      JNC L2B75
+L2B9C:
+  2B9C  900569    MOV DPTR,#0569h
+  2B9F  e4        CLR A
+  2BA0  f0        MOVX @DPTR,A
+  2BA1  c202      CLR 20h.2{b02}
+  2BA3  90055b    MOV DPTR,#055Bh
+  2BA6  e0        MOVX A,@DPTR
+  2BA7  7f0e      MOV R7,#0Eh
+  2BA9  904b35    MOV DPTR,#4B35h
+  2BAC  124e13    LCALL L4E13
+  2BAF  e4        CLR A
+  2BB0  93        MOVC A,@A+DPTR
+  2BB1  f519      MOV 19h,A
+  2BB3  120ad6    LCALL L0AD6
+  2BB6  8000      SJMP L2BB8
+L2BB8:
+  2BB8  120d51    LCALL L0D51
+  2BBB  90055b    MOV DPTR,#055Bh
+  2BBE  e0        MOVX A,@DPTR
+  2BBF  7f0e      MOV R7,#0Eh
+  2BC1  904b2f    MOV DPTR,#4B2Fh
+  2BC4  124e13    LCALL L4E13
+  2BC7  e4        CLR A
+  2BC8  93        MOVC A,@A+DPTR
+  2BC9  90056a    MOV DPTR,#056Ah
+  2BCC  f0        MOVX @DPTR,A
+  2BCD  90056a    MOV DPTR,#056Ah
+  2BD0  e0        MOVX A,@DPTR
+  2BD1  900569    MOV DPTR,#0569h
+  2BD4  f0        MOVX @DPTR,A
+  2BD5  900569    MOV DPTR,#0569h
+  2BD8  e0        MOVX A,@DPTR
+  2BD9  900570    MOV DPTR,#0570h
+  2BDC  f0        MOVX @DPTR,A
+L2BDD:
+  2BDD  90055b    MOV DPTR,#055Bh
+  2BE0  e0        MOVX A,@DPTR
+  2BE1  7f0e      MOV R7,#0Eh
+  2BE3  904b31    MOV DPTR,#4B31h
+  2BE6  124e13    LCALL L4E13
+  2BE9  e4        CLR A
+  2BEA  93        MOVC A,@A+DPTR
+  2BEB  7003      JNZ L2BF0
+  2BED  022d74    LJMP L2D74
+L2BF0:
+  2BF0  8035      SJMP L2C27
+  2BF2  db AE 2E AF 2F 90 02 24 12 4E 8E E0 64 0D 60 17 90  ; .../..$.N..d.`..
+  2C02  db 02 24 12 4E 8E E0 FC 90 00 30 12 4E 8E EC F0 78  ; .$.N.....0.N...x
+  2C12  db 2E 12 4E C8 80 DA AE 2E AF 2F 90 00 30 12 4E 8E  ; ..N....../..0.N.
+  2C22  db 74 0D F0 80 12  ; t....
+L2C27:
+  2C27  900007    MOV DPTR,#0007h
+  2C2A  e0        MOVX A,@DPTR
+  2C2B  fe        MOV R6,A
+  2C2C  a3        INC DPTR
+  2C2D  e0        MOVX A,@DPTR
+  2C2E  ff        MOV R7,A
+  2C2F  8e13      MOV 13h,R6
+  2C31  8f14      MOV 14h,R7
+  2C33  12177e    LCALL L177E
+  2C36  120027    LCALL L0027
+  2C39  ae34      MOV R6,34h
+  2C3B  af35      MOV R7,35h
+  2C3D  8e44      MOV 44h,R6
+  2C3F  8f45      MOV 45h,R7
+  2C41  740d      MOV A,#0Dh
+  2C43  f546      MOV 46h,A
+  2C45  7548fa    MOV 48h,#FAh
+  2C48  754700    MOV 47h,#00h
+  2C4B  124da2    LCALL L4DA2
+  2C4E  900557    MOV DPTR,#0557h
+  2C51  ee        MOV A,R6
+  2C52  f0        MOVX @DPTR,A
+  2C53  a3        INC DPTR
+  2C54  ef        MOV A,R7
+  2C55  f0        MOVX @DPTR,A
+  2C56  7402      MOV A,#02h
+  2C58  be000e    CJNE R6,#00h,L2C69
+  2C5B  9f        SUBB A,R7
+  2C5C  400b      JC L2C69
+  2C5E  d20d      SETB 21h.5{b0D}
+  2C60  900559    MOV DPTR,#0559h
+  2C63  e4        CLR A
+  2C64  f0        MOVX @DPTR,A
+  2C65  a3        INC DPTR
+  2C66  f0        MOVX @DPTR,A
+  2C67  8011      SJMP L2C7A
+L2C69:
+  2C69  900557    MOV DPTR,#0557h
+  2C6C  e0        MOVX A,@DPTR
+  2C6D  f8        MOV R0,A
+  2C6E  a3        INC DPTR
+  2C6F  e0        MOVX A,@DPTR
+  2C70  900559    MOV DPTR,#0559h
+  2C73  c8        XCH A,R0
+  2C74  f0        MOVX @DPTR,A
+  2C75  a3        INC DPTR
+  2C76  c8        XCH A,R0
+  2C77  f0        MOVX @DPTR,A
+  2C78  c20d      CLR 21h.5{b0D}
+L2C7A:
+  2C7A  8034      SJMP L2CB0
+  2C7C  db AE 2E AF 2F 90 05 57 E0 FC A3 E0 FD ED C3 9F EC  ; .../..W.........
+  2C8C  db 9E 40 21 85 34 83 85 35 82 12 4E 8E E0 FA 90 00  ; .@!.4..5..N.....
+  2C9C  db 30 12 4E 8E EA F0 78 2F 74 01 26 F6 50 04 18 E4  ; 0.N...x/t.&.P...
+  2CAC  db 36 F6 50 CC  ; 6.P.
+L2CB0:
+  2CB0  807d      SJMP L2D2F
+  2CB2  db AE 2E AF 2F 90 05 57 E0 FC A3 E0 FD ED C3 9F EC  ; .../..W.........
+  2CC2  db 9E 40 21 85 34 83 85 35 82 12 4E 8E E0 FA 90 00  ; .@!.4..5..N.....
+  2CD2  db 30 12 4E 8E EA F0 78 2F 74 01 26 F6 50 04 18 E4  ; 0.N...x/t.&.P...
+  2CE2  db 36 F6 50 CC 80 47 AE 2E AF 2F 90 05 57 E0 FC A3  ; 6.P..G.../..W...
+  2CF2  db E0 FD ED C3 9F EC 9E 40 34 85 34 83 85 35 82 12  ; .......@4.4..5..
+  2D02  db 4E 8E E0 90 05 59 F9 E0 FA A3 E0 FB EB 2F FF EA  ; N....Y......./..
+  2D12  db 3E FE 0F BF 00 01 0E 90 00 30 12 4E 8E E9 F0 78  ; >........0.N...x
+  2D22  db 2F 74 01 26 F6 50 04 18 E4 36 F6 50 B9  ; /t.&.P...6.P.
+L2D2F:
+  2D2F  90056f    MOV DPTR,#056Fh
+  2D32  e0        MOVX A,@DPTR
+  2D33  900574    MOV DPTR,#0574h
+  2D36  f0        MOVX @DPTR,A
+  2D37  c202      CLR 20h.2{b02}
+  2D39  751900    MOV 19h,#00h
+  2D3C  120ad6    LCALL L0AD6
+  2D3F  d202      SETB 20h.2{b02}
+  2D41  90056f    MOV DPTR,#056Fh
+  2D44  e0        MOVX A,@DPTR
+  2D45  900575    MOV DPTR,#0575h
+  2D48  f0        MOVX @DPTR,A
+  2D49  90056a    MOV DPTR,#056Ah
+  2D4C  e0        MOVX A,@DPTR
+  2D4D  900569    MOV DPTR,#0569h
+  2D50  f0        MOVX @DPTR,A
+  2D51  900574    MOV DPTR,#0574h
+  2D54  e0        MOVX A,@DPTR
+  2D55  90056f    MOV DPTR,#056Fh
+  2D58  f0        MOVX @DPTR,A
+  2D59  a213      MOV C,22h.3{b13}
+  2D5B  8215      ANL C,22h.5{b15}
+  2D5D  7214      ORL C,22h.4{b14}
+  2D5F  5005      JNC L2D66
+  2D61  120e35    LCALL L0E35
+  2D64  8006      SJMP L2D6C
+L2D66:
+  2D66  751901    MOV 19h,#01h
+  2D69  120ad6    LCALL L0AD6
+L2D6C:
+  2D6C  900575    MOV DPTR,#0575h
+  2D6F  e0        MOVX A,@DPTR
+  2D70  90056f    MOV DPTR,#056Fh
+  2D73  f0        MOVX @DPTR,A
+L2D74:
+  2D74  120692    LCALL L0692
+L2D77:
+  2D77  301065    JNB 22h.0{b10},L2DDF
+  2D7A  8000      SJMP L2D7C
+L2D7C:
+  2D7C  90056a    MOV DPTR,#056Ah
+  2D7F  e0        MOVX A,@DPTR
+  2D80  900569    MOV DPTR,#0569h
+  2D83  f0        MOVX @DPTR,A
+  2D84  90056f    MOV DPTR,#056Fh
+  2D87  e0        MOVX A,@DPTR
+  2D88  900574    MOV DPTR,#0574h
+  2D8B  f0        MOVX @DPTR,A
+  2D8C  900554    MOV DPTR,#0554h
+  2D8F  e4        CLR A
+  2D90  f0        MOVX @DPTR,A
+  2D91  c202      CLR 20h.2{b02}
+  2D93  751900    MOV 19h,#00h
+  2D96  120ad6    LCALL L0AD6
+  2D99  d202      SETB 20h.2{b02}
+  2D9B  90056f    MOV DPTR,#056Fh
+  2D9E  e0        MOVX A,@DPTR
+  2D9F  900575    MOV DPTR,#0575h
+  2DA2  f0        MOVX @DPTR,A
+  2DA3  90056a    MOV DPTR,#056Ah
+  2DA6  e0        MOVX A,@DPTR
+  2DA7  900569    MOV DPTR,#0569h
+  2DAA  f0        MOVX @DPTR,A
+  2DAB  900569    MOV DPTR,#0569h
+  2DAE  e0        MOVX A,@DPTR
+  2DAF  900570    MOV DPTR,#0570h
+  2DB2  f0        MOVX @DPTR,A
+  2DB3  900574    MOV DPTR,#0574h
+  2DB6  e0        MOVX A,@DPTR
+  2DB7  90056f    MOV DPTR,#056Fh
+  2DBA  f0        MOVX @DPTR,A
+  2DBB  a213      MOV C,22h.3{b13}
+  2DBD  8215      ANL C,22h.5{b15}
+  2DBF  7214      ORL C,22h.4{b14}
+  2DC1  5005      JNC L2DC8
+  2DC3  120e35    LCALL L0E35
+  2DC6  8006      SJMP L2DCE
+L2DC8:
+  2DC8  751901    MOV 19h,#01h
+  2DCB  120ad6    LCALL L0AD6
+L2DCE:
+  2DCE  900575    MOV DPTR,#0575h
+  2DD1  e0        MOVX A,@DPTR
+  2DD2  90056f    MOV DPTR,#056Fh
+  2DD5  f0        MOVX @DPTR,A
+  2DD6  120692    LCALL L0692
+  2DD9  753205    MOV 32h,#05h
+  2DDC  7533dc    MOV 33h,#DCh
+L2DDF:
+  2DDF  a294      MOV C,P1.4
+  2DE1  b3        CPL C
+  2DE2  5008      JNC L2DEC
+  2DE4  900000    MOV DPTR,#0000h
+  2DE7  e0        MOVX A,@DPTR
+  2DE8  5480      ANL A,#80h
+  2DEA  6002      JZ L2DEE
+L2DEC:
+  2DEC  8000      SJMP L2DEE
+L2DEE:
+  2DEE  900000    MOV DPTR,#0000h
+  2DF1  e0        MOVX A,@DPTR
+  2DF2  4480      ORL A,#80h
+  2DF4  900000    MOV DPTR,#0000h
+  2DF7  f0        MOVX @DPTR,A
+  2DF8  30940a    JNB P1.4,L2E05
+  2DFB  900000    MOV DPTR,#0000h
+  2DFE  e0        MOVX A,@DPTR
+  2DFF  5480      ANL A,#80h
+  2E01  6002      JZ L2E05
+  2E03  8000      SJMP L2E05
+L2E05:
+  2E05  8000      SJMP L2E07
+L2E07:
+  2E07  a20a      MOV C,21h.2{b0A}
+  2E09  7209      ORL C,21h.1{b09}
+  2E0B  500c      JNC L2E19
+  2E0D  900000    MOV DPTR,#0000h
+  2E10  e0        MOVX A,@DPTR
+  2E11  4420      ORL A,#20h
+  2E13  900000    MOV DPTR,#0000h
+  2E16  f0        MOVX @DPTR,A
+  2E17  800a      SJMP L2E23
+L2E19:
+  2E19  900000    MOV DPTR,#0000h
+  2E1C  e0        MOVX A,@DPTR
+  2E1D  54df      ANL A,#DFh
+  2E1F  900000    MOV DPTR,#0000h
+  2E22  f0        MOVX @DPTR,A
+L2E23:
+  2E23  309511    JNB P1.5,L2E37
+  2E26  75a882    MOV IE,#82h
+  2E29  c210      CLR 22h.0{b10}
+  2E2B  900562    MOV DPTR,#0562h
+  2E2E  74ff      MOV A,#FFh
+  2E30  f0        MOVX @DPTR,A
+  2E31  a3        INC DPTR
+  2E32  74ff      MOV A,#FFh
+  2E34  f0        MOVX @DPTR,A
+  2E35  8003      SJMP L2E3A
+L2E37:
+  2E37  75a892    MOV IE,#92h
+L2E3A:
+  2E3A  20b236    JB INT0,L2E73
+  2E3D  753100    MOV 31h,#00h
+  2E40  753000    MOV 30h,#00h
+L2E43:
+  2E43  ae30      MOV R6,30h
+  2E45  af31      MOV R7,31h
+  2E47  748b      MOV A,#8Bh
+  2E49  be001e    CJNE R6,#00h,L2E6A
+  2E4C  9f        SUBB A,R7
+  2E4D  401b      JC L2E6A
+  2E4F  90057e    MOV DPTR,#057Eh
+  2E52  12000e    LCALL L000E
+  2E55  74ff      MOV A,#FFh
+  2E57  f0        MOVX @DPTR,A
+  2E58  a3        INC DPTR
+  2E59  74ff      MOV A,#FFh
+  2E5B  f0        MOVX @DPTR,A
+  2E5C  7831      MOV R0,#31h
+  2E5E  7401      MOV A,#01h
+  2E60  26        ADD A,@R0
+  2E61  f6        MOV @R0,A
+  2E62  5004      JNC L2E68
+  2E64  18        DEC R0
+  2E65  e4        CLR A
+  2E66  36        ADDC A,@R0
+  2E67  f6        MOV @R0,A
+L2E68:
+  2E68  50d9      JNC L2E43
+L2E6A:
+  2E6A  740d      MOV A,#0Dh
+  2E6C  90031e    MOV DPTR,#031Eh
+  2E6F  f0        MOVX @DPTR,A
+  2E70  120692    LCALL L0692
+L2E73:
+  2E73  20b337    JB INT1,L2EAD
+  2E76  753100    MOV 31h,#00h
+  2E79  753000    MOV 30h,#00h
+L2E7C:
+  2E7C  ae30      MOV R6,30h
+  2E7E  af31      MOV R7,31h
+  2E80  748b      MOV A,#8Bh
+  2E82  be001f    CJNE R6,#00h,L2EA4
+  2E85  9f        SUBB A,R7
+  2E86  401c      JC L2EA4
+  2E88  90057e    MOV DPTR,#057Eh
+  2E8B  12000e    LCALL L000E
+  2E8E  7400      MOV A,#00h
+  2E90  f8        MOV R0,A
+  2E91  e4        CLR A
+  2E92  f0        MOVX @DPTR,A
+  2E93  e8        MOV A,R0
+  2E94  a3        INC DPTR
+  2E95  f0        MOVX @DPTR,A
+  2E96  7831      MOV R0,#31h
+  2E98  7401      MOV A,#01h
+  2E9A  26        ADD A,@R0
+  2E9B  f6        MOV @R0,A
+  2E9C  5004      JNC L2EA2
+  2E9E  18        DEC R0
+  2E9F  e4        CLR A
+  2EA0  36        ADDC A,@R0
+  2EA1  f6        MOV @R0,A
+L2EA2:
+  2EA2  50d8      JNC L2E7C
+L2EA4:
+  2EA4  740d      MOV A,#0Dh
+  2EA6  90031e    MOV DPTR,#031Eh
+  2EA9  f0        MOVX @DPTR,A
+  2EAA  120692    LCALL L0692
+L2EAD:
+  2EAD  752b2f    MOV 2Bh,#2Fh
+  2EB0  752cff    MOV 2Ch,#FFh
+  2EB3  200603    JB 20h.6{b06},L2EB9
+  2EB6  022fd9    LJMP L2FD9
+L2EB9:
+  2EB9  90001f    MOV DPTR,#001Fh
+  2EBC  e0        MOVX A,@DPTR
+  2EBD  fe        MOV R6,A
+  2EBE  a3        INC DPTR
+  2EBF  e0        MOVX A,@DPTR
+  2EC0  ff        MOV R7,A
+  2EC1  74ff      MOV A,#FFh
+  2EC3  6206      XRL 06h,A
+  2EC5  6207      XRL 07h,A
+  2EC7  900007    MOV DPTR,#0007h
+  2ECA  e0        MOVX A,@DPTR
+  2ECB  fc        MOV R4,A
+  2ECC  a3        INC DPTR
+  2ECD  e0        MOVX A,@DPTR
+  2ECE  fd        MOV R5,A
+  2ECF  ef        MOV A,R7
+  2ED0  6d        XRL A,R5
+  2ED1  7004      JNZ L2ED7
+  2ED3  ee        MOV A,R6
+  2ED4  6c        XRL A,R4
+  2ED5  6007      JZ L2EDE
+L2ED7:
+  2ED7  900007    MOV DPTR,#0007h
+  2EDA  e4        CLR A
+  2EDB  f0        MOVX @DPTR,A
+  2EDC  a3        INC DPTR
+  2EDD  f0        MOVX @DPTR,A
+L2EDE:
+  2EDE  900017    MOV DPTR,#0017h
+  2EE1  e0        MOVX A,@DPTR
+  2EE2  fe        MOV R6,A
+  2EE3  a3        INC DPTR
+  2EE4  e0        MOVX A,@DPTR
+  2EE5  ff        MOV R7,A
+  2EE6  74ff      MOV A,#FFh
+  2EE8  6206      XRL 06h,A
+  2EEA  6207      XRL 07h,A
+  2EEC  900003    MOV DPTR,#0003h
+  2EEF  e0        MOVX A,@DPTR
+  2EF0  fc        MOV R4,A
+  2EF1  a3        INC DPTR
+  2EF2  e0        MOVX A,@DPTR
+  2EF3  fd        MOV R5,A
+  2EF4  ef        MOV A,R7
+  2EF5  6d        XRL A,R5
+  2EF6  7004      JNZ L2EFC
+  2EF8  ee        MOV A,R6
+  2EF9  6c        XRL A,R4
+  2EFA  6007      JZ L2F03
+L2EFC:
+  2EFC  900003    MOV DPTR,#0003h
+  2EFF  e4        CLR A
+  2F00  f0        MOVX @DPTR,A
+  2F01  a3        INC DPTR
+  2F02  f0        MOVX @DPTR,A
+L2F03:
+  2F03  90001b    MOV DPTR,#001Bh
+  2F06  e0        MOVX A,@DPTR
+  2F07  fe        MOV R6,A
+  2F08  a3        INC DPTR
+  2F09  e0        MOVX A,@DPTR
+  2F0A  ff        MOV R7,A
+  2F0B  74ff      MOV A,#FFh
+  2F0D  6206      XRL 06h,A
+  2F0F  6207      XRL 07h,A
+  2F11  900005    MOV DPTR,#0005h
+  2F14  e0        MOVX A,@DPTR
+  2F15  fc        MOV R4,A
+  2F16  a3        INC DPTR
+  2F17  e0        MOVX A,@DPTR
+  2F18  fd        MOV R5,A
+  2F19  ef        MOV A,R7
+  2F1A  6d        XRL A,R5
+  2F1B  7004      JNZ L2F21
+  2F1D  ee        MOV A,R6
+  2F1E  6c        XRL A,R4
+  2F1F  6007      JZ L2F28
+L2F21:
+  2F21  900005    MOV DPTR,#0005h
+  2F24  e4        CLR A
+  2F25  f0        MOVX @DPTR,A
+  2F26  a3        INC DPTR
+  2F27  f0        MOVX @DPTR,A
+L2F28:
+  2F28  900025    MOV DPTR,#0025h
+  2F2B  e0        MOVX A,@DPTR
+  2F2C  fe        MOV R6,A
+  2F2D  a3        INC DPTR
+  2F2E  e0        MOVX A,@DPTR
+  2F2F  ff        MOV R7,A
+  2F30  74ff      MOV A,#FFh
+  2F32  6206      XRL 06h,A
+  2F34  6207      XRL 07h,A
+  2F36  900021    MOV DPTR,#0021h
+  2F39  e0        MOVX A,@DPTR
+  2F3A  fc        MOV R4,A
+  2F3B  a3        INC DPTR
+  2F3C  e0        MOVX A,@DPTR
+  2F3D  fd        MOV R5,A
+  2F3E  ef        MOV A,R7
+  2F3F  6d        XRL A,R5
+  2F40  7004      JNZ L2F46
+  2F42  ee        MOV A,R6
+  2F43  6c        XRL A,R4
+  2F44  6007      JZ L2F4D
+L2F46:
+  2F46  900021    MOV DPTR,#0021h
+  2F49  e4        CLR A
+  2F4A  f0        MOVX @DPTR,A
+  2F4B  a3        INC DPTR
+  2F4C  f0        MOVX @DPTR,A
+L2F4D:
+  2F4D  90002b    MOV DPTR,#002Bh
+  2F50  e0        MOVX A,@DPTR
+  2F51  fe        MOV R6,A
+  2F52  a3        INC DPTR
+  2F53  e0        MOVX A,@DPTR
+  2F54  ff        MOV R7,A
+  2F55  74ff      MOV A,#FFh
+  2F57  6206      XRL 06h,A
+  2F59  6207      XRL 07h,A
+  2F5B  900027    MOV DPTR,#0027h
+  2F5E  e0        MOVX A,@DPTR
+  2F5F  fc        MOV R4,A
+  2F60  a3        INC DPTR
+  2F61  e0        MOVX A,@DPTR
+  2F62  fd        MOV R5,A
+  2F63  ef        MOV A,R7
+  2F64  6d        XRL A,R5
+  2F65  7004      JNZ L2F6B
+  2F67  ee        MOV A,R6
+  2F68  6c        XRL A,R4
+  2F69  6007      JZ L2F72
+L2F6B:
+  2F6B  900027    MOV DPTR,#0027h
+  2F6E  e4        CLR A
+  2F6F  f0        MOVX @DPTR,A
+  2F70  a3        INC DPTR
+  2F71  f0        MOVX @DPTR,A
+L2F72:
+  2F72  d212      SETB 22h.2{b12}
+  2F74  8000      SJMP L2F76
+L2F76:
+  2F76  90012c    MOV DPTR,#012Ch
+  2F79  e0        MOVX A,@DPTR
+  2F7A  fe        MOV R6,A
+  2F7B  90055b    MOV DPTR,#055Bh
+  2F7E  e0        MOVX A,@DPTR
+  2F7F  2430      ADD A,#30h
+  2F81  6e        XRL A,R6
+  2F82  6010      JZ L2F94
+  2F84  90055b    MOV DPTR,#055Bh
+  2F87  e0        MOVX A,@DPTR
+  2F88  7f0e      MOV R7,#0Eh
+  2F8A  904b31    MOV DPTR,#4B31h
+  2F8D  124e13    LCALL L4E13
+  2F90  e4        CLR A
+  2F91  93        MOVC A,@A+DPTR
+  2F92  7002      JNZ L2F96
+L2F94:
+  2F94  802b      SJMP L2FC1
+L2F96:
+  2F96  c212      CLR 22h.2{b12}
+  2F98  752f00    MOV 2Fh,#00h
+  2F9B  752e00    MOV 2Eh,#00h
+L2F9E:
+  2F9E  ae2e      MOV R6,2Eh
+  2FA0  af2f      MOV R7,2Fh
+  2FA2  740c      MOV A,#0Ch
+  2FA4  be001a    CJNE R6,#00h,L2FC1
+  2FA7  9f        SUBB A,R7
+  2FA8  4017      JC L2FC1
+  2FAA  90012a    MOV DPTR,#012Ah
+  2FAD  124e8e    LCALL L4E8E
+  2FB0  740a      MOV A,#0Ah
+  2FB2  f0        MOVX @DPTR,A
+  2FB3  782f      MOV R0,#2Fh
+  2FB5  7401      MOV A,#01h
+  2FB7  26        ADD A,@R0
+  2FB8  f6        MOV @R0,A
+  2FB9  5004      JNC L2FBF
+  2FBB  18        DEC R0
+  2FBC  e4        CLR A
+  2FBD  36        ADDC A,@R0
+  2FBE  f6        MOV @R0,A
+L2FBF:
+  2FBF  50dd      JNC L2F9E
+L2FC1:
+  2FC1  a212      MOV C,22h.2{b12}
+  2FC3  b3        CPL C
+  2FC4  b3        CPL C
+  2FC5  c3        CLR C
+  2FC6  500f      JNC L2FD7
+  2FC8  900007    MOV DPTR,#0007h
+  2FCB  e0        MOVX A,@DPTR
+  2FCC  fe        MOV R6,A
+  2FCD  a3        INC DPTR
+  2FCE  e0        MOVX A,@DPTR
+  2FCF  ff        MOV R7,A
+  2FD0  8e13      MOV 13h,R6
+  2FD2  8f14      MOV 14h,R7
+  2FD4  12177e    LCALL L177E
+L2FD7:
+  2FD7  c206      CLR 20h.6{b06}
+L2FD9:
+  2FD9  900571    MOV DPTR,#0571h
+  2FDC  e0        MOVX A,@DPTR
+  2FDD  7003      JNZ L2FE2
+  2FDF  0230e8    LJMP L30E8
+L2FE2:
+  2FE2  c210      CLR 22h.0{b10}
+  2FE4  900571    MOV DPTR,#0571h
+  2FE7  e0        MOVX A,@DPTR
+  2FE8  b4012e    CJNE A,#01h,L3019
+  2FEB  752f00    MOV 2Fh,#00h
+  2FEE  752e00    MOV 2Eh,#00h
+L2FF1:
+  2FF1  ae2e      MOV R6,2Eh
+  2FF3  af2f      MOV R7,2Fh
+  2FF5  748b      MOV A,#8Bh
+  2FF7  be001f    CJNE R6,#00h,L3019
+  2FFA  9f        SUBB A,R7
+  2FFB  401c      JC L3019
+  2FFD  90057e    MOV DPTR,#057Eh
+  3000  12000e    LCALL L000E
+  3003  7400      MOV A,#00h
+  3005  f8        MOV R0,A
+  3006  e4        CLR A
+  3007  f0        MOVX @DPTR,A
+  3008  e8        MOV A,R0
+  3009  a3        INC DPTR
+  300A  f0        MOVX @DPTR,A
+  300B  782f      MOV R0,#2Fh
+  300D  7401      MOV A,#01h
+  300F  26        ADD A,@R0
+  3010  f6        MOV @R0,A
+  3011  5004      JNC L3017
+  3013  18        DEC R0
+  3014  e4        CLR A
+  3015  36        ADDC A,@R0
+  3016  f6        MOV @R0,A
+L3017:
+  3017  50d8      JNC L2FF1
+L3019:
+  3019  900571    MOV DPTR,#0571h
+  301C  e0        MOVX A,@DPTR
+  301D  b40230    CJNE A,#02h,L3050
+  3020  752f00    MOV 2Fh,#00h
+  3023  752e00    MOV 2Eh,#00h
+L3026:
+  3026  ae2e      MOV R6,2Eh
+  3028  af2f      MOV R7,2Fh
+  302A  748b      MOV A,#8Bh
+  302C  be001e    CJNE R6,#00h,L304D
+  302F  9f        SUBB A,R7
+  3030  401b      JC L304D
+  3032  90057e    MOV DPTR,#057Eh
+  3035  12000e    LCALL L000E
+  3038  74ff      MOV A,#FFh
+  303A  f0        MOVX @DPTR,A
+  303B  a3        INC DPTR
+  303C  74ff      MOV A,#FFh
+  303E  f0        MOVX @DPTR,A
+  303F  782f      MOV R0,#2Fh
+  3041  7401      MOV A,#01h
+  3043  26        ADD A,@R0
+  3044  f6        MOV @R0,A
+  3045  5004      JNC L304B
+  3047  18        DEC R0
+  3048  e4        CLR A
+  3049  36        ADDC A,@R0
+  304A  f6        MOV @R0,A
+L304B:
+  304B  50d9      JNC L3026
+L304D:
+  304D  0230e0    LJMP L30E0
+L3050:
+  3050  900571    MOV DPTR,#0571h
+  3053  e0        MOVX A,@DPTR
+  3054  b40341    CJNE A,#03h,L3098
+  3057  752f00    MOV 2Fh,#00h
+  305A  752e00    MOV 2Eh,#00h
+L305D:
+  305D  ae2e      MOV R6,2Eh
+  305F  af2f      MOV R7,2Fh
+  3061  748b      MOV A,#8Bh
+  3063  be0030    CJNE R6,#00h,L3096
+  3066  9f        SUBB A,R7
+  3067  402d      JC L3096
+  3069  90057e    MOV DPTR,#057Eh
+  306C  12000e    LCALL L000E
+  306F  74aa      MOV A,#AAh
+  3071  f0        MOVX @DPTR,A
+  3072  a3        INC DPTR
+  3073  74aa      MOV A,#AAh
+  3075  f0        MOVX @DPTR,A
+  3076  0f        INC R7
+  3077  bf0001    CJNE R7,#00h,L307B
+  307A  0e        INC R6
+L307B:
+  307B  90057e    MOV DPTR,#057Eh
+  307E  12000e    LCALL L000E
+  3081  7455      MOV A,#55h
+  3083  f0        MOVX @DPTR,A
+  3084  a3        INC DPTR
+  3085  7455      MOV A,#55h
+  3087  f0        MOVX @DPTR,A
+  3088  782f      MOV R0,#2Fh
+  308A  7402      MOV A,#02h
+  308C  26        ADD A,@R0
+  308D  f6        MOV @R0,A
+  308E  5004      JNC L3094
+  3090  18        DEC R0
+  3091  e4        CLR A
+  3092  36        ADDC A,@R0
+  3093  f6        MOV @R0,A
+L3094:
+  3094  50c7      JNC L305D
+L3096:
+  3096  8048      SJMP L30E0
+L3098:
+  3098  900571    MOV DPTR,#0571h
+  309B  e0        MOVX A,@DPTR
+  309C  b40441    CJNE A,#04h,L30E0
+  309F  752f00    MOV 2Fh,#00h
+  30A2  752e00    MOV 2Eh,#00h
+L30A5:
+  30A5  ae2e      MOV R6,2Eh
+  30A7  af2f      MOV R7,2Fh
+  30A9  748b      MOV A,#8Bh
+  30AB  be0030    CJNE R6,#00h,L30DE
+  30AE  9f        SUBB A,R7
+  30AF  402d      JC L30DE
+  30B1  90057e    MOV DPTR,#057Eh
+  30B4  12000e    LCALL L000E
+  30B7  7455      MOV A,#55h
+  30B9  f0        MOVX @DPTR,A
+  30BA  a3        INC DPTR
+  30BB  7455      MOV A,#55h
+  30BD  f0        MOVX @DPTR,A
+  30BE  0f        INC R7
+  30BF  bf0001    CJNE R7,#00h,L30C3
+  30C2  0e        INC R6
+L30C3:
+  30C3  90057e    MOV DPTR,#057Eh
+  30C6  12000e    LCALL L000E
+  30C9  74aa      MOV A,#AAh
+  30CB  f0        MOVX @DPTR,A
+  30CC  a3        INC DPTR
+  30CD  74aa      MOV A,#AAh
+  30CF  f0        MOVX @DPTR,A
+  30D0  782f      MOV R0,#2Fh
+  30D2  7402      MOV A,#02h
+  30D4  26        ADD A,@R0
+  30D5  f6        MOV @R0,A
+  30D6  5004      JNC L30DC
+  30D8  18        DEC R0
+  30D9  e4        CLR A
+  30DA  36        ADDC A,@R0
+  30DB  f6        MOV @R0,A
+L30DC:
+  30DC  50c7      JNC L30A5
+L30DE:
+  30DE  8000      SJMP L30E0
+L30E0:
+  30E0  120692    LCALL L0692
+  30E3  900571    MOV DPTR,#0571h
+  30E6  e4        CLR A
+  30E7  f0        MOVX @DPTR,A
+L30E8:
+  30E8  8035      SJMP L311F
+  30EA  db AE 30 AF 31 74 8B BE 00 1F 9F 40 1C 90 05 7E 12  ; .0.1t.....@...~.
+  30FA  db 00 0E 74 00 F8 E4 F0 E8 A3 F0 78 31 74 01 26 F6  ; ..t.......x1t.&.
+  310A  db 50 04 18 E4 36 F6 50 D8 C2 10 D2 06 74 0D 90 03  ; P...6.P.....t...
+  311A  db 1E F0 12 06 92  ; .....
+L311F:
+  311F  02232e    LJMP L232E
+  3122  db 1F 1E 1D 1C 1B 1A 19 17 16 15 14 13 12 11 0F 0E  ; ................
+  3132  db 0D 0C 0B 0A 09 07 06 05 04 03 02 01 3F 3E 3D 3C  ; ............?>=<
+  3142  db 3B 3A 39 37 36 35 34 33 32 31 2F 2E 2D 2C 2B 2A  ; ;:97654321/.-,+*
+  3152  db 29 27 26 25 24 23 22 21 5F 5E 5D 5C 5B 5A 59 57  ; )'&%$#"!_^]\[ZYW
+  3162  db 56 55 54 53 52 51 4F 4E 4D 4C 4B 4A 49 47 46 45  ; VUTSRQONMLKJIGFE
+  3172  db 44 43 42 41 7F 7E 7D 7C 7B 7A 79 77 76 75 74 73  ; DCBA.~}|{zywvuts
+  3182  db 72 71 6F 6E 6D 6C 6B 6A 69 67 66 65 64 63 62 61  ; rqonmlkjigfedcba
+  3192  db 7F 7E 7D 7C 7B 7A 79 77 76 75 74 73 72 71 6F 6E  ; .~}|{zywvutsrqon
+  31A2  db 6D 6C 6B 6A 69 67 66 65 64 63 62 61 00 00 00 00  ; mlkjigfedcba....
+  31B2  db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ; ................
+  31C2  db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ; ................
+  31D2  db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ; ................
+  31E2  db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ; ................
+  31F2  db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ; ................
+  3202  db 80 00 40 00 20 00 10 00 08 00 04 00 02 00 01 00  ; ..@. ...........
+  3212  db 00 80 00 40 00 20 00 10 00 08 00 04 00 02 00 01  ; ...@. ..........
+  3222  db 00 01 00 02 00 04 00 08 00 10 00 20 00 40 00 80  ; ........... .@..
+  3232  db 01 00 02 00 04 00 08 00 10 00 20 00 40 00 80 00  ; .......... .@...
+  3242  db 10 60 7E FF 03 00 00 00 00 00 00 00 00 00 00 00  ; .`~.............
+  3252  db 00 00 00 00 00 04 06 06 06 06 06 06 06 06 06 00  ; ................
+  3262  db 00 06 06 00 00 00 04 09 09 09 09 09 00 00 00 00  ; ................
+  3272  db 00 00 00 00 00 00 00 06 00 00 00 00 00 00 00 00  ; ................
+  3282  db 12 3F 12 3F 12 00 00 00 08 00 00 00 18 18 00 3F  ; .?.?...........?
+  3292  db 58 98 18 18 24 42 00 00 00 08 00 18 18 00 3C 5A  ; X...$B........<Z
+  32A2  db 99 98 18 18 24 42 C3 00 00 00 01 00 00 00 00 00  ; ....$B..........
+  32B2  db 00 00 00 00 00 00 00 00 00 00 00 04 06 06 06 0C  ; ................
+  32C2  db 00 00 00 00 00 00 00 00 00 00 00 00 04 01 03 06  ; ................
+  32D2  db 0C 0C 0C 0C 0C 0C 0C 06 03 01 00 00 00 04 08 0C  ; ................
+  32E2  db 06 03 03 03 03 03 03 03 06 0C 08 00 00 00 05 00  ; ................
+  32F2  db 00 00 00 00 00 00 15 0E 1F 0E 15 00 00 00 00 04  ; ................
+  3302  db 00 00 00 00 00 00 02 07 02 00 00 00 00 00 00 00  ; ................
+  3312  db 04 00 00 00 00 00 00 00 00 00 06 06 06 0C 00 00  ; ................
+  3322  db 00 04 00 00 00 00 00 0F 0F 00 00 00 00 00 00 00  ; ................
+  3332  db 00 00 02 00 00 00 00 00 00 00 00 00 00 00 03 03  ; ................
+  3342  db 00 00 00 04 00 01 01 03 03 06 06 0C 0C 08 00 00  ; ................
+  3352  db 00 00 00 00 06 1E 3F 33 33 33 33 33 33 33 33 33  ; ......?333333333
+  3362  db 3F 1E 00 00 00 04 03 07 0F 0F 03 03 03 03 03 03  ; ?...............
+  3372  db 03 03 03 00 00 00 07 3E 7F 63 03 03 07 0E 1C 38  ; .......>.c.....8
+  3382  db 70 60 7F 7F 00 00 00 07 3E 7F 63 03 03 1E 1E 03  ; p`......>.c.....
+  3392  db 03 03 63 7F 3E 00 00 00 07 63 63 63 63 63 7F 7F  ; ..c.>....ccccc..
+  33A2  db 03 03 03 03 03 03 00 00 00 06 3F 3F 30 30 30 3E  ; ..........??000>
+  33B2  db 3F 03 03 03 33 3F 1E 00 00 00 06 1E 3F 33 30 30  ; ?...3?......?300
+  33C2  db 3E 3F 33 33 33 33 3F 1E 00 00 00 06 3F 3F 03 03  ; >?3333?.....??..
+  33D2  db 03 06 0C 18 30 30 30 30 30 00 00 00 06 1E 3F 33  ; ....00000.....?3
+  33E2  db 33 33 1E 1E 33 33 33 33 3F 1E 00 00 00 06 1E 3F  ; 33..3333?......?
+  33F2  db 33 33 33 3F 1F 03 03 03 33 3F 1E 00 00 00 04 00  ; 333?....3?......
+  3402  db 00 00 00 06 06 00 00 06 06 00 00 00 00 00 00 04  ; ................
+  3412  db 00 00 00 00 06 06 00 00 06 06 0C 00 00 00 00 00  ; ................
+  3422  db 04 00 00 00 01 02 04 08 08 04 02 01 00 00 00 00  ; ................
+  3432  db 00 08 7E FF C3 81 9D 9F CF E7 F3 F9 F9 B9 81 C3  ; ..~.............
+  3442  db FF 7E 04 00 00 00 08 04 02 01 01 02 04 08 00 00  ; .~..............
+  3452  db 00 00 00 08 FF FF 99 99 99 99 99 99 99 99 99 99  ; ................
+  3462  db 81 C3 FF FF 07 00 00 00 00 00 00 77 00 00 00 00  ; ...........w....
+  3472  db 00 00 00 00 00 07 3E 7F 63 63 63 7F 7F 63 63 63  ; ......>.ccc..ccc
+  3482  db 63 63 63 00 00 00 07 7E 7F 63 63 63 7E 7E 63 63  ; ccc....~.ccc~~cc
+  3492  db 63 63 7F 7E 00 00 00 07 3E 7F 63 60 60 60 60 60  ; cc.~....>.c`````
+  34A2  db 60 60 63 7F 3E 00 00 00 07 7E 7F 63 63 63 63 63  ; ``c.>....~.ccccc
+  34B2  db 63 63 63 63 7F 7E 00 00 00 05 1F 1F 18 18 18 1E  ; cccc.~..........
+  34C2  db 1E 18 18 18 18 1F 1F 00 00 00 05 1F 1F 18 18 18  ; ................
+  34D2  db 1E 1E 18 18 18 18 18 18 00 00 00 07 3E 7F 63 60  ; ............>.c`
+  34E2  db 60 6F 6F 63 63 63 63 7F 3E 00 00 00 07 63 63 63  ; `oocccc.>....ccc
+  34F2  db 63 63 7F 7F 63 63 63 63 63 63 00 00 00 02 03 03  ; cc..cccccc......
+  3502  db 03 03 03 03 03 03 03 03 03 03 03 00 00 00 06 03  ; ................
+  3512  db 03 03 03 03 03 03 03 03 03 33 3F 1E 00 00 00 07  ; .........3?.....
+  3522  db 63 63 66 66 6C 7C 78 7C 6C 66 66 63 63 00 00 00  ; ccffl|x|lffcc...
+  3532  db 05 18 18 18 18 18 18 18 18 18 18 18 1F 1F 00 00  ; ................
+  3542  db 00 08 81 C3 E7 FF FF DB C3 C3 C3 C3 C3 C3 C3 00  ; ................
+  3552  db 00 00 07 63 63 73 73 7B 7B 6F 6F 67 67 63 63 63  ; ...ccss{{ooggccc
+  3562  db 00 00 00 07 3E 7F 63 63 63 63 63 63 63 63 63 7F  ; ....>.ccccccccc.
+  3572  db 3E 00 00 00 07 7E 7F 63 63 63 7F 7E 60 60 60 60  ; >....~.ccc.~````
+  3582  db 60 60 00 00 00 07 3E 7F 63 63 63 63 63 63 63 6B  ; ``....>.ccccccck
+  3592  db 65 7A 3D 00 00 00 07 7E 7F 63 63 63 7F 7E 6C 6C  ; ez=....~.ccc.~ll
+  35A2  db 66 66 63 63 00 00 00 07 3E 7F 63 60 60 7E 3F 03  ; ffcc....>.c``~?.
+  35B2  db 03 03 63 7F 3E 00 00 00 06 3F 3F 0C 0C 0C 0C 0C  ; ..c.>....??.....
+  35C2  db 0C 0C 0C 0C 0C 0C 00 00 00 07 63 63 63 63 63 63  ; ..........cccccc
+  35D2  db 63 63 63 63 63 7F 3E 00 00 00 08 C3 C3 C3 C3 C3  ; ccccc.>.........
+  35E2  db C3 C3 66 66 3C 3C 18 18 00 00 00 08 C3 C3 C3 C3  ; ..ff<<..........
+  35F2  db C3 DB DB DB FF FF E7 C3 81 00 00 00 08 C3 C3 C3  ; ................
+  3602  db E7 7E 3C 18 3C 7E E7 C3 C3 C3 00 00 00 08 C3 C3  ; .~<.<~..........
+  3612  db 66 66 3C 3C 18 18 18 18 18 18 18 00 00 00 07 7F  ; ff<<............
+  3622  db 7F 06 06 0C 0C 18 18 30 30 60 7F 7F 00 00 00 07  ; .......00`......
+  3632  db 63 63 00 3E 7F 63 63 7F 7F 63 63 63 63 00 00 00  ; cc.>.cc..cccc...
+  3642  db 07 63 63 00 3E 7F 63 63 63 63 63 63 7F 3E 00 00  ; .cc.>.cccccc.>..
+  3652  db 00 07 63 63 00 63 63 63 63 63 63 63 63 7F 3E 00  ; ..cc.cccccccc.>.
+  3662  db 00 00 07 3E 7F 49 49 49 49 49 49 49 49 49 49 41  ; ...>.IIIIIIIIIIA
+  3672  db 63 7F 3E 07 3E 7F 63 41 49 4F 4F 67 73 79 79 49  ; c.>.>.cAIOOgsyyI
+  3682  db 41 63 7F 3E 04 00 00 00 00 00 00 00 00 00 00 00  ; Ac.>............
+  3692  db 00 00 00 00 00 06 00 00 00 00 00 1E 3F 03 1F 3F  ; ............?..?
+  36A2  db 33 3F 1F 00 00 00 06 00 30 30 30 30 3E 3F 33 33  ; 3?......0000>?33
+  36B2  db 33 33 3F 3E 00 00 00 05 00 00 00 00 00 0E 1F 18  ; 33?>............
+  36C2  db 18 18 18 1F 0E 00 00 00 06 00 03 03 03 03 1F 3F  ; ...............?
+  36D2  db 33 33 33 33 3F 1F 00 00 00 06 00 00 00 00 00 1E  ; 3333?...........
+  36E2  db 3F 33 3F 3E 30 3F 1E 00 00 00 05 00 07 0E 0C 0C  ; ?3?>0?..........
+  36F2  db 1F 1F 0C 0C 0C 0C 0C 0C 00 00 00 06 00 00 00 00  ; ................
+  3702  db 00 1E 3F 33 33 33 3F 1F 03 33 3F 1E 06 00 30 30  ; ..?333?..3?...00
+  3712  db 30 30 3E 3F 33 33 33 33 33 33 00 00 00 04 00 00  ; 00>?333333......
+  3722  db 06 06 00 0E 06 06 06 06 06 06 0F 00 00 00 05 00  ; ................
+  3732  db 00 03 03 00 07 03 03 03 03 03 03 03 1B 1F 0E 06  ; ................
+  3742  db 00 30 30 30 30 33 33 36 3E 3C 36 33 33 00 00 00  ; .0000336><633...
+  3752  db 04 00 0E 06 06 06 06 06 06 06 06 06 06 0F 00 00  ; ................
+  3762  db 00 07 00 00 00 00 00 76 7F 6B 6B 6B 6B 6B 6B 00  ; .......v.kkkkkk.
+  3772  db 00 00 06 00 00 00 00 00 3E 3F 33 33 33 33 33 33  ; ........>?333333
+  3782  db 00 00 00 06 00 00 00 00 00 1E 3F 33 33 33 33 3F  ; ..........?3333?
+  3792  db 1E 00 00 00 06 00 00 00 00 00 1E 3F 33 33 33 3F  ; ...........?333?
+  37A2  db 3E 30 30 30 30 06 00 00 00 00 00 1E 3F 33 33 33  ; >0000.......?333
+  37B2  db 3F 1F 03 03 03 03 05 00 00 00 00 00 1E 1F 19 18  ; ?...............
+  37C2  db 18 18 18 18 00 00 00 06 00 00 00 00 00 1E 3F 38  ; ..............?8
+  37D2  db 1C 06 03 3F 1E 00 00 00 05 00 0C 0C 0C 0C 1F 1F  ; ...?............
+  37E2  db 0C 0C 0C 0C 0F 07 00 00 00 06 00 00 00 00 00 33  ; ...............3
+  37F2  db 33 33 33 33 33 3F 1E 00 00 00 07 00 00 00 00 00  ; 33333?..........
+  3802  db 63 63 63 36 36 1C 1C 08 00 00 00 08 00 00 00 00  ; ccc66...........
+  3812  db 00 C3 C3 C3 C3 DB DB 7E 66 00 00 00 06 00 00 00  ; .......~f.......
+  3822  db 00 00 33 33 33 1E 0C 1E 33 33 00 00 00 06 00 00  ; ..333...33......
+  3832  db 00 00 00 33 33 33 33 33 1F 0F 03 03 06 0C 06 00  ; ...33333........
+  3842  db 00 00 00 00 3F 3F 06 0C 18 30 3F 3F 00 00 00 06  ; ....??...0??....
+  3852  db 00 00 33 33 00 1E 3F 03 1F 3F 33 3F 1F 00 00 00  ; ..33..?..?3?....
+  3862  db 06 00 00 33 33 00 1E 3F 33 33 33 33 3F 1E 00 00  ; ...33..?3333?...
+  3872  db 00 06 00 00 33 33 00 33 33 33 33 33 33 3F 1E 00  ; ....33.333333?..
+  3882  db 00 00 06 00 3E 3F 33 33 33 36 36 33 33 33 37 36  ; ....>?3336633376
+  3892  db 30 30 30 08 FE FF FF FF 7F 3F 1F 01 1F 3F 7F FF  ; 000......?...?..
+  38A2  db FF FF FE 00 08 60 FF FF 03 00 00 00 00 00 00 00  ; .....`..........
+  38B2  db 00 02 03 03 03 03 03 00 03 00 05 1B 1B 1B 00 00  ; ................
+  38C2  db 00 00 00 05 0A 0A 1F 0A 1F 0A 0A 00 07 3E 63 4D  ; .............>cM
+  38D2  db 67 73 59 63 3E 07 7F 49 49 49 49 49 63 7F 08 70  ; gsYc>..IIIIIc..p
+  38E2  db 88 50 22 54 88 76 00 03 03 03 06 00 00 00 00 00  ; .P"T.v..........
+  38F2  db 03 01 03 06 06 06 03 01 00 03 04 06 03 03 03 06  ; ................
+  3902  db 04 00 05 04 15 0E 15 0E 15 04 00 06 00 0C 0C 3F  ; ...............?
+  3912  db 0C 0C 00 00 03 00 00 00 00 00 03 03 06 02 00 00  ; ................
+  3922  db 00 03 00 00 00 00 02 00 00 00 00 00 03 03 00 04  ; ................
+  3932  db 00 01 03 06 0C 08 00 00 05 0E 1B 1B 1B 1B 1B 0E  ; ................
+  3942  db 00 04 03 07 0F 03 03 03 03 00 05 0E 13 03 06 0C  ; ................
+  3952  db 18 1F 00 05 0E 1B 03 0E 03 1B 0E 00 06 36 36 36  ; .............666
+  3962  db 3F 06 06 06 00 06 3F 30 30 3E 03 33 1E 00 06 0E  ; ?.....?00>.3....
+  3972  db 18 30 3E 33 33 1E 00 06 3F 33 03 06 0C 18 18 00  ; .0>33...?3......
+  3982  db 06 1E 33 33 1E 33 33 1E 00 06 1E 33 33 1F 03 06  ; ..33.33....33...
+  3992  db 1C 00 04 00 06 06 00 06 06 00 00 04 00 00 00 06  ; ................
+  39A2  db 00 06 06 0C 04 0F 0C 0C 0C 0C 0C 0F 00 04 00 00  ; ................
+  39B2  db 0F 00 0F 00 00 00 04 0F 03 03 03 03 03 0F 00 06  ; ................
+  39C2  db 1E 33 03 06 0C 00 0C 00 05 00 00 00 1B 00 00 00  ; .3..............
+  39D2  db 00 06 0C 1E 33 33 3F 33 33 00 06 3E 33 33 3E 33  ; ....33?33..>33>3
+  39E2  db 33 3E 00 06 1E 33 30 30 30 33 1E 00 06 3E 33 33  ; 3>...30003...>33
+  39F2  db 33 33 33 3E 00 05 1F 18 18 1F 18 18 1F 00 05 1F  ; 333>............
+  3A02  db 18 18 1E 18 18 18 00 06 1E 33 30 37 33 33 1E 00  ; .........30733..
+  3A12  db 06 33 33 33 3F 33 33 33 00 04 0F 06 06 06 06 06  ; .333?333........
+  3A22  db 0F 00 04 0F 03 03 03 03 0B 06 00 06 33 36 3C 38  ; ............36<8
+  3A32  db 3C 36 33 00 05 18 18 18 18 18 18 1F 00 07 41 63  ; <63...........Ac
+  3A42  db 77 7F 6B 63 63 00 06 33 33 3B 3F 37 33 33 00 06  ; w.kcc..33;?733..
+  3A52  db 1E 33 33 33 33 33 1E 00 06 3E 33 33 3E 30 30 30  ; .33333...>33>000
+  3A62  db 00 06 1E 33 33 33 35 32 1D 00 06 3E 33 33 3E 3C  ; ...33352...>33><
+  3A72  db 36 33 00 06 1E 33 30 1E 03 33 1E 00 06 3F 0C 0C  ; 63...30..3...?..
+  3A82  db 0C 0C 0C 0C 00 06 33 33 33 33 33 33 1E 00 07 63  ; ......333333...c
+  3A92  db 63 63 63 36 1C 08 00 07 63 63 63 6B 7F 77 63 00  ; ccc6....ccck.wc.
+  3AA2  db 06 33 33 1E 0C 1E 33 33 00 06 33 33 33 1E 0C 0C  ; .33...33..333...
+  3AB2  db 0C 00 06 3F 03 06 0C 18 30 3F 00 06 33 00 1E 33  ; ...?....0?..3..3
+  3AC2  db 3F 33 33 00 06 33 00 1E 33 33 33 1E 00 06 33 00  ; ?33..3..333...3.
+  3AD2  db 33 33 33 33 1E 00 07 3E 49 49 49 49 41 63 3E 08  ; 3333...>IIIIAc>.
+  3AE2  db 7E C3 99 CF F3 99 C3 7E 03 06 06 03 00 00 00 00  ; ~......~........
+  3AF2  db 00 06 00 00 1E 03 1F 33 1F 00 06 30 30 3E 33 33  ; .......3...00>33
+  3B02  db 33 3E 00 05 00 00 0F 18 18 18 0F 00 06 03 03 1F  ; 3>..............
+  3B12  db 33 33 33 1F 00 06 00 00 1E 33 3F 30 1E 00 05 07  ; 333......3?0....
+  3B22  db 0C 1E 0C 0C 0C 0C 00 06 00 00 1E 33 33 1F 03 1E  ; ...........33...
+  3B32  db 06 30 30 3E 33 33 33 33 00 03 06 00 06 06 06 06  ; .00>3333........
+  3B42  db 03 00 04 03 00 03 03 03 03 0B 06 06 30 30 33 36  ; ............0036
+  3B52  db 3C 36 33 00 03 06 06 06 06 06 06 03 00 07 00 00  ; <63.............
+  3B62  db 76 6B 6B 6B 6B 00 06 00 00 3E 33 33 33 33 00 06  ; vkkkk....>3333..
+  3B72  db 00 00 1E 33 33 33 1E 00 06 00 00 3E 33 33 3E 30  ; ...333.....>33>0
+  3B82  db 30 06 00 00 1F 33 33 1F 03 03 05 00 00 1E 1B 18  ; 0....33.........
+  3B92  db 18 18 00 05 00 00 0F 18 0E 03 1E 00 04 06 06 0F  ; ................
+  3BA2  db 06 06 06 03 00 06 00 00 33 33 33 33 1F 00 06 00  ; ........3333....
+  3BB2  db 00 33 33 33 1E 0C 00 07 00 00 63 6B 6B 6B 36 00  ; .333......ckkk6.
+  3BC2  db 07 00 00 63 36 1C 36 63 00 06 00 00 33 33 33 1F  ; ...c6.6c....333.
+  3BD2  db 03 1E 04 00 00 0F 03 06 0C 0F 00 06 33 00 1E 03  ; ............3...
+  3BE2  db 1F 33 1F 00 06 33 00 1E 33 33 33 1E 00 06 33 00  ; .3...3..333...3.
+  3BF2  db 33 33 33 33 1F 00 06 3E 33 33 36 33 33 36 30 05  ; 3333...>3363360.
+  3C02  db 1F 1F 1F 1F 1F 1F 1F 00 08 60 FF FF 01 00 00 00  ; .........`......
+  3C12  db 00 00 00 00 00 01 01 01 01 01 01 00 01 00 03 05  ; ................
+  3C22  db 05 05 00 00 00 00 00 05 0A 0A 1F 0A 1F 0A 0A 00  ; ................
+  3C32  db 07 3E 63 4D 67 73 59 63 3E 07 7F 49 49 49 49 49  ; .>cMgsYc>..IIIII
+  3C42  db 63 7F 05 00 00 00 00 00 00 00 00 02 01 01 02 00  ; c...............
+  3C52  db 00 00 00 00 02 01 02 02 02 02 02 01 00 02 02 01  ; ................
+  3C62  db 01 01 01 01 02 00 05 04 15 0E 15 0E 15 04 00 05  ; ................
+  3C72  db 00 04 04 1F 04 04 00 00 02 00 00 00 00 00 01 01  ; ................
+  3C82  db 02 02 00 00 00 03 00 00 00 00 01 00 00 00 00 00  ; ................
+  3C92  db 00 01 00 03 00 00 01 02 04 00 00 00 04 06 09 09  ; ................
+  3CA2  db 09 09 09 06 00 03 02 06 02 02 02 02 07 00 04 06  ; ................
+  3CB2  db 09 01 02 04 08 0F 00 04 06 09 01 06 01 09 06 00  ; ................
+  3CC2  db 04 08 0A 0A 0F 02 02 02 00 04 0F 08 0E 01 01 09  ; ................
+  3CD2  db 06 00 04 06 08 08 0E 09 09 06 00 04 0F 01 01 02  ; ................
+  3CE2  db 04 04 04 00 04 06 09 09 06 09 09 06 00 04 06 09  ; ................
+  3CF2  db 09 07 01 01 06 00 01 00 00 01 00 00 01 00 00 03  ; ................
+  3D02  db 00 00 00 02 00 02 02 04 04 0E 08 08 08 08 08 0E  ; ................
+  3D12  db 00 04 00 00 00 0F 00 0F 00 00 04 07 01 01 01 01  ; ................
+  3D22  db 01 07 00 04 06 09 01 02 04 00 04 00 05 00 00 00  ; ................
+  3D32  db 1B 00 00 00 00 04 06 09 09 0F 09 09 09 00 04 0E  ; ................
+  3D42  db 09 09 0E 09 09 0E 00 04 06 09 08 08 08 09 06 00  ; ................
+  3D52  db 04 0E 09 09 09 09 09 0E 00 04 0F 08 08 0E 08 08  ; ................
+  3D62  db 0F 00 04 0F 08 08 0E 08 08 08 00 04 06 09 08 0B  ; ................
+  3D72  db 09 09 07 00 04 09 09 09 0F 09 09 09 00 01 01 01  ; ................
+  3D82  db 01 01 01 01 01 00 04 01 01 01 01 01 09 06 00 04  ; ................
+  3D92  db 09 0A 0C 08 0C 0A 09 00 03 04 04 04 04 04 04 07  ; ................
+  3DA2  db 00 05 11 1B 15 15 11 11 11 00 05 11 11 19 15 13  ; ................
+  3DB2  db 11 11 00 04 06 09 09 09 09 09 06 00 04 0E 09 09  ; ................
+  3DC2  db 0E 08 08 08 00 05 0C 12 12 12 12 16 0F 00 04 0E  ; ................
+  3DD2  db 09 09 0E 0C 0A 09 00 04 06 09 08 06 01 09 06 00  ; ................
+  3DE2  db 03 07 02 02 02 02 02 02 00 04 09 09 09 09 09 09  ; ................
+  3DF2  db 06 00 05 11 11 11 11 11 0A 04 00 05 11 11 11 15  ; ................
+  3E02  db 15 15 0A 00 05 11 11 0A 04 0A 11 11 00 05 11 11  ; ................
+  3E12  db 0A 04 04 04 04 00 04 0F 01 03 06 0C 08 0F 00 04  ; ................
+  3E22  db 09 06 09 09 0F 09 09 00 04 09 06 09 09 09 09 06  ; ................
+  3E32  db 00 04 09 00 09 09 09 09 06 00 06 1E 2D 2D 2D 2D  ; ............----
+  3E42  db 2D 33 1E 06 1E 33 2D 37 3B 2D 33 1E 02 02 02 01  ; -3...3-7;-3.....
+  3E52  db 00 00 00 00 00 04 00 00 06 01 07 09 07 00 04 08  ; ................
+  3E62  db 08 0E 09 09 09 0E 00 03 00 00 03 04 04 04 03 00  ; ................
+  3E72  db 04 01 01 07 09 09 09 07 00 04 00 00 06 09 0F 08  ; ................
+  3E82  db 06 00 03 01 02 07 02 02 02 02 00 04 00 00 06 09  ; ................
+  3E92  db 09 07 01 06 04 08 08 0E 09 09 09 09 00 01 01 00  ; ................
+  3EA2  db 01 01 01 01 01 00 03 01 00 01 01 01 05 02 00 04  ; ................
+  3EB2  db 08 08 09 0A 0C 0A 09 00 02 02 02 02 02 02 02 01  ; ................
+  3EC2  db 00 05 00 00 1A 15 15 15 15 00 04 00 00 0E 09 09  ; ................
+  3ED2  db 09 09 00 04 00 00 06 09 09 09 06 00 04 00 00 0E  ; ................
+  3EE2  db 09 09 0E 08 08 04 00 00 07 09 09 07 01 01 03 00  ; ................
+  3EF2  db 00 06 05 04 04 04 00 04 00 00 07 08 06 01 0E 00  ; ................
+  3F02  db 03 02 02 07 02 02 02 01 00 04 00 00 09 09 09 09  ; ................
+  3F12  db 06 00 03 00 00 05 05 05 05 02 00 05 00 00 11 15  ; ................
+  3F22  db 15 15 0A 00 05 00 00 11 0A 04 0A 11 00 04 00 00  ; ................
+  3F32  db 09 09 09 07 01 06 03 00 00 07 01 02 04 07 00 04  ; ................
+  3F42  db 09 00 06 01 07 09 07 00 04 09 00 06 09 09 09 06  ; ................
+  3F52  db 00 04 09 00 09 09 09 09 06 00 04 0E 09 09 0A 09  ; ................
+  3F62  db 0A 08 08 05 1F 1F 1F 1F 1F 1F 1F 1F 10 60 61 FF  ; .............`a.
+  3F72  db 07 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ; ................
+  3F82  db 00 07 1C 1C 1C 1C 1C 1C 1C 1C 1C 1C 1C 00 00 1C  ; ................
+  3F92  db 1C 1C 07 33 33 33 00 00 00 00 00 00 00 00 00 00  ; ...333..........
+  3FA2  db 00 00 00 07 00 00 00 00 00 14 14 7F 14 14 7F 14  ; ................
+  3FB2  db 14 00 00 00 07 00 00 00 00 00 00 00 18 18 00 1F  ; ................
+  3FC2  db 38 58 18 18 24 07 00 00 00 00 0C 0C 00 1E 2D 4D  ; 8X..$.........-M
+  3FD2  db 4C 0C 0C 12 21 63 07 7F 7F 7F 7F 7F 7F 7F 7F 7F  ; L...!c..........
+  3FE2  db 7F 7F 7F 7F 7F 7F 7F 07 0C 0C 0C 18 00 00 00 00  ; ................
+  3FF2  db 00 00 00 00 00 00 00 00 06 03 07 0E 1C 38 38 38  ; .............888
+  4002  db 38 38 38 38 38 1C 0E 07 03 06 30 38 1C 0E 07 07  ; 88888.....08....
+  4012  db 07 07 07 07 07 07 0E 1C 38 30 07 00 00 00 00 00  ; ........80......
+  4022  db 49 2A 1C 7F 1C 2A 49 00 00 00 00 07 00 00 00 00  ; I*...*I.........
+  4032  db 00 1C 1C 7F 7F 7F 1C 1C 00 00 00 00 05 00 00 00  ; ................
+  4042  db 00 00 00 00 00 00 00 00 07 07 07 0E 1C 07 00 00  ; ................
+  4052  db 00 00 00 00 7F 7F 7F 00 00 00 00 00 00 00 03 00  ; ................
+  4062  db 00 00 00 00 00 00 00 00 00 00 00 00 07 07 07 08  ; ................
+  4072  db 00 00 07 07 0E 0E 1C 1C 38 38 70 70 E0 E0 00 00  ; ........88pp....
+  4082  db 08 3C 7E FF E7 E7 E7 E7 E7 E7 E7 E7 E7 E7 FF 7E  ; .<~............~
+  4092  db 3C 06 07 0F 1F 3F 3F 07 07 07 07 07 07 07 07 07  ; <....??.........
+  40A2  db 07 07 08 7E FF FF E7 07 07 0F 1E 3C 78 F0 E0 E0  ; ...~.......<x...
+  40B2  db FF FF FF 08 7E FF FF E7 07 07 3E 3E 3E 07 07 07  ; ....~.....>>>...
+  40C2  db E7 FF FF 7E 08 E0 E0 E0 E0 E7 E7 E7 FF FF FF 07  ; ...~............
+  40D2  db 07 07 07 07 07 08 FF FF FF E0 E0 E0 FE FF FF 07  ; ................
+  40E2  db 07 07 E7 FF FF 7E 08 0E 1E 3C 78 F0 E0 E0 FE FF  ; .....~...<x.....
+  40F2  db FF E7 E7 E7 FF FF 7E 08 FF FF FF 07 07 07 07 07  ; ......~.........
+  4102  db 0E 1C 38 38 38 38 38 38 08 7E FF FF E7 E7 E7 7E  ; ..888888.~.....~
+  4112  db 3C 7E E7 E7 E7 E7 FF FF 7E 08 7E FF FF E7 E7 E7  ; <~......~.~.....
+  4122  db FF FF 7F 07 07 0F 1E 3C 78 70 07 00 00 00 00 00  ; .......<xp......
+  4132  db 00 00 0C 0C 00 00 0C 0C 00 00 00 07 00 00 00 00  ; ................
+  4142  db 00 00 00 0C 0C 00 00 0C 0C 18 00 00 07 00 00 00  ; ................
+  4152  db 03 06 0C 18 30 60 30 18 0C 06 03 00 00 07 00 00  ; ....0`0.........
+  4162  db 00 00 00 00 7F 7F 00 00 7F 7F 00 00 00 00 07 00  ; ................
+  4172  db 00 00 60 30 18 0C 06 03 06 0C 18 30 60 00 00 07  ; ..`0.......0`...
+  4182  db 00 00 00 3E 7F 63 03 03 03 06 0C 0C 00 0C 0C 00  ; ...>.c..........
+  4192  db 07 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ; ................
+  41A2  db 00 08 3C 7E FF E7 E7 E7 FF FF FF E7 E7 E7 E7 E7  ; ..<~............
+  41B2  db E7 E7 08 FC FE FF E7 E7 E7 FE FC FE E7 E7 E7 E7  ; ................
+  41C2  db FF FE FC 08 3C 7E FF E7 E0 E0 E0 E0 E0 E0 E0 E0  ; ....<~..........
+  41D2  db E7 FF FF 7E 08 FC FE FF E7 E7 E7 E7 E7 E7 E7 E7  ; ...~............
+  41E2  db E7 E7 FF FE FC 07 7F 7F 7F 70 70 70 7E 7E 7E 70  ; .........ppp~~~p
+  41F2  db 70 70 70 7F 7F 7F 07 7F 7F 7F 70 70 70 7E 7E 7E  ; ppp.......ppp~~~
+  4202  db 70 70 70 70 70 70 70 08 3C 7E FF E7 E0 E0 E0 EF  ; ppppppp.<~......
+  4212  db EF EF E7 E7 E7 FF FF 7E 08 E7 E7 E7 E7 E7 E7 FF  ; .......~........
+  4222  db FF FF E7 E7 E7 E7 E7 E7 E7 05 1F 0E 0E 0E 0E 0E  ; ................
+  4232  db 0E 0E 0E 0E 0E 0E 0E 0E 0E 1F 07 07 07 07 07 07  ; ................
+  4242  db 07 07 07 07 07 07 07 77 7F 3E 1C 08 E7 E7 E6 EE  ; .......w.>......
+  4252  db EE FC FC F8 F8 FC FC EC EE EE E7 E7 07 70 70 70  ; .............ppp
+  4262  db 70 70 70 70 70 70 70 70 70 70 7F 7F 7F 08 E1 F3  ; pppppppppp......
+  4272  db FF FF EB EB EB E3 E3 E3 E3 E3 E3 E3 E3 E3 08 E7  ; ................
+  4282  db E7 F7 F7 F7 FF FF FF EF EF EF EF E7 E7 E7 E7 08  ; ................
+  4292  db 3C 7E FF E7 E7 E7 E7 E7 E7 E7 E7 E7 E7 FF 7E 3C  ; <~............~<
+  42A2  db 08 FC FE FF E7 E7 FF FE FC E0 E0 E0 E0 E0 E0 E0  ; ................
+  42B2  db E0 08 3C 7E FF E7 E7 E7 E7 E7 E7 E7 E7 E7 EB F5  ; ..<~............
+  42C2  db 7A 3D 08 FC FE FF E7 E7 E7 FF FE FC FC EE EE EE  ; z=..............
+  42D2  db E6 E7 E7 08 7E FF FF E7 E0 F0 78 3C 1E 0F 07 07  ; ....~.....x<....
+  42E2  db E7 FF FF 7E 07 7F 7F 7F 1C 1C 1C 1C 1C 1C 1C 1C  ; ...~............
+  42F2  db 1C 1C 1C 1C 1C 08 E7 E7 E7 E7 E7 E7 E7 E7 E7 E7  ; ................
+  4302  db E7 E7 E7 FF 7E 3C 08 E7 E7 E7 E7 E7 E7 E7 E7 E7  ; ....~<..........
+  4312  db E7 66 7E 3C 3C 18 18 08 E3 E3 E3 E3 E3 E3 E3 E3  ; .f~<<...........
+  4322  db E3 EB EB EB FF FF F7 E3 08 E7 E7 E7 E7 E7 FF 7E  ; ...............~
+  4332  db 3C 18 3C 7E FF E7 E7 E7 E7 07 63 63 63 77 77 77  ; <.<~......cccwww
+  4342  db 7F 3E 1C 1C 1C 1C 1C 1C 1C 1C 07 7F 7F 7F 07 07  ; .>..............
+  4352  db 0E 0E 1C 1C 38 38 70 70 7F 7F 7F 08 E7 E7 E7 00  ; ....88pp........
+  4362  db 3C 7E E7 E7 E7 FF FF FF E7 E7 E7 E7 08 E7 E7 E7  ; <~..............
+  4372  db 00 3C 7E FF E7 E7 E7 E7 E7 E7 FF 7E 3C 08 E7 E7  ; .<~........~<...
+  4382  db E7 00 E7 E7 E7 E7 E7 E7 E7 E7 E7 FF 7E 3C 08 3C  ; ............~<.<
+  4392  db 7E E7 E7 E6 EE EF E7 E7 E7 EF EE EC E0 E0 E0 07  ; ~...............
+  43A2  db 7F 7F 7F 7F 7F 7F 7F 7F 7F 7F 7F 7F 7F 7F 7F 7F  ; ................
+  43B2  db 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ; ................
+  43C2  db 00 08 7F 40 58 58 58 58 58 58 58 58 5D 4F 47 40  ; ...@XXXXXXXX]OG@
+  43D2  db 7F 00 05 1E 02 1A 1A 1A 1A 1A 1A 1A 1A 1A 12 02  ; ................
+  43E2  db 02 1E 00 06 1F 10 10 13 17 16 16 17 13 10 10 17  ; ................
+  43F2  db 13 10 1F 00 06 3E 02 02 32 3A 02 02 32 3A 1A 1A  ; .....>..2:..2:..
+  4402  db 3A 32 02 3E 00 08 3F 7F 7D 7C 7C 7E 5E 60 5E 7E  ; :2.>..?.}||~^`^~
+  4412  db 7C 7C 7D 7F 3F 00 08 FE FF FF FF 7F 3F 1F 01 1F  ; ||}.?.......?...
+  4422  db 3F 7F FF FF FF FE 00 08 03 0F 1D 3C 3C 7E 5E 60  ; ?..........<<~^`
+  4432  db 5E 7E 3C 3C 1D 0F 03 00 08 E0 F8 FC FE 7E 3F 1F  ; ^~<<.........~?.
+  4442  db 01 1F 3F 7E FE FC F8 E0 00 01 00 00 00 00 00 00  ; ..?~............
+  4452  db 00 00 00 00 00 00 00 00 00 00 08 00 0E 1F 1F 0E  ; ................
+  4462  db 06 0F 1E 2F 4F 0F 1F 31 60 C1 00 08 00 00 00 C1  ; .../O..1`.......
+  4472  db C3 23 01 80 41 23 1D 01 83 C6 8C 00 06 00 00 00  ; .#..A#..........
+  4482  db 30 38 38 30 30 38 3C 3A 38 0C 06 04 00 08 7F FF  ; 088008<:8.......
+  4492  db 00 F8 FC CC CC FD F9 C0 C0 C0 00 FF 7F 00 08 FF  ; ................
+  44A2  db FF 00 03 03 63 63 FB FB 63 63 03 00 FF FF 00 05  ; ....cc..cc......
+  44B2  db 1C 1E 00 1C 1E 06 06 1E 1C 0C 06 06 00 1E 1C 00  ; ................
+  44C2  db 08 07 1F 18 0C 06 03 7F FC 00 00 00 00 00 00 00  ; ................
+  44D2  db 00 03 07 06 00 00 00 00 00 00 00 00 00 00 00 00  ; ................
+  44E2  db 00 00 08 07 19 21 41 41 43 83 83 83 87 4E 4C 50  ; .....!AAC....NLP
+  44F2  db 20 18 07 07 60 18 04 02 02 42 41 41 41 61 72 32  ;  ...`....BAAAar2
+  4502  db 0A 04 18 60 08 00 01 01 00 7F FF 7F 07 0B 1D 3A  ; ...`...........:
+  4512  db 37 0E 1C 38 30 08 C0 E0 E0 C0 F0 F8 FC FE EE DC  ; 7..80...........
+  4522  db B8 30 00 40 A0 40 01 00 00 00 00 00 00 00 00 00  ; .0.@.@..........
+  4532  db 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00  ; ................
+  4542  db 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00  ; ................
+  4552  db 00 00 00 00 00 00 00 00 00 08 03 0D 32 34 4E 5F  ; ............24N_
+  4562  db 9E A2 C1 A3 7F 63 21 31 0F 03 08 C0 B0 4C 2C 72  ; .....c!1.....L,r
+  4572  db FA 79 45 83 C5 FE C6 84 8C F0 C0 01 00 00 00 00  ; .yE.............
+  4582  db 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00  ; ................
+  4592  db 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00  ; ................
+  45A2  db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00  ; ................
+  45B2  db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01  ; ................
+  45C2  db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ; ................
+  45D2  db 0D 60 61 FF 07 00 00 00 00 00 00 00 00 00 00 00  ; .`a.............
+  45E2  db 00 00 07 00 0C 0C 0C 0C 0C 0C 0C 0C 00 0C 0C 00  ; ................
+  45F2  db 07 00 33 33 33 33 00 00 00 00 00 00 00 00 07 00  ; ..3333..........
+  4602  db 00 00 00 14 14 7F 14 14 7F 14 14 00 07 00 00 00  ; ................
+  4612  db 1C 1C 08 1C 7E 1D 1C 1C 14 36 07 1C 1C 1C 08 1C  ; ....~....6......
+  4622  db 3E 5D 5D 3E 7F 14 14 36 07 7F 7F 7F 7F 7F 7F 7F  ; >]]>...6........
+  4632  db 7F 7F 7F 7F 7F 7F 07 00 0C 0C 0C 18 00 00 00 00  ; ................
+  4642  db 00 00 00 00 07 00 0C 18 30 60 60 60 60 60 30 18  ; ........0`````0.
+  4652  db 0C 00 07 00 18 0C 06 03 03 03 03 03 06 0C 18 00  ; ................
+  4662  db 07 00 00 00 49 2A 1C 7F 1C 2A 49 00 00 00 07 00  ; ....I*...*I.....
+  4672  db 00 00 00 0C 0C 3F 3F 0C 0C 00 00 00 07 00 00 00  ; .....??.........
+  4682  db 00 00 00 00 00 0C 0C 0C 18 00 07 00 00 00 00 00  ; ................
+  4692  db 00 7F 7F 00 00 00 00 00 07 00 00 00 00 00 00 00  ; ................
+  46A2  db 00 00 00 0C 0C 00 07 00 03 03 06 06 0C 0C 18 18  ; ................
+  46B2  db 30 30 60 60 07 3E 7F 63 63 63 63 63 63 63 63 63  ; 00``.>.ccccccccc
+  46C2  db 7F 3E 07 06 0E 3E 3E 06 06 06 06 06 06 06 06 0F  ; .>...>>.........
+  46D2  db 07 3E 7F 63 03 03 07 0E 1C 38 70 60 7F 7F 07 3E  ; .>.c.....8p`...>
+  46E2  db 7F 63 03 03 1E 1E 03 03 03 63 7F 3E 07 60 60 66  ; .c.......c.>.``f
+  46F2  db 66 66 66 7F 7F 06 06 06 06 06 07 7F 7F 60 60 60  ; fff..........```
+  4702  db 7E 7F 03 03 03 63 7F 3E 07 3E 7F 63 60 60 7E 7F  ; ~....c.>.>.c``~.
+  4712  db 63 63 63 63 7F 3E 07 7F 7F 03 03 03 07 0E 1C 38  ; cccc.>.........8
+  4722  db 30 30 30 30 07 3E 7F 63 63 63 3E 3E 63 63 63 63  ; 0000.>.ccc>>cccc
+  4732  db 7F 3E 07 3E 7F 63 63 63 7F 3F 03 03 03 63 7F 3E  ; .>.>.ccc.?...c.>
+  4742  db 07 00 00 00 00 0C 0C 00 00 0C 0C 00 00 00 07 00  ; ................
+  4752  db 00 00 00 0C 0C 00 00 0C 0C 18 00 00 07 00 03 06  ; ................
+  4762  db 0C 18 30 60 30 18 0C 06 03 00 07 00 00 00 00 7F  ; ..0`0...........
+  4772  db 7F 00 00 7F 7F 00 00 00 07 00 60 30 18 0C 06 03  ; ..........`0....
+  4782  db 06 0C 18 30 60 00 07 3E 7F 63 03 03 03 06 0C 0C  ; ...0`..>.c......
+  4792  db 00 0C 0C 00 07 00 00 00 00 00 00 00 00 00 00 00  ; ................
+  47A2  db 00 00 07 3E 7F 63 63 63 63 7F 7F 63 63 63 63 63  ; ...>.cccc..ccccc
+  47B2  db 07 7E 7F 63 63 63 7E 7E 63 63 63 63 7F 7E 07 3E  ; .~.ccc~~cccc.~.>
+  47C2  db 7F 63 60 60 60 60 60 60 60 63 7F 3E 07 7E 7F 63  ; .c```````c.>.~.c
+  47D2  db 63 63 63 63 63 63 63 63 7F 7E 07 7F 7F 60 60 60  ; cccccccc.~...```
+  47E2  db 7E 7E 60 60 60 60 7F 7F 07 7F 7F 60 60 60 7E 7E  ; ~~````.....```~~
+  47F2  db 60 60 60 60 60 60 07 3E 7F 63 63 60 60 6E 6F 63  ; ``````.>.cc``noc
+  4802  db 63 63 7F 3E 07 63 63 63 63 63 7F 7F 63 63 63 63  ; cc.>.ccccc..cccc
+  4812  db 63 63 07 3C 18 18 18 18 18 18 18 18 18 18 18 3C  ; cc.<...........<
+  4822  db 07 03 03 03 03 03 03 03 03 03 63 63 7F 1E 07 61  ; ..........cc...a
+  4832  db 63 66 6C 78 70 60 70 78 6C 66 63 61 07 60 60 60  ; cflxp`pxlfca.```
+  4842  db 60 60 60 60 60 60 60 60 7F 7F 07 63 77 77 6B 6B  ; ````````...cwwkk
+  4852  db 63 63 63 63 63 63 63 63 07 63 63 63 63 73 7B 6B  ; cccccccc.ccccs{k
+  4862  db 6F 67 63 63 63 63 07 3E 7F 63 63 63 63 63 63 63  ; ogcccc.>.ccccccc
+  4872  db 63 63 7F 3E 07 7E 7F 63 63 63 7F 7E 60 60 60 60  ; cc.>.~.ccc.~````
+  4882  db 60 60 07 3E 7F 63 63 63 63 63 63 63 6B 65 7B 3E  ; ``.>.cccccccke{>
+  4892  db 07 7E 7F 63 63 63 7F 7E 78 6C 6C 66 66 63 07 3E  ; .~.ccc.~xllffc.>
+  48A2  db 7F 63 60 60 7E 3F 03 03 03 63 7F 3E 07 3F 3F 0C  ; .c``~?...c.>.??.
+  48B2  db 0C 0C 0C 0C 0C 0C 0C 0C 0C 0C 07 63 63 63 63 63  ; ...........ccccc
+  48C2  db 63 63 63 63 63 63 7F 3E 07 63 63 63 63 63 36 36  ; cccccc.>.ccccc66
+  48D2  db 36 36 14 14 1C 1C 07 63 63 63 63 63 63 63 6B 6B  ; 66.....ccccccckk
+  48E2  db 6B 77 77 63 07 63 63 63 77 3E 1C 08 1C 3E 77 63  ; kwwc.cccw>...>wc
+  48F2  db 63 63 07 63 63 63 63 36 36 36 18 18 18 18 18 18  ; cc.cccc666......
+  4902  db 07 7F 7F 03 06 06 0C 0C 18 30 30 60 7F 7F 07 63  ; .........00`...c
+  4912  db 63 00 3E 7F 63 63 7F 7F 63 63 63 63 07 63 63 00  ; c.>.cc..cccc.cc.
+  4922  db 3E 7F 63 63 63 63 63 63 7F 3E 07 63 63 00 00 63  ; >.cccccc.>.cc..c
+  4932  db 63 63 63 63 63 63 7F 3E 07 3E 7F 63 63 6E 6E 63  ; cccccc.>.>.ccnnc
+  4942  db 63 63 63 6F 6F 60 07 7F 7F 7F 7F 7F 7F 7F 7F 7F  ; cccoo`..........
+  4952  db 7F 7F 7F 7F 01 00 00 00 00 00 00 00 00 00 00 00  ; ................
+  4962  db 00 00 01 00 00 00 00 00 00 00 01 01 01 00 01 00  ; ................
+  4972  db 01 00 00 00 00 00 00 00 00 00 00 00 00 00 01 01  ; ................
+  4982  db 01 00 00 01 01 00 00 01 01 00 01 00 01 00 00 00  ; ................
+  4992  db 00 00 00 00 00 00 00 00 00 00 08 3F 7D 7C 7C 7E  ; ...........?}||~
+  49A2  db 5E 60 5E 7E 7C 7C 7D 3F 08 FE FF FF 7F 3F 1F 01  ; ^`^~||}?.....?..
+  49B2  db 1F 3F 7F FF FF FE 08 03 0F 1D 3C 7E 5E 60 5E 7E  ; .?........<~^`^~
+  49C2  db 3C 1D 0F 03 08 E0 F8 FC 7E 3F 1F 01 1F 3F 7E FC  ; <.......~?...?~.
+  49D2  db F8 E0 01 01 00 01 00 01 01 01 01 01 00 00 00 00  ; ................
+  49E2  db 08 0E 1F 1F 0E 06 0F 1E 2F 4F 1F 31 60 C1 08 00  ; ......../O.1`...
+  49F2  db 00 C1 C3 23 01 80 41 23 1D 83 C6 8C 06 00 00 30  ; ...#..A#.......0
+  4A02  db 38 38 30 30 38 3C 3A 0C 06 04 08 FF 00 F8 FC CC  ; 88008<:.........
+  4A12  db CC FD F9 C0 C0 C0 00 FF 08 FF 00 03 03 63 63 FB  ; .............cc.
+  4A22  db FB 63 63 03 00 FF 05 1E 00 1C 1E 06 06 1E 1C 0C  ; .cc.............
+  4A32  db 06 06 00 1E 08 07 1F 18 0C 06 03 7F FC 00 00 00  ; ................
+  4A42  db 00 00 03 07 06 00 00 00 00 00 00 00 00 00 00 00  ; ................
+  4A52  db 07 03 0D 11 21 41 43 43 43 46 2C 10 0C 03 06 20  ; ....!ACCCF,.... 
+  4A62  db 18 04 02 01 21 21 21 31 1A 04 18 20 08 04 0E 0E  ; ....!!!1... ....
+  4A72  db 04 FF FF 0E 1E 3E 6C 19 32 61 05 00 00 00 00 10  ; .....>l.2a......
+  4A82  db 18 0C 18 10 00 00 10 00 08 0F 30 40 5E 86 87 86  ; ..........0@^...
+  4A92  db 87 8D 59 40 30 0F 05 10 0C 02 1E 19 11 01 01 15  ; ..Y@0...........
+  4AA2  db 1A 02 0C 10 01 00 00 00 00 00 00 00 00 00 00 00  ; ................
+  4AB2  db 00 00 07 07 19 2B 27 43 44 48 5C 7F 3C 38 18 07  ; .....+'CDH\.<8..
+  4AC2  db 06 30 0C 2A 32 21 11 09 1D 3F 1E 0E 0C 30 01 00  ; .0.*2!...?...0..
+  4AD2  db 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00  ; ................
+  4AE2  db 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00 00  ; ................
+  4AF2  db 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00  ; ................
+  4B02  db 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00  ; ................
+  4B12  db 00 00 00 00 46 30 30 32 39 33 00 00 00 00 07 00  ; ....F00293......
+  4B22  db 00 0E 01 00 15 01 00 1C 01 32 02 31 22 00 00 00  ; .........2.1"...
+  4B32  db 00 00 00 00 00 00 3A 32 02 31 22 1C 10 54 10 00  ; ......:2.1"..T..
+  4B42  db 00 01 01 00 3A 32 02 31 92 1C 10 00 00 00 00 01  ; ....:2.1........
+  4B52  db 01 00 3A 32 02 31 92 1C 10 00 00 00 00 01 01 00  ; ..:2.1..........
+  4B62  db 3A 32 02 31 92 1C 10 00 00 00 00 01 01 00 3A 32  ; :2.1..........:2
+  4B72  db 02 31 22 1C 10 54 10 00 00 00 00 00 3A 32 02 31  ; .1"..T......:2.1
+  4B82  db 22 15 10 54 10 00 00 00 00 00 3A 32 02 31 22 15  ; "..T......:2.1".
+  4B92  db 10 00 00 00 00 00 00 00 3A 32 02 31 22 15 10 00  ; ........:2.1"...
+  4BA2  db 00 00 00 00 00 00 3A 32 02 31 22 15 10 54 10 00  ; ......:2.1"..T..
+  4BB2  db 00 00 00 00 3A 32 02 31 22 15 10 54 10 00 00 00  ; ....:2.1"..T....
+  4BC2  db 00 00 3A 32 02 31 22 15 10 00 00 00 00 00 00 00  ; ..:2.1".........
+  4BD2  db 3A 32 02 31 22 15 10 00 00 00 00 00 00 00 3A 32  ; :2.1".........:2
+  4BE2  db 02 31 22 15 10 54 10 00 00 00 00 00 3A 32 02 31  ; .1"..T......:2.1
+  4BF2  db 22 15 10 54 10 00 00 00 00 00 3A 32 02 31 22 15  ; "..T......:2.1".
+  4C02  db 10 00 00 00 00 00 00 00 3A 7A 7A 7A 7A 7A 7A 7A  ; ........:zzzzzzz
+  4C12  db 7A 7A 7A 7A 7A 7A 7A 7A 7A 00 00 00 00 08 08 03  ; zzzzzzzzz.......
+  4C22  db 03 00 00 00 01 00 00 00 00 00 00 00 00 08 08 03  ; ................
+  4C32  db 03 00 00 00 01 00 00 00 00 00 00 00 00 08 08 03  ; ................
+  4C42  db 03 00 00 00 01 00 00 00 00 00 00 00 00 08 08 03  ; ................
+  4C52  db 03 00 00 00 01 00 00 00 00 00 00 00 00 08 08 03  ; ................
+  4C62  db 03 00 00 00 01 00 00 00 00 00 00 00 00 08 08 03  ; ................
+  4C72  db 03 00 00 00 01 00 00 00 00 00 00 00 00 08 08 03  ; ................
+  4C82  db 03 00 00 00 01 00 00 00 00 00 00 00 00 08 08 03  ; ................
+  4C92  db 03 00 00 00 01 00 00 00 00 00 00 00 00 08 08 03  ; ................
+  4CA2  db 03 00 00 00 01 00 00 00 00 00 00 00 00 08 08 03  ; ................
+  4CB2  db 03 00 00 00 01 00 00 00 00 00 00 00 00 08 08 03  ; ................
+  4CC2  db 03 00 00 00 01 00 00 00 00 00 00 00 00 08 08 03  ; ................
+  4CD2  db 03 00 00 00 01 00 00 00 00 00 00 00 00 08 08 03  ; ................
+  4CE2  db 03 00 00 00 01 00 00 00 00 00 00 00 00 08 08 03  ; ................
+  4CF2  db 03 00 00 00 01 00 00 00 00 00 00 00 00 08 08 03  ; ................
+  4D02  db 03 00 00 00 01 00 00 00 00 00 00 00 00 08 08 03  ; ................
+  4D12  db 03 00 00 00 01 00 00 00 00 00 00 00 00 20 32 46  ; ............. 2F
+  4D22  db 32 42 20 32 46 32 42 20 32 46 32 42 20 3C 0E 3C  ; 2B 2F2B 2F2B <.<
+  4D32  db 0A 20 38 AA 38 A6 20 3C 0E 3C 0A 20 38 AA 38 A6  ; . 8.8. <.<. 8.8.
+  4D42  db 20 3C 0E 3C 0A 20 38 AA 38 A6 20 3F 72 3F 6E 20  ;  <.<. 8.8. ?r?n 
+  4D52  db 45 D6 45 D2 20 00 00 00 00 20 00 00 00 00 20 00  ; E.E. .... .... .
+  4D62  db 00 00 00 20 00 00 00 00 20 80 00 55 4E 49 47 53  ; ... .... ..UNIGS
+  4D72  db 46 50 20  ; FP 
+L4D75:
+  4D75  30e303    JNB ACC.3,L4D7B
+  4D78  cf        XCH A,R7
+  4D79  ce        XCH A,R6
+  4D7A  cf        XCH A,R7
+L4D7B:
+  4D7B  5407      ANL A,#07h
+  4D7D  f8        MOV R0,A
+  4D7E  904d9a    MOV DPTR,#4D9Ah
+  4D81  93        MOVC A,@A+DPTR
+  4D82  f5f0      MOV B,A
+  4D84  ef        MOV A,R7
+  4D85  a4        MUL AB
+  4D86  ff        MOV R7,A
+  4D87  e8        MOV A,R0
+  4D88  93        MOVC A,@A+DPTR
+  4D89  a8f0      MOV R0,B
+  4D8B  f5f0      MOV B,A
+  4D8D  ee        MOV A,R6
+  4D8E  a4        MUL AB
+  4D8F  28        ADD A,R0
+  4D90  fe        MOV R6,A
+  4D91  ef        MOV A,R7
+  4D92  25f0      ADD A,B
+  4D94  ff        MOV R7,A
+  4D95  22        RET
+L4D96:
+  4D96  f4        CPL A
+  4D97  04        INC A
+  4D98  80db      SJMP L4D75
+  4D9A  db 01 02 04 08 10 20 40 80  ; ..... @.
+L4DA2:
+  4DA2  854483    MOV DPH,44h
+  4DA5  854582    MOV DPL,45h
+  4DA8  ac46      MOV R4,46h
+  4DAA  0547      INC 47h
+  4DAC  0548      INC 48h
+  4DAE  024db6    LJMP L4DB6
+L4DB1:
+  4DB1  e0        MOVX A,@DPTR
+  4DB2  6c        XRL A,R4
+  4DB3  600c      JZ L4DC1
+  4DB5  a3        INC DPTR
+L4DB6:
+  4DB6  d548f8    DJNZ 48h,L4DB1
+  4DB9  d547f5    DJNZ 47h,L4DB1
+  4DBC  7eff      MOV R6,#FFh
+  4DBE  7fff      MOV R7,#FFh
+  4DC0  22        RET
+L4DC1:
+  4DC1  c3        CLR C
+  4DC2  e582      MOV A,DPL
+  4DC4  9545      SUBB A,45h
+  4DC6  ff        MOV R7,A
+  4DC7  e583      MOV A,DPH
+  4DC9  9544      SUBB A,44h
+  4DCB  fe        MOV R6,A
+  4DCC  22        RET
+L4DCD:
+  4DCD  c0e0      PUSH ACC
+  4DCF  c0f0      PUSH B
+  4DD1  c083      PUSH DPH
+  4DD3  c082      PUSH DPL
+  4DD5  c0d0      PUSH PSW
+  4DD7  75d008    MOV PSW,#08h
+  4DDA  120568    LCALL L0568
+  4DDD  d0d0      POP PSW
+  4DDF  d082      POP DPL
+  4DE1  d083      POP DPH
+  4DE3  d0f0      POP B
+  4DE5  d0e0      POP ACC
+  4DE7  32        RETI
+L4DE8:
+  4DE8  c0e0      PUSH ACC
+  4DEA  c0f0      PUSH B
+  4DEC  c083      PUSH DPH
+  4DEE  c082      PUSH DPL
+  4DF0  c0d0      PUSH PSW
+  4DF2  75d008    MOV PSW,#08h
+  4DF5  120436    LCALL L0436
+  4DF8  d0d0      POP PSW
+  4DFA  d082      POP DPL
+  4DFC  d083      POP DPH
+  4DFE  d0f0      POP B
+  4E00  d0e0      POP ACC
+  4E02  32        RETI
+L4E03:
+  4E03  600d      JZ L4E12
+  4E05  782b      MOV R0,#2Bh
+  4E07  024e0d    LJMP L4E0D
+L4E0A:
+  4E0A  00        NOP
+  4E0B  7830      MOV R0,#30h
+L4E0D:
+  4E0D  d8fe      DJNZ R0,L4E0D
+  4E0F  d5e0f8    DJNZ ACC,L4E0A
+L4E12:
+  4E12  22        RET
+L4E13:
+  4E13  7e00      MOV R6,#00h
+  4E15  124e5c    LCALL L4E5C
+  4E18  ef        MOV A,R7
+  4E19  2582      ADD A,DPL
+  4E1B  f582      MOV DPL,A
+  4E1D  ee        MOV A,R6
+  4E1E  3583      ADDC A,DPH
+  4E20  f583      MOV DPH,A
+  4E22  22        RET
+L4E23:
+  4E23  25e0      ADD A,ACC
+  4E25  5002      JNC L4E29
+  4E27  0583      INC DPH
+L4E29:
+  4E29  2582      ADD A,DPL
+  4E2B  5002      JNC L4E2F
+  4E2D  0583      INC DPH
+L4E2F:
+  4E2F  f582      MOV DPL,A
+  4E31  22        RET
+L4E32:
+  4E32  a3        INC DPTR
+  4E33  e0        MOVX A,@DPTR
+  4E34  14        DEC A
+  4E35  f0        MOVX @DPTR,A
+  4E36  b4ff06    CJNE A,#FFh,L4E3F
+  4E39  124ea3    LCALL L4EA3
+  4E3C  e0        MOVX A,@DPTR
+  4E3D  14        DEC A
+  4E3E  f0        MOVX @DPTR,A
+L4E3F:
+  4E3F  22        RET
+L4E40:
+  4E40  04        INC A
+  4E41  8007      SJMP L4E4A
+L4E43:
+  4E43  c3        CLR C
+  4E44  cf        XCH A,R7
+  4E45  33        RLC A
+  4E46  cf        XCH A,R7
+  4E47  ce        XCH A,R6
+  4E48  33        RLC A
+  4E49  ce        XCH A,R6
+L4E4A:
+  4E4A  d5e0f6    DJNZ ACC,L4E43
+  4E4D  22        RET
+L4E4E:
+  4E4E  04        INC A
+  4E4F  8007      SJMP L4E58
+L4E51:
+  4E51  c3        CLR C
+  4E52  ce        XCH A,R6
+  4E53  13        RRC A
+  4E54  ce        XCH A,R6
+  4E55  cf        XCH A,R7
+  4E56  13        RRC A
+  4E57  cf        XCH A,R7
+L4E58:
+  4E58  d5e0f6    DJNZ ACC,L4E51
+  4E5B  22        RET
+L4E5C:
+  4E5C  f8        MOV R0,A
+  4E5D  8ff0      MOV B,R7
+  4E5F  a4        MUL AB
+  4E60  ff        MOV R7,A
+  4E61  e5f0      MOV A,B
+  4E63  ce        XCH A,R6
+  4E64  88f0      MOV B,R0
+  4E66  a4        MUL AB
+  4E67  2e        ADD A,R6
+  4E68  fe        MOV R6,A
+  4E69  22        RET
+  4E6A  db A3 E0 04 F0 70 06 12 4E A3 E0 04 F0 22  ; ....p..N...."
+L4E77:
+  4E77  e0        MOVX A,@DPTR
+  4E78  c0e0      PUSH ACC
+  4E7A  a3        INC DPTR
+  4E7B  e0        MOVX A,@DPTR
+  4E7C  f582      MOV DPL,A
+  4E7E  d0e0      POP ACC
+  4E80  f583      MOV DPH,A
+  4E82  22        RET
+L4E83:
+  4E83  ef        MOV A,R7
+  4E84  2582      ADD A,DPL
+  4E86  f582      MOV DPL,A
+  4E88  ee        MOV A,R6
+  4E89  3583      ADDC A,DPH
+  4E8B  f583      MOV DPH,A
+  4E8D  22        RET
+L4E8E:
+  4E8E  e582      MOV A,DPL
+  4E90  2f        ADD A,R7
+  4E91  f582      MOV DPL,A
+  4E93  e583      MOV A,DPH
+  4E95  3e        ADDC A,R6
+  4E96  f583      MOV DPH,A
+  4E98  22        RET
+L4E99:
+  4E99  ef        MOV A,R7
+  4E9A  2582      ADD A,DPL
+  4E9C  f582      MOV DPL,A
+  4E9E  5002      JNC L4EA2
+  4EA0  0583      INC DPH
+L4EA2:
+  4EA2  22        RET
+L4EA3:
+  4EA3  0582      INC DPL
+  4EA5  d58202    DJNZ DPL,L4EAA
+  4EA8  1583      DEC DPH
+L4EAA:
+  4EAA  1582      DEC DPL
+  4EAC  22        RET
+L4EAD:
+  4EAD  2582      ADD A,DPL
+  4EAF  f582      MOV DPL,A
+  4EB1  5002      JNC L4EB5
+  4EB3  0583      INC DPH
+L4EB5:
+  4EB5  22        RET
+L4EB6:
+  4EB6  e4        CLR A
+  4EB7  93        MOVC A,@A+DPTR
+  4EB8  f6        MOV @R0,A
+  4EB9  08        INC R0
+  4EBA  7401      MOV A,#01h
+  4EBC  93        MOVC A,@A+DPTR
+  4EBD  f6        MOV @R0,A
+  4EBE  22        RET
+L4EBF:
+  4EBF  75814a    MOV SP,#4Ah
+  4EC2  75d000    MOV PSW,#00h
+  4EC5  02231c    LJMP L231C
+L4EC8:
+  4EC8  08        INC R0
+  4EC9  06        INC @R0
+  4ECA  b60002    CJNE @R0,#00h,L4ECF
+  4ECD  18        DEC R0
+  4ECE  06        INC @R0
+L4ECF:
+  4ECF  22        RET
+L4ED0:
+  4ED0  08        INC R0
+  4ED1  16        DEC @R0
+  4ED2  b6ff02    CJNE @R0,#FFh,L4ED7
+  4ED5  18        DEC R0
+  4ED6  16        DEC @R0
+L4ED7:
+  4ED7  22        RET
+  4ED8  ... FF x12584

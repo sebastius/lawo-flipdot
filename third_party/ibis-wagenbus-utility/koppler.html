@@ -1,0 +1,48 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<title>IBIS-Schnittstellenwandler (Koppler)</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="lightyellow">
+<h1>IBIS-Schnittstellenwandler (Koppler)</h1>
+<p class="verdanana12"></p>
+
+<p class="verdanana12">Um ein IBIS-Ger&auml;t &uuml;ber die serielle Schnittstelle (RS232) vom PC aus auzusteuern,
+braucht man einen Schnittstellenwandler der das Signal entsprechend umwandelt.</p>
+
+<p class="verdanana12">Experimente hatten ergeben das ein IBIS-Ger&auml;t mit einem RS232-Signal vom Rechner
+erstmal nichts anfangen konnte :)</p>
+
+<a href="img/koppler1.jpg"><img src="img/koppler1_tb.jpg"></a>
+<p>
+
+<p class="verdanana12">Da kommerzielle Schaltungen zu teuer sind f&uuml;r Basteleien, mu&szlig;te also etwas anderes her.
+Die Idee war au&szlig;erdem das man ja warscheinlich nicht einen kompletten IBIS-Wagenbus (mit entsprechend vielen
+Ger&auml;ten gleichzeitig) betreiben m&ouml;chte, sondern immer nur ein Ger&auml;t zur Zeit, und somit etwas einfaches ausreicht.</p>
+
+<p class="verdanana12">Der Versuch ein TTL-Signal zu verwenden f&uuml;hrte nach einiger Zeit zum Erfolg. Also ben&ouml;tigt man zun&auml;chst einen
+Wandler RS232 &lt;-&gt; TTL, der MAX232 ein integrierter Schaltkreis eignet sich hierzu hervorragend. Das Signal mu&szlig;
+danach noch verst&auml;rkt werden f&uuml;r eine einwandfreie Funktion, auf 20 Volt. In manchen F&auml;llen reichen sogar 12V. (Schaltung oben)</p>
+
+<p class="verdanana12">Die Spannungsversorgung wird mit Hilfe eines Stabis (5V) und eines LM317 (einstellbarer Spannungsregler) bereitgestellt.
+Der Max ben&ouml;tigt 5 Volt. Die 'Verst&auml;rkung' wird durch zwei Transistoren bewerkstelligt, welche hintereinander geschaltet sind. Dazu kommen
+noch zwei LEDs zur Signalanzeige.</p>
+
+<p class="verdanana12">Die Eingangsschaltung (Antwortbus) falls man sie denn &uuml;berhaupt ben&ouml;tigt, besteht lediglich aus einem Abschw&auml;cher (Z-Diode und Widerstand).</p>
+
+<p class="verdanana12">Im Allgemeinen handelt es sich hier um eine Behelfsschaltung.</p>
+<p>
+
+<a href="img/koppler2.jpg"><img src="img/koppler2_tb.jpg"></a>
+<p>
+
+<p class="verdanana12">Mittlerweile existiert eine weitere Schaltung, die erfolgreich aufgebaut wurde.</p>
+<p class="verdanana12">Weitere Informationen zu den Schaltungen findet man im IBIS-World Forum.</p>
+<p>
+<a href="http://www.ibis-world.de.vu/"><img src="img/nora.jpg"></a>
+<p class="verdanana12"></p>
+<p class="verdanana12"><i>(c) 2011 - 2013 Stephan Sch&uuml;tt, Alle Angaben ohne Gew&auml;hr. Vervielf&auml;ltigung verboten.</i></p>
+<p class="verdanana12"><a href="../ibis/">Zur&uuml;ck</a></p>
+</body>
+</html>

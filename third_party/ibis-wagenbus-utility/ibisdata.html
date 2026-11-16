@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<title>IBIS Datens&auml;tze</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="lightpink">
+<h1>IBIS Datens&auml;tze</h1>
+<p class="verdanana12">(auch Telegramme genannt), also das was sp&auml;ter an Linien- und
+Zielanzeigen oder Entwerter verschickt wird sind zun&auml;chst nur einfache Texte.</p>
+
+<p class="verdanana12">Ein Datensatz beginnt immer mit einem Kleinbuchstaben. Danach folgt ein
+Gro&szlig;buchstabe oder eine Zahl, und weitere m&ouml;gliche Zeichen.</p>
+
+<p class="verdanana12">Am Ende stehen Telegrammende und Parity, symbolisch <b>&lt;CR&gt;&lt;P&gt;</b>. Dazu sp&auml;ter mehr.</p>
+
+<h3>Hier ein paar Beispiele</h3>
+
+<pre>
+<b>l<font color="#006400">026</font>&lt;CR&gt;&lt;P&gt;</b> Liniennummer, kleines 'l' gefolgt von 000-999 (gelegentlich auch vierstellig), <b>Datentyp DS001</b>.
+
+<b>lE<font color="#006400">01</font>&lt;CR&gt;&lt;P&gt;</b> Sonderzeichen, 'lE', m&ouml;gliche Werte sind 00-99, <b>Datentyp DS001a</b>.
+
+<b>z<font color="#006400">003</font>&lt;CR&gt;&lt;P&gt;</b> Zielnummer f&uuml;r z.B. Entwerter, Rollbandanzeige, 'z' 000-999, <b>Datentyp DS003</b>.
+
+<b>u<font color="#006400">2249</font>&lt;CR&gt;&lt;P&gt;</b> Uhrzeit, 'u' HH:MM, z.B f&uuml;r Entwerter, <b>Datentyp DS005</b>.
+
+<b>d<font color="#006400">02031</font>&lt;CR&gt;&lt;P&gt;</b> Datum, 'd' DD:MM:Y, Entwerter, Fahrscheindrucker <b>Datentyp DS006</b>.
+
+<b>zA<font color="#ff0000">2</font>WERKSTATTFAHRT                  &lt;CR&gt;&lt;P&gt;</b> Zieltext f&uuml;r Au&szlig;enanzeige, 'zA', (2) Bl&ouml;cke Text zu 16 Zeichen, Text, <b>Datentyp DS003a</b>.
+
+<b>aA<font color="#ff0000">12</font>BETRIEBSHOF     WALDHEIM        &lt;CR&gt;&lt;P&gt;</b> Zieltext , 'aA', mit (1) AnzeigeID, und (2) Bl&ouml;cke Text zu 16 Zeichen, Text, <b>Datentyp DS021</b>.
+
+<b>vBAHNHOFSVORPLATZ        &lt;CR&gt;&lt;P&gt;</b> Haltestellenvoranzeige, 'v' dann 16, 20 oder 24 Zeichen Text (ohne Z&auml;hler), <b>Datentyp DS009</b>.
+
+<b>zI<font color="#ff0000">4</font>BAHNHOFSVORPLATZ&lt;CR&gt;&lt;P&gt;</b> <i>andere Variante</i>, Haltestellenvoranzeige, 'zI' dann (4) Bl&ouml;cke zu je 4 Zeichen, Text, <b>Datentyp DS003c</b>.
+
+</pre>
+
+<p class="verdanana12">(Bei Bedarf wird mit Leerzeichen aufgef&uuml;llt. Z&auml;hler wurden <font color="#ff0000">rot</font> markiert, normale Ziffern <font color="#006400">gr&uuml;n</font>. Weitere Datens&auml;tze findet man in der <i>VDV-300</i> Schrift).</p>
+
+<p class="verdanana12">Texte für Ziel- und Haltestellenanzeigen werden nach <i>VDV</i> in Gro&szlig;buchstaben &uuml;bertragen. Nach M&ouml;glichkeit wandelt die Anzeige den Text in ein eigenes Schriftbild um.</p>
+
+<p class="verdanana12">Als Zeichenvorrat wird eine 7-Bit-Zeichenkodierung (ASCII) verwendet, in der es keine Umlaute gibt.</p>
+
+<p class="verdanana12">Damit diese verf&uuml;gbar sind, ersetzt man sie wie folgt:</p>
+
+<pre>
+&auml; durch {
+&ouml; durch |
+&uuml; durch }
+&szlig; durch ~
+&Auml; durch [
+&Ouml; durch \ (Backslash)
+&Uuml; durch ]
+</pre>
+
+<p class="verdanana12">Sp&auml;ter im IBIS-Ger&auml;t (z.B. Zielanzeige) werden die Zeichen wieder zur&uuml;ckgewandelt.</p>
+
+<p class="verdanana12">Handelt es sich um einen "Z&auml;hler", so wird das Format "IBISHex" angewendet. Dieses ist von der Hex-Darstellung abgeleitet, zum Vergleich:</p>
+
+<pre>
+Dezimal     Hex     IBISHex
+===========================
+ 0           0       0
+ 1           1       1
+ 2           2       2
+ 3           3       3
+ 4           4       4
+ 5           5       5
+ 6           6       6
+ 7           7       7
+ 8           8       8
+ 9           9       9
+10           A       :
+11           B       ;
+12           C       &lt;
+13           D       =
+14           E       &gt;
+15           F       ?
+</pre>
+
+<h3>Telegrammabschlu&szlig;</h3>
+
+<p class="verdanana12">Das Datenende stellt immer ein "Carriage Return", Hex 0D dar. Dieses darf nur einmal im Datensatz vorkommen. Wir verwenden in unserer Darstellung das symbolische Zeichen <b>&lt;CR&gt;</b>.</p>
+<p class="verdanana12">Zur weiteren Bearbeitung werden die Daten in den Datentyp &quot;Byte&quot; umgewandelt.</p>
+
+<h3>Paritybyte</h3>
+
+<p class="verdanana12">Das Paritybyte wird aus den bisherigen Zeichen berechnet und als Pr&uuml;fbyte ans Ende des Datensatzes geh&auml;ngt.
+Der Empf&auml;nger kann entsprechend zur&uuml;ckrechnen und so feststellen ob die Daten in Ordnung sind. Andernfalls
+kann er sie verwerfen. Wir verwenden f&uuml;r unsere Darstellung das symbolische Zeichen <b>&lt;P&gt;</b>. Zur Berechnung
+deklariert man zun&auml;chst ein neues Byte mit dem Wert 7F. Dieses wird nach und nach mit jedem Byte des Datensatzes
+<a href="http://de.wikipedia.org/wiki/XOR-Gatter">XOR</a> verkn&uuml;pft. Das Ergebnis ist das <b>Paritybyte</b>.
+
+<p class="verdanana12">Das Telegramm welches die Liniennummer 26 auf die Anzeige schickt, sieht also so aus:</p>
+<pre>l026&lt;0D&gt;&lt;2A&gt;   Die letzten beiden Zeichen entsprechen der HEX-Darstellung. Oder komplett in HEX: &lt;6C&gt;&lt;30&gt;&lt;32&gt;&lt;36&gt;&lt;0D&gt;&lt;2A&gt;</pre>
+<p>
+<p class="verdanana12">Die seriellen Einstellungen sind wie folgt: <i><b>1200 Baud, 7 Datenbits, 2 Stopbits, Parity even (gerade)</b></i>.</p>
+<p class="verdanana12"><i>(c) 2013 Stephan Sch&uuml;tt, Alle Angaben ohne Gew&auml;hr. Vervielf&auml;ltigung verboten.</i></p>
+<p class="verdanana12"><a href="../ibis/">Zur&uuml;ck</a></p>
+</body>
+</html>

@@ -1,0 +1,66 @@
+.verdanana12 {
+	font-family: Verdana, Arial, Helvetica, sans-serif; 
+	font-size: 12px
+}
+
+.verdanana14 {
+	font-family: Verdana, Arial, Helvetica, sans-serif; 
+	font-size: 14px
+}
+
+.verdanana14bold {
+	font-family: Verdana, Arial, Helvetica, sans-serif; 
+	font-size: 14px
+	font-weight: bold	
+}
+
+.verdanana12margin {
+	font-family: Verdana, Arial, Helvetica, sans-serif; 
+	font-size: 12px;
+	line-height: 18px;
+	}
+
+.verdanana12marginbold {
+	font-family: Verdana, Arial, Helvetica, sans-serif; 
+	font-size: 12px;
+	line-height: 18px;
+	font-weight: bold
+	}	
+	
+.verdanana12italic {
+	font-family: Verdana, Arial, Helvetica, sans-serif; 
+	font-size: 12px;
+	font-style: italic	
+}
+
+.verdanana12bold {
+	font-family: Verdana, Arial, Helvetica, sans-serif; 
+	font-size: 12px;  
+	font-weight: bold
+}
+
+.verdanana12rot { 
+	font-family: Verdana, Arial, Helvetica, 
+	sans-serif; font-size: 12px;
+	color: #FF0000; 
+	font-weight: bold
+}
+
+.verdanana12grau { 
+	font-family: Verdana, Arial, Helvetica, 
+	sans-serif; 
+	font-size: 12px;
+	color: #eeeeee
+}
+
+.verdanana10weiss {  
+	font-family: Verdana, Arial, Helvetica, 
+	sans-serif; 
+	font-size: 10px;
+	color: #ffffff}
+}
+
+.verdanana10 {  
+	font-family: Verdana, Arial, Helvetica, sans-serif; 
+	font-size: 10p
+}

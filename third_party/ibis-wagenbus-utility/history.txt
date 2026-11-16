@@ -1,0 +1,167 @@
+﻿01.09.13 Version 1.87 released.
+===============================
+
+Datensätze für Streckenverlaufsanzeigen (DS010b und DS021a) (EXPERIMENTELL).
+Zur Verwendung vom DS021a stellt man die AnzeigenID ein. In die beiden Textfelder darunter gehört
+der Haltestellentext, und rechts die Umsteigeinfos (optional). Falls man darüber Haltestellentexte
+abruft, werden diese in das untere Textfeld übernommen. Der Index läßt sich manuell und automatisch
+weiterschalten, zwischen 1 und 99.
+
+DS010b soll die Texte in der Anzeige wieder abrufen, manuell, aufwärts oder abwärts.
+Möglicherweise werde ich noch weitere Datensätze einbauen oder überarbeiten, je nach Bedarf.
+
+Diverse kleine Fehler beseitigt und Korrekturen (auch in Sprachtexten) vorgenommen.
+
+15.11.12 Version 1.82 released.
+===============================
+
+Neuer Datensatz DS3aMEIS. Dieser ermöglicht sogar dreizeiligen Text (wenn es die Anzeige
+unterstützt). Den Text für eine mögliche dritte Zeile schreibt man mit in das Feld für die
+zweite Zeile getrennt durch ein '@', also TextZeile2@TextZeile3. Es sind insgesamt 9 ver-
+schiedene Schriftgrößen möglich, welche aber nicht in allen Modi dargestellt werden.
+
+
+30.09.12 Version 1.80 released.
+===============================
+
+Datensatz PEEK_RET eingebaut. Es handelt sich um ein Zieltext-Telegramm (ähnlich DS021),
+welches in Rotterdam zum Einsatz kommt, und eine dreistellige Linie (alphanumerisch) enthält.
+Eingabe dieser über das Linienfeld. Unterstützt wird außerdem Taktung (wie bei DS021T).
+
+
+05.08.12 Version 1.78 released.
+===============================
+
+Datensatz 'Kalenderdatum' (DS191) eingebaut (Menü). 
+
+HAG-Datensatz mit 8 Stellen eingebaut. Dieser besteht aus den üblichen 4 Stellen zuzüglich einer
+Ziffer für die 'Gongart' und drei weiteren Ziffern für eine 'Sonderansage' nach der Haltestelle.
+Die dazugehörigen Felder werden bei 'Ansage 8' eingeblendet.
+
+Das 'Direkteingabe'-Feld unterstützt nun mehrere beliebige Datensätze hintereinander,
+welche durch ein Komma getrennt eingegeben werden können.
+
+Neu bei der Funktion "Ablaufliste" ist, dass nun auch mehrere Einträge (durch ein Komma getrennt)
+in einer Zeile verwendet werden, also pro Durchlauf generiert werden können.
+
+Folgende Elemente sind dabei zulässig:
+
+e000000		Entwertermerkmale
+h0000		Haltestellen-ID (3-8 stellig)
+hclock		Uhrzeit und Datum (Haltestellentext)
+l000		Linie (3-4 stellig)
+s00			Sonderzeichen
+z0000		Ziel-ID (4-stellig)
+zclock		Uhrzeit und Datum (Zieltext)
+
+Beispiel: l099,s01,e000009,z0800
+
+Um ein Feld wieder zu löschen verwendet man einfach die passende Anzahl Nullen.
+
+
+07.05.12 Version 1.73 released.
+===============================
+
+Bei Zieltexten, Haltestellen und Zielnummer(n) kann mit Hilfe der Felder 'Auf' und 'Ab' ein Rauf- 
+b.z.w. Runterschalten der laufenden Nummer (ID) erreicht werden. Es wird immer so hoch gezählt
+wie Einträge im Editor vorhanden sind, dabei muß mindestens die höchste ID vorhanden sein.
+
+Neue DS003a-Variante (DS3aLW) eingebaut. Dieser Datensatz enthält Ziel- und Seitentext,
+wobei die Textlänge (theoretisch) nicht beschränkt ist. Als Besonderheit kann der Seiten-
+text in der zweiten Zeile eine Taktung bekommen, indem man bis zu drei Texte getrennt durch
+ein @ in das Feld hineinschreibt. Schriftgröße und Zeichenabstand lassen sich in eine Textbox
+eingeben, jeweils drei Zeichen für eine mögliche Zeile Text.
+
+Der erste Buchstabe von dieser Kombination gibt den Abstand zwischen den Buchstaben in Pixel an
+(A = 1, B = 2 usw.), der zweite Buchstabe gibt die Ausrichtung des Textes an (links, rechts, oben,
+unten, zentriert usw, die Zahl 0-9 bedeutet Schriftgröße. Ein Dialog dafür wird es später geben.
+
+Neue Variante für Haltestellenansagegeräte mit kurzen, 3 stelligen Datensätzen (hP000) eingebaut.
+
+
+15.02.12 Version 1.65 released.
+===============================
+
+Die Option "Großbuchstaben" ist nun eine globale Einstellung, d.h. die Texte werden
+direkt in den Dialogen umgewandelt und nicht mehr separat im Code der Datensätze.
+Der IBIS-Wagenbus überträgt nach VDV-Vorschrift "reinen Text" nur in Großbuchstaben.
+Trotzdem ist es einen Versuch wert, Großbuchstaben zu deaktivieren. Viele Anzeigen
+unterstützen Groß- UND Kleinschrift, was optisch meist deutlich schöner ist.
+
+Bei DS3aMAS kann ein 'Control' aktiviert werden. Diese Erweiterung wird von vielen Anzeigen,
+auch von älteren (z.B. Krüger) unterstützt oder explizit erwartet. Der Datensatz enthält
+neben 4*16 Zeichen Text Informationen über Schriftgröße und Aussehen des Textes.
+
+Die Schriftgröße wird automatisch anhand der Textlänge eingestellt. Ein 'Schwellenwertschalter'
+variiert dabei den Zeitpunkt der Umschaltung ein wenig. 'Zentriert' plaziert den Text mittig,
+blendet dafür aber Linie / Sonderzeichen aus.
+
+Im Statusfenster werden "unsichtbare Zeichen" wie CR (Carriage Return, \r) oder LF
+(Linefeed, \n) als <CR> und <LF> dargestellt. Um die Ausgabetexte aus Statusfenster oder
+Logfile wieder als Eingabe verwenden zu können, unterstützt das Direkteingabe-Feld die
+automatische Umwandlung der Zeichen <LF>, und $LF in das ursprüngliche Format \n.
+Dies gilt nicht für <CR><P>, da diese grundsätzlich neu erzeugt werden.
+
+Die Haltestellenanzeige kann nun zwischen Zeit / Datum und einem vorher eingestellten
+Text (über Nr.) hin- und herschalten. Der zeitliche Ablauf entspricht dem von "Senden".
+Die Funktion lässt sich im Menü, Erweitert aktivieren.
+
+Die 'Ablaufliste' wurde erweitert. Mit den Kommandos 'hclock' und 'zclock'
+lassen sich Datum und Uhrzeit einfügen.
+
+Der "Timer" wurde erweitert (5, 7.5, 10, 15, 20, 30 und 60 Sekunden).
+
+
+11.12.2011 Version 1.54 released.
+================================
+
+Die Sprache ist nun umschaltbar zwischen English, Deutsch und Niederländisch. 
+Das Programm bleibt im Kern aber Deutsch, und das gilt auch für die Dateinamen.
+
+Die Text Import/Export-Funktionen (Editor) wurden überarbeitet. 
+Das Dateiformat CSV / TXT enthält Anführungszeichen und Header.
+
+Uhrzeit erweitert "uE.." eingebaut.
+
+Funktionen für Haltestellenansagegeräte erweitert. Neben dam Datensatz für
+Haltestellennummer (DS036) können nun auch Status (DS030) und Version (DS0301)
+erzeugt werden. Die dazugehörigen Elemente befinden sich bei den Haltestellentexten.
+
+Eingabe der IDs für Ziele und Haltestellen verbessert. Es müssen nicht mehr die
+Nullen vorweg eingegeben werden, was das Abrufen der Daten erheblich vereinfacht.
+
+
+15.10.2011 Version 1.50 released.
+================================
+
+<LF> Terminierung für DS003a und DS021 angepasst. Falls zwei Zeilen Text vorhanden sind,
+wird ein \n als Trennzeichen zwischen den Zeilen verwendet, zweimal \n am Textende. "B1"
+und zugehörige Haltestellendatensätze umbenannt in "DS021neu", DS003cneu und DS003cHneu,
+sowie DS001neu angepasst. Weiteren Zieltext-Datensatz "GSP" eingebaut.
+
+
+15.9.2011 Version 1.46 released.
+================================
+
+Weiteren, DS021 ähnlichen Datensatz eingebaut (B1).
+Hexadezimales Ausgabeformat eingebaut.
+
+
+21.8.2011 Version 1.42 released.
+================================
+
+Clipboardfunktion für Ziel- und Haltestellentexte eingebaut, um Texte aus anderen
+Programmen über das Clipboard einfügen zu können. Als Trennzeichen für zweizeilige
+Zieltexte kann das "-" oder "@" verwendet werden.
+
+
+25.06.2011 Version 1.41 released.
+=================================
+
+Feld Zielbandposition (Editor) kann nun 6 Zeichen aufnehmen.
+Der Begriff "Verlauftext" wurde zum besseren Verständnis umbenannt in "Seitentext".
+Im Editor werden standartmäßig nur die "Hauptfelder" angezeigt.
+
+
+20.06.2011 Version 1.40 (final) released.
+=========================================

@@ -1,0 +1,4 @@
+# Lokaal gegenereerd Ghidra-project (opnieuw te maken met tools/ghidra/run_ghidra.sh)
+build/
+*.pyc
+__pycache__/

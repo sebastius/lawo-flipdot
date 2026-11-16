@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<title>Integriertes Bordinformationssystem</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="lightgreen">
+<h1>IBIS - Integriertes Bordinformationssystem</h1>
+<p class="verdanana14bold">In &ouml;ffentlichen Verkehrsmitteln gibt es eine Vielzahl technischer Ger&auml;te, Entwerter, Fahrscheindrucker,
+Ziel-, Linien- und Rollbandanzeiger sowie akustische Systeme (Haltestellenansagen), u.a. Der folgende Text enth&auml;lt einige technische Informationen zu diesem Thema.</p>
+
+<img src="img/lawo_kl.jpg"><img src="img/krueger_kl.jpg"><img src="img/aeg_kl.jpg">
+
+<p class="verdanana12">Der <b>IBIS-Wagenbus</b> verbindet diese Ger&auml;te miteinander.</p>
+<p class="verdanana12">Die Verkabelung besteht im wesentlichen aus 4 Leitungen (Sende- und Antwortbus mit jeweils einer eigenen Masseleitung).
+Die Stromversorgung (24 Volt) erfolgt separat.</p>
+
+<h3>IBIS-Steuerger&auml;t (Master)</h3>
+
+<p class="verdanana12">Ein Steuerger&auml;t, der <b>Bordrechner</b> arbeitet als einziger <b>Master</b> im System. Der Master versendet periodisch (z.B. alle 10 Sekunden) Datens&auml;tze
+an die IBIS-Ger&auml;te (<b>Slaves</b>), und versorgt sie mit Daten. Es gibt zwei Datenrichtungen wobei der <b>Sendebus</b> der Wichtigste ist. Den <b>Antwortbus</b> verwenden die IBIS-Ger&auml;te um
+auf Statusanfragen vom Master zu antworten.</p>
+<p class="verdanana12">Sehr weit verbreitet ist das <b>MAS2/3</b> von <b>Siemens/HPW</b> in unterschiedlichen Ausf&uuml;hrungen.</p>
+
+<p>
+<img src="img/mas2_kl.jpg">
+<img src="img/mas3_kl.jpg">
+
+<p class="verdanana12">Diese Ger&auml;te lassen sich nicht so ohne weiteres konfigurieren, also um eigene Routen, Haltestellen- und Zieltexte erweitern.
+Es wird eine spezielle Software sowie die Hardware für den Datentransport ben&ouml;tigt, welche Verkehrsunternehmen besitzen. Eine Direkteingabe der
+Daten am Ger&auml;t ist nicht vorgesehen.</p>
+
+<p class="verdanana12">Eine PC-Software zum Erstellen einer einfachen Datenversorgung f&uuml;r das MAS3 die ich selbst geschrieben habe, ist <a href="mas.html">hier</a> erh&auml;ltlich.</p>
+
+<h3>Anschlu&szlig;belegung 25-pol Sub-D Stecker (MAS3)</h3>
+
+<ul class="verdanana12">
+	<li>Pin 5 WBSD <u>Sende-Daten</u> Kabelfarbe weiß</li>
+	<li>Pin 17 WBMS <u>Monitor Sender</u> Kabelfarbe braun</li>
+	<li>Pin 18 WBED <u>Antwort-Daten</u> Kabelfarbe gelb</li>
+	<li>Pin 6 WBME <u>Monitor Empf&auml;nger</u> Kabelfarbe gr&uuml;n</li>
+	<li>Pin 8 <u>Testfunktion (bei Anschlu&szlig; an Masse)</u></li>
+	<li>Pin 11 <u>Terminal ein (Masse)</u></li>
+	<li>Pin 12+24 <u>Masse</u></li>
+	<li>Pin 13+25 <u>+24V</u></li>
+</ul>
+
+<h3>Verkabelung-Datenbus</h3>
+
+<p class="verdanana12"><b>IBIS-Ger&auml;te</b> (z.B. Anzeigen) verwenden meist 4-polige CPC Buchsen / Stecker:</p>
+
+<img src="img/cpc_kl.jpg">
+
+<ul class="verdanana12">
+	<li>Pin 1 <u>Sende-Daten</u> Kabelfarbe weiß</li>
+	<li>Pin 2 <u>Sende-Masse</u> Kabelfarbe braun</li>
+	<li>Pin 4 <u>Antwort-Daten</u> Kabelfarbe gelb</li>
+	<li>Pin 3 <u>Antwort-Masse</u> Kabelfarbe gr&uuml;n</li>
+</ul>
+
+<h3>Verkabelung-Stromversorgung</h3>
+
+<img src="img/stromversorgung_kl.jpg"><br>
+
+<p class="verdanana12">F&uuml;r die Stromversorgung verwendet man i.d.R. solche Stecker. Der untere Kontakt ist dabei Masse, der Obere +24V.
+Im Inneren befinden sich zwei gew&ouml;hnliche Flachstecker / Flachsteckerh&uuml;lsen, welche z.B. im Baumarkt erh&auml;ltlich sind.
+Manche Anzeigen haben zwei solcher Anschl&uuml;sse, wobei einer das Ger&auml;t selbst und ein anderer die Leuchtstoffr&ouml;hre versorgt.</p>
+
+<p class="verdanana12"><b>Entwerter</b> verwenden 12-polige Feder- und Messerleisten nach DIN-41622 (siehe unten):</p>
+
+<img src="img/entwerter_kl.jpg">
+<img src="img/federleiste_kl.jpg">
+<img src="img/messerleiste_kl.jpg">
+
+<ul class="verdanana12">
+	<li>Pin 3a +UBetr.</li>
+	<li>Pin 3b -Ubetr.</li>
+	<li>Pin 4a <u>Sende-Daten</u></li>
+	<li>Pin 4b <u>Sende-Masse</u></li>
+	<li>Pin 5b <u>Antwort-Daten</u></li>
+	<li>Pin 6b <u>Antwort-Masse</u></li>
+</ul>
+
+<ul class="verdanana12">
+<li>ID 0 - Default</li>
+<li>ID 1 - Br&uuml;cke zwischen 1a und 6a</li>
+<li>ID 2 - Br&uuml;cke zwischen 1b und 6a</li>
+<li>ID 3 - Br&uuml;cke zwischen 1a und 1b und 6a</li>
+<li>ID 4 - Br&uuml;cke zwischen 2a und 6a</li>
+</ul>
+
+<p class="verdanana12"><i>(c) 2011 - 2013 Stephan Sch&uuml;tt, Alle Angaben ohne Gew&auml;hr. Vervielf&auml;ltigung verboten.</i></p>
+<p class="verdanana12"><a href="../ibis/">Zur&uuml;ck</a></p>
+</body>
+</html>

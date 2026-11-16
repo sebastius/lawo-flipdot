@@ -1,0 +1,5 @@
+ASFP.bin: 48 functies, decompilatie ok=48 mislukt=0, code 9762 / 32768 bytes
+AZIPZR1.BIN: 48 functies, decompilatie ok=48 mislukt=0, code 10337 / 19027 bytes
+AZR-12C.BIN: 83 functies, decompilatie ok=83 mislukt=0, code 30339 / 32768 bytes
+MLAWO_RET_RET60.PLM51_18-11-92.bin: 44 functies, decompilatie ok=44 mislukt=0, code 7581 / 32768 bytes
+dvb_azrfr51v16.bin: 139 functies, decompilatie ok=139 mislukt=0, code 27377 / 32768 bytes
