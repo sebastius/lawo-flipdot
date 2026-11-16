@@ -30,6 +30,8 @@ voor flipdot-busfrontdisplays (IBIS-wagenbus, matrixmodules 28 × 13 / 28 × 16)
 
 ## Emulator
 
+🟡 **Online proberen: https://sebastius.github.io/lawo-flipdot/emulator/web/**
+
 [`emulator/`](emulator/) voert de firmwares ongewijzigd uit op een gemodelleerde 8051 met de AZR 802/24 en de flipdotmodules eromheen. Je kunt er ook zelfgemaakte firmware mee testen. Er is geen npm-installatie nodig, alleen Node.js.
 
 ```sh

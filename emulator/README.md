@@ -12,6 +12,8 @@ firmware testen zonder EPROM te branden.
 
 ## Gebruik
 
+**Online, zonder installatie:** https://sebastius.github.io/lawo-flipdot/emulator/web/ (GitHub Pages)
+
 Vereist Node.js 18 of nieuwer; er zijn geen npm-pakketten nodig.
 
 **Browser**
