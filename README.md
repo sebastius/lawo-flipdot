@@ -1,5 +1,9 @@
 # LAWO flipdot – AZR 802/24 controller
 
+> [!WARNING]
+> **Alles in deze repository is gemaakt door een AI-tool (Claude Code). Dat geldt voor de analyse, de documentatie, de scripts, de disassembly en de decompilatie.
+> Niets is door een mens gecontroleerd.** Fouten en verkeerde interpretaties zijn dus goed mogelijk. Controleer daarom zelf alles tegen de hardware en de originele bronnen voordat je erop vertrouwt.
+
 Documentatie, firmware en reverse-engineering van de **LAWO / Mark IV (LLE) AZR 802/24** displaycontroller
 voor flipdot-busfrontdisplays (IBIS-wagenbus, matrixmodules 28 × 13 / 28 × 16).
 
