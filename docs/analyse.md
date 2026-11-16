@@ -214,7 +214,11 @@ Versie-antwoorden: MLAWO `R.SCH.` (ROM 0x380B), ASFP en AZIPZR1 allebei `F00293`
 
 ### 2.8 Vrije tekst (`aA`) in ASFP: pagina-opmaak (getest in de emulator)
 
-- Na `aA` + adres slaat ASFP vijf tekens over (bijvoorbeeld `1001\n`). Daarna volgt de tekst.
+- Na `aA` + adres volgen vier tekens en een `\n`. Het eerste teken lijkt er niet toe te doen. De **laatste drie zijn het lijnnummer**, dat zonder voorloopnullen in het lijnnummervak verschijnt.
+  - `1001` toont "1", `1201` toont "201", `0000` of spaties laten het vak leeg.
+  - Een apart `l`-telegram verandert dit vak bij vrije tekst niet. Eerder schreef ik dat ASFP deze tekens negeert; dat was fout.
+- **Tekstbreedte:** de tekst blijft in het tekstvak van 84 kolommen (bij adres 1 kolom 28–111), ook zonder lijnnummer.
+  Met een patch van twee bytes in de configuratie van adres 1 (0x4B3D `1C`→`00`, 0x4B3F `54`→`70`) loopt de tekst over de volle breedte. Dat is alleen in de emulator getest.
 - **Pagina van twee regels:** `regel1\nregel2\n\n`. Beide regels krijgen het kleine font.
 - **Pagina van één regel:** `regel\n\n\n`. Met maar `\n\n` valt het eerste teken van de volgende pagina weg.
   Een losse regel krijgt het grote font als hij past, anders een kleiner font.

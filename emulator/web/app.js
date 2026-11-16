@@ -160,7 +160,13 @@ function buildTelegram() {
   const kind = $('kind').value, warnings = [];
   let body;
   switch (kind) {
-    case 'text': body = `aA${tAddr()}1001\n` + encodeText($('ftext').value, warnings); break;
+    case 'text': {
+      // na het adres: 1 teken (genegeerd) + 3 tekens lijnnummer; "000" = geen lijnnummer (getest in de emulator)
+      const ln = $('fline').value.trim();
+      const head = ln === '' ? '0000' : '1' + (/^\d+$/.test(ln) ? ln.padStart(3, '0') : ln.padEnd(3, ' ').slice(0, 3));
+      body = `aA${tAddr()}${head}\n` + encodeText($('ftext').value, warnings);
+      break;
+    }
     case 'dest': body = 'z' + pad($('fnum').value, 3); break;
     case 'line': body = 'l' + pad($('fnum').value, 3); break;
     case 'course': body = 'k' + pad($('fnum').value, 2); break;
@@ -189,7 +195,7 @@ function updateBuilder() {
     `<span class="ctl">␍ + checksum 0x${checksum(body).toString(16).padStart(2, '0').toUpperCase()}</span>`;
   $('plen').textContent = `${body.length + 2} tekens`;
   $('pwarn').textContent = warnings.join(' · ');
-  store.set('kind', kind); store.set('ftext', $('ftext').value);
+  store.set('kind', kind); store.set('ftext', $('ftext').value); store.set('fline', $('fline').value);
 }
 
 function send() {
@@ -209,6 +215,7 @@ function insertAtCursor(el, text) {
 function initBuilder() {
   $('kind').value = store.get('kind', 'text');
   $('ftext').value = store.get('ftext', $('ftext').value);
+  $('fline').value = store.get('fline', '');
   $('taddr').value = $('addr').value;
   const sym = $('symbols');
   for (const [glyph, , name] of SYMBOLS) {
@@ -216,7 +223,7 @@ function initBuilder() {
     b.onclick = () => { insertAtCursor($('ftext'), glyph); updateBuilder(); };
     sym.appendChild(b);
   }
-  for (const id of ['kind', 'taddr', 'ftext', 'fumlaut', 'fnum', 'fpattern', 'tele']) {
+  for (const id of ['kind', 'taddr', 'fline', 'ftext', 'fumlaut', 'fnum', 'fpattern', 'tele']) {
     $(id).addEventListener('input', updateBuilder);
     $(id).addEventListener('change', updateBuilder);
   }
