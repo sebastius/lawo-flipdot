@@ -23,9 +23,22 @@ voor flipdot-busfrontdisplays (IBIS-wagenbus, matrixmodules 28 × 13 / 28 × 16)
 | [`docs/`](docs/) | analyse-rapport, handleidingen en schema's ([`docs/manuals/`](docs/manuals/)), fontweergave |
 | [`firmware/`](firmware/) | vijf firmware-images voor de controller ([toelichting](firmware/README.md)) |
 | [`text-eproms/`](text-eproms/) | tekst-EPROMs: RET0902 (RET Rotterdam, TED800-stijl) en front.bin (`FORM`-stijl, 's-Hertogenbosch) |
+| [`emulator/`](emulator/) | emulator van controller + display (8051, browser en commandline) om firmware te testen ([uitleg](emulator/README.md)) |
 | [`tools/`](tools/) | `d51.py` (8051-disassembler) en de Ghidra-pipeline ([`tools/ghidra/`](tools/ghidra/)) |
 | [`analysis/`](analysis/) | disassembly-listings en Ghidra-decompilatie (pseudo-C, functielijsten, xrefs) |
 | [`third_party/`](third_party/) | IBIS Wagenbus-Utility van Stephan Schütt (freeware, [bronvermelding](third_party/README.md)) |
+
+## Emulator
+
+[`emulator/`](emulator/) voert de firmwares ongewijzigd uit op een gemodelleerde 8051 met de AZR 802/24 en de flipdotmodules eromheen. Je kunt er ook zelfgemaakte firmware mee testen. Er is geen npm-installatie nodig, alleen Node.js.
+
+```sh
+node emulator/serve.js                     # browser: http://localhost:8051/emulator/web/
+node emulator/cli.js --rom firmware/ASFP.bin --script 'wait 3; send aA11001\nHallo\n\n; wait 8; show'
+node emulator/test/run.js                  # tests
+```
+
+![Emulator met ASFP-firmware](docs/images/emulator.png)
 
 ## Ghidra-analyse opnieuw draaien
 

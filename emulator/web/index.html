@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AZR 802/24 emulator</title>
+<style>
+  :root {
+    --bg: #15171a; --panel: #1f2226; --line: #33383e; --text: #e6e6e6; --muted: #9aa1a9;
+    --accent: #ffcc00; --dot-on: #ffd21f; --dot-off: #26292d; --danger: #ff5a4f; --ok: #4fd07a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.4 system-ui, sans-serif; }
+  header { padding: 14px 20px; border-bottom: 1px solid var(--line); display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+  header h1 { margin: 0; font-size: 18px; }
+  header span { color: var(--muted); font-size: 13px; }
+  main { padding: 16px 20px; display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr) 340px; }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; padding: 12px 16px; } }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
+  h2 { margin: 0 0 10px; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .display-wrap { background: #0c0d0f; border-radius: 6px; padding: 12px; overflow-x: auto; }
+  canvas { display: block; image-rendering: pixelated; max-width: 100%; height: auto; }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+  label { color: var(--muted); font-size: 13px; }
+  select, input[type=text], input[type=number] { background: #121417; color: var(--text); border: 1px solid var(--line); border-radius: 5px; padding: 5px 7px; font: inherit; }
+  input[type=number] { width: 64px; }
+  button { background: #2b3036; color: var(--text); border: 1px solid var(--line); border-radius: 5px; padding: 5px 10px; font: inherit; cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  button.primary { background: var(--accent); color: #111; border-color: var(--accent); font-weight: 600; }
+  button.held { background: var(--accent); color: #111; }
+  .leds { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .led { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12px; }
+  .led i { width: 12px; height: 12px; border-radius: 50%; background: #3a3a3a; display: inline-block; }
+  .led.red.on i { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
+  .led.yellow.on i { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  .led.green.on i { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+  .seg { font: 700 26px/1 ui-monospace, monospace; color: var(--danger); background: #0c0d0f; padding: 4px 10px; border-radius: 4px; min-width: 34px; text-align: center; }
+  #log { height: 260px; overflow-y: auto; background: #0c0d0f; border-radius: 5px; padding: 8px; font: 12px/1.45 ui-monospace, monospace; white-space: pre-wrap; }
+  #log .tx { color: var(--accent); } #log .rx { color: var(--ok); } #log .sys { color: var(--muted); } #log .err { color: var(--danger); }
+  .stats { font: 12px/1.6 ui-monospace, monospace; color: var(--muted); }
+  .presets { display: flex; gap: 6px; flex-wrap: wrap; }
+  .presets button { font-size: 12px; padding: 3px 8px; }
+  textarea { width: 100%; height: 64px; background: #121417; color: var(--text); border: 1px solid var(--line); border-radius: 5px; padding: 6px; font: 13px ui-monospace, monospace; resize: vertical; }
+  .hint { color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>AZR 802/24 flipdot-emulator</h1>
+  <span>8051 + LAWO-controller + flipdotmodules, uit de schema's gemodelleerd — door AI gemaakt, niet gecontroleerd tegen echte hardware</span>
+</header>
+<main>
+  <div style="display:grid; gap:16px; min-width:0">
+    <section>
+      <h2>Display</h2>
+      <div class="display-wrap"><canvas id="screen"></canvas></div>
+      <div class="row" style="margin-top:10px">
+        <div class="leds">
+          <span class="led red" id="ld1"><i></i>LD1 reset</span>
+          <span class="led red" id="ld2"><i></i>LD2</span>
+          <span class="led yellow" id="ld3"><i></i>LD3</span>
+          <span class="led green" id="ld4"><i></i>LD4 bank</span>
+          <span class="led">7-seg (802/15)</span><span class="seg" id="seg"> </span>
+        </div>
+      </div>
+      <div class="stats" id="stats"></div>
+    </section>
+    <section>
+      <h2>IBIS-console</h2>
+      <div class="presets" id="presets"></div>
+      <div style="margin:8px 0"><textarea id="tele" spellcheck="false">aA11001\nHallo\nwereld\n\n</textarea></div>
+      <div class="row">
+        <button class="primary" id="send">Verstuur</button>
+        <span class="hint">\n = regeleinde; CR en checksum worden automatisch toegevoegd (1200 Bd 7E2)</span>
+      </div>
+      <div id="log"></div>
+    </section>
+  </div>
+  <div style="display:grid; gap:16px; align-content:start">
+    <section>
+      <h2>Firmware</h2>
+      <div class="row"><label>EPROM</label><select id="rom"></select></div>
+      <div class="row"><input type="file" id="romFile" accept=".bin,.BIN,.hex"></div>
+      <div class="row"><label>RM2</label><select id="rm2"></select></div>
+      <div class="row"><label>RM3</label><select id="rm3"></select></div>
+      <div class="row"><label>tekst-EPROM uploaden</label><input type="file" id="epromFile" accept=".bin,.BIN"></div>
+      <div class="row">
+        <label>CPU</label>
+        <select id="cpu"><option value="80C31|6000000">80C31 · 6 MHz</option><option value="80C32|11059200">80C32 · 11,0592 MHz</option></select>
+      </div>
+      <div class="row">
+        <label>Display</label>
+        <input type="number" id="cols" value="112" min="28" step="28"> × <input type="number" id="rows" value="16" min="7" max="16">
+      </div>
+      <div class="row"><button class="primary" id="load">Laden + opstarten</button></div>
+    </section>
+    <section>
+      <h2>Bediening</h2>
+      <div class="row"><label>Adres</label><input type="number" id="addr" value="1" min="0" max="15"><span class="hint">(na reset)</span></div>
+      <div class="row">
+        <label><input type="checkbox" id="s1"> S1 (P1.4 laag)</label>
+        <label><input type="checkbox" id="s2"> S2 (P1.5 hoog)</label>
+      </div>
+      <div class="row">
+        <button id="btnYellow">Gele knop</button>
+        <button id="btnBlack">Zwarte knop</button>
+        <button id="btnReset">Reset</button>
+      </div>
+      <div class="row">
+        <label>Snelheid</label>
+        <select id="speed"><option value="1">1× (echt)</option><option value="2">2×</option><option value="5">5×</option><option value="20">20×</option><option value="0">pauze</option></select>
+      </div>
+      <p class="hint">S1 aan: ASFP zet tekst om naar "Hoofdletter-aan-het-begin". S2 hoog: ASFP/MLAWO negeren de seriële poort.</p>
+    </section>
+  </div>
+</main>
+<script type="module" src="app.js"></script>
+</body>
+</html>

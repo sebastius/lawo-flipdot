@@ -1,0 +1,10 @@
+{
+  "name": "azr802-emulator",
+  "private": true,
+  "type": "module",
+  "description": "Emulator van de LAWO AZR 802/24 flipdot-controller (8051) met flipdotdisplay",
+  "scripts": {
+    "serve": "node serve.js",
+    "test": "node test/run.js"
+  }
+}
