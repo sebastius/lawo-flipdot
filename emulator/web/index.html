@@ -171,6 +171,10 @@ Tweede pagina</textarea>
     </section>
   </div>
 </main>
-<script type="module" src="app.js"></script>
+<script type="module">
+  // Scripts altijd vers laden: GitHub Pages laat browsers bestanden 10 minuten cachen,
+  // en een oude app.js naast een nieuwe index.html breekt de pagina.
+  import(`./app.js?v=${Date.now()}`);
+</script>
 </body>
 </html>

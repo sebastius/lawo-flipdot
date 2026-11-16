@@ -11,7 +11,9 @@
 // P1: b0..3 adresbruggen (gewicht 1,4,2,8), b4 S1, b5 S2, b6/b7 spanningsbewaking
 // P3: b2 TG (gele knop), b3 TS (zwarte knop), b4 E (puls, laag = actief), b5 WDI (MAX690)
 
-import { CPU8051 } from './cpu8051.js';
+// Cache-buster van de webpagina doorgeven (in Node is er geen ?v= en is dit gewoon ./cpu8051.js).
+const V = new URL(import.meta.url).searchParams.get('v');
+const { CPU8051 } = await import(V ? `./cpu8051.js?v=${V}` : './cpu8051.js');
 
 export class AZR802 {
   constructor(opts = {}) {

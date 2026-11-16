@@ -16,7 +16,7 @@ createServer(async (req, res) => {
   if (!path.startsWith(root)) { res.writeHead(403).end(); return; }
   try {
     const data = await readFile(path);
-    res.writeHead(200, { 'Content-Type': types[extname(path)] || 'application/octet-stream' }).end(data);
+    res.writeHead(200, { 'Content-Type': types[extname(path)] || 'application/octet-stream', 'Cache-Control': 'no-cache' }).end(data);
   } catch {
     res.writeHead(404).end('niet gevonden');
   }

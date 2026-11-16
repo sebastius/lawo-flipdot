@@ -1,4 +1,6 @@
-import { AZR802, IbisReceiver, decode7seg } from '../core/azr802.js';
+// Zelfde cache-buster als app.js doorgeven aan de kern (zie index.html).
+const V = new URL(import.meta.url).searchParams.get('v') || Date.now();
+const { AZR802, IbisReceiver, decode7seg } = await import(`../core/azr802.js?v=${V}`);
 
 const FIRMWARES = [
   ['ASFP.bin', '../../firmware/ASFP.bin'],
@@ -68,7 +70,9 @@ async function load() {
     for (const id of ['rom', 'rm2', 'rm3', 'cpu', 'cols', 'rows', 'addr']) store.set(id, $(id).value);
     applyUrlActions();
   } catch (e) {
-    log('err', 'laden mislukt: ' + e.message + ' (draai de emulator via node emulator/serve.js)');
+    const hint = location.protocol === 'file:' ? ' (open de emulator via node emulator/serve.js, niet als bestand)'
+      : /fetch|NetworkError|: 404/.test(e.message) ? ' (bestand niet gevonden)' : ' (probeer Ctrl+Shift+R)';
+    log('err', 'laden mislukt: ' + e.message + hint);
   }
 }
 
