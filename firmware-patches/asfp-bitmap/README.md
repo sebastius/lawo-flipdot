@@ -40,18 +40,35 @@ Zoals altijd sluit elk telegram af met CR + XOR-checksum. `<a>` is het displayad
 - Ongeldige tekens beëindigen de verwerking van dat telegram. Wat al was ingelezen, blijft staan. Pixels of
   kolommen buiten het display worden overgeslagen.
 
-## Snelheid (gemeten in de emulator)
+## Benchmark (emulator)
 
-| | 6 MHz · 15 625 Bd | 12 MHz · 31 250 Bd | ter vergelijking: ASFP, 1200 Bd |
+Gemeten met `node firmware-patches/asfp-bitmap/benchmark.js`, alleen in de emulator. Tijden lopen vanaf het begin
+van het versturen, dus inclusief verzendtijd. "Klaar" is de laatste dotpuls.
+
+| | origineel ASFP<br>6 MHz · 1200 Bd | bitmap 6 MHz<br>6 MHz · 15625 Bd | bitmap 12 MHz<br>12 MHz · 31250 Bd |
 |---|---|---|---|
-| één pixel: eerste flip na begin van het telegram | 0,056 s | 0,027 s | – |
-| volledige bitmap (456 tekens): versturen | 0,32 s | 0,16 s | (4,6 s) |
-| volledige bitmap: klaar | 1,63 s | 1,23 s | – |
-| pixeltelegrammen achter elkaar (wachten op `a0`) | 71 / s | 143 / s | – |
-| tekst "Hallo": eerste flip na laatste teken | 1,1 s | 0,5 s | 1,1 s |
+| Opstarten: eerste antwoord op statusvraag | 0.24 s | 0.08 s | 0.05 s |
+| Opstarten: opstartverversing klaar | 2.56 s | 2.55 s | 2.17 s |
+| Statusvraag `a1` → `a0` | 85.8 ms | 7.4 ms | 3.7 ms |
+| Versievraag `aV1` → antwoord | 152.2 ms | 13.9 ms | 7.1 ms |
+| Tekst "Hallo": eerste flip | 1.31 s | 1.13 s | 0.51 s |
+| Tekst "Hallo": klaar | 3.83 s | 3.65 s | 2.67 s |
+| Tekst 2 regels: eerste flip | 2.66 s | 2.30 s | 1.04 s |
+| Tekst 2 regels: klaar | 5.16 s | 4.81 s | 3.20 s |
+| Testbeeld geel `aT11`: klaar | 4.31 s | 4.31 s | 3.37 s |
+| Testbeeld zwart `aT10`: klaar | 2.59 s | 2.53 s | 2.16 s |
+| Eén pixel `aP`: eerste flip | n.v.t. | 0.024 s | 0.013 s |
+| Volledige bitmap 112×16 `aB`: eerste flip | n.v.t. | 0.43 s | 0.21 s |
+| Volledige bitmap 112×16 `aB`: klaar | n.v.t. | 1.62 s (849 dots) | 1.23 s (849 dots) |
+| Zelfde bitmap nogmaals: antwoord / flips | n.v.t. | 364.8 ms / 0 | 182.4 ms / 0 |
+| Alles opnieuw `aU`: klaar | n.v.t. | 2.56 s (1792 dots) | 2.17 s (1792 dots) |
+| Pixeltelegrammen per seconde (wachten op `a0`) | n.v.t. | 74 /s (100/100 a0) | 143 /s (100/100 a0) |
+| Langste dotpuls | 1.11 ms | 1.11 ms | 1.06 ms |
+| Watchdog-resets | 0 | 0 | 0 |
 
-Een dotpuls duurt in beide varianten ~1,1 ms, net als in het origineel. Pulsen blijven ook tijdens lange
-telegrammen ≤ 1,11 ms.
+- Een dotpuls duurt in alle varianten ~1,1 ms, net als in het origineel.
+- Bij tekst en testbeelden zet ASFP alle 1792 dots om (~2 s). Daar wint 12 MHz vooral bij het opmaken van de tekst.
+- Een volledige bitmap is bij 6 MHz klaar in 1,6 s. Een vergelijkbare beeldwissel via tekst kost met het origineel 5,2 s.
 
 ## Gedrag
 
