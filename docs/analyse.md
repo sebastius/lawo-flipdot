@@ -227,6 +227,22 @@ Versie-antwoorden: MLAWO `R.SCH.` (ROM 0x380B), ASFP en AZIPZR1 allebei `F00293`
 
 ---
 
+### 2.9 Beeldopbouw in ASFP (met de emulator nagelopen)
+
+| Onderdeel | Rol |
+|---|---|
+| `0x057E` | gewenst beeld, 2 bytes per kolom (hoog, laag); bit *y* = rij *y* van boven (masktabel `0x3202`) |
+| `0x07AE` | kopie van het getoonde beeld, bijgewerkt na elke verversing |
+| `0x0692` | verversroutine: per dot `056B`/`056C`/`21h.6` invullen, `21h.4` zetten en wachten tot de timer-interrupt de puls heeft gegeven |
+| `22h.0` | **wisseltekst actief**: de tekstweergave zet hem bij meerdere pagina's (`0x0A7E`). Zolang hij gezet is, tekent de hoofdlus steeds de volgende pagina (`0x2D77`) en slaat `0x0692` onveranderde dots over. Staat hij uit, dan krijgt elke dot een puls. |
+| `0x0571` | verzoek aan de hoofdlus (testbeeld `aT`: 1–4); daarna `0x0692` en terug naar 0 |
+
+Eerder schreef ik dat ASFP altijd alle dots opnieuw schrijft. Dat klopt bij gewone tekst en testbeelden, maar
+bij wisseltekst gebruikt ASFP partial update. De patch in [`firmware-patches/asfp-bitmap/`](../firmware-patches/asfp-bitmap/)
+maakt hier gebruik van voor pixel- en bitmaptelegrammen.
+
+---
+
 ## 3. Bediening en diagnose (uit firmware + handleiding)
 
 - Testknop geel/zwart (TG/TS op P3.2/P3.3) → hele display geel/zwart.

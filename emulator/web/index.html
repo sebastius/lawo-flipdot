@@ -35,7 +35,7 @@
   .led.yellow.on i { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
   .led.green.on i { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
   .seg { font: 700 26px/1 ui-monospace, monospace; color: var(--danger); background: #0c0d0f; padding: 4px 10px; border-radius: 4px; min-width: 34px; text-align: center; }
-  #log { height: 260px; overflow-y: auto; background: #0c0d0f; border-radius: 5px; padding: 8px; font: 12px/1.45 ui-monospace, monospace; white-space: pre-wrap; }
+  #log { height: 260px; overflow-y: auto; overflow-wrap: anywhere; background: #0c0d0f; border-radius: 5px; padding: 8px; font: 12px/1.45 ui-monospace, monospace; white-space: pre-wrap; }
   #log .tx { color: var(--accent); } #log .rx { color: var(--ok); } #log .sys { color: var(--muted); } #log .err { color: var(--danger); }
   .stats { font: 12px/1.6 ui-monospace, monospace; color: var(--muted); }
   textarea { width: 100%; height: 96px; background: #121417; color: var(--text); border: 1px solid var(--line); border-radius: 5px; padding: 6px; font: 13px ui-monospace, monospace; resize: vertical; }
@@ -85,6 +85,9 @@
           <option value="test">Testbeeld (aT)</option>
           <option value="status">Status opvragen (a)</option>
           <option value="version">Versie opvragen (aV)</option>
+          <option value="pixel">Pixels (aP) · ASFP-bitmap</option>
+          <option value="bitmap">Bitmap uit afbeelding (aB) · ASFP-bitmap</option>
+          <option value="full">Alles opnieuw omzetten (aU) · ASFP-bitmap</option>
           <option value="raw">Handmatig</option>
         </select>
         <label for="taddr">Adres</label><input type="number" id="taddr" value="1" min="0" max="15">
@@ -116,6 +119,25 @@ Tweede pagina</textarea>
           <select id="fpattern"><option value="0">0 · alles zwart</option><option value="1">1 · alles geel</option><option value="2">2 · dambord</option><option value="3">3 · omgekeerd dambord</option></select>
         </div>
         <p class="hint">Adres 0 = alle displays.</p>
+      </div>
+      <div class="fields" data-kind="pixel">
+        <div class="row">
+          <label for="fpx">X</label><input type="number" id="fpx" value="0" min="0" max="139">
+          <label for="fpy">Y</label><input type="number" id="fpy" value="0" min="0" max="15">
+          <label for="fpc">Kleur</label><select id="fpc"><option value="1">geel</option><option value="0">zwart</option></select>
+        </div>
+        <p class="hint"><b>Klik op het display</b> om een dot om te zetten (stuurt meteen een aP-telegram). Y = 0 is de bovenste rij.</p>
+      </div>
+      <div class="fields" data-kind="bitmap">
+        <div class="row">
+          <input type="file" id="fimg" accept="image/*">
+          <label><input type="checkbox" id="finv"> omkeren</label>
+          <label for="fthr">drempel</label><input type="range" id="fthr" min="1" max="254" value="128" style="width:110px">
+        </div>
+        <p class="hint">De afbeelding wordt geschaald naar de displaygrootte; licht = geel. Tot 500 tekens gaat in één telegram (112 × 16 = 456 tekens, ±4,6 s bij 1200 Bd).</p>
+      </div>
+      <div class="fields" data-kind="full">
+        <p class="hint">Zet alle dots opnieuw om met het huidige beeld, tegen vastzittende dots.</p>
       </div>
       <div class="fields" data-kind="status version">
         <p class="hint">Het display antwoordt in het logboek hieronder (status: <code>a0</code>, versie: bv. <code>aVF00293</code>).</p>

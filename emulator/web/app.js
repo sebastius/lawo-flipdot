@@ -8,6 +8,7 @@ const FIRMWARES = [
   ['AZR-12C.BIN', '../../firmware/AZR-12C.BIN'],
   ['MLAWO_RET_RET60', '../../firmware/MLAWO_RET_RET60.PLM51_18-11-92.bin'],
   ['dvb_azrfr51v16.bin', '../../firmware/dvb_azrfr51v16.bin'],
+  ['ASFP-bitmap (patch)', '../../firmware-patches/asfp-bitmap/ASFP-bitmap.bin'],
 ];
 const EPROMS = [
   ['RAM (62256)', null],
@@ -173,9 +174,18 @@ function buildTelegram() {
     case 'test': body = `aT${tAddr()}${$('fpattern').value}`; break;
     case 'status': body = `a${tAddr()}`; break;
     case 'version': body = `aV${tAddr()}`; break;
+    case 'pixel': body = `aP${tAddr()}` + pad($('fpx').value, 3) + pad($('fpy').value, 2) + $('fpc').value; break;
+    case 'full': body = `aU${tAddr()}`; break;
+    case 'bitmap': {
+      if (!bitmapWords) { warnings.push('kies eerst een afbeelding'); body = `aB${tAddr()}000`; break; }
+      body = `aB${tAddr()}000` + bitmapWords.map((w) => w.toString(16).padStart(4, '0').toUpperCase()).join('');
+      break;
+    }
     default: body = $('tele').value.replace(/\\n/g, '\n').replace(/\\r/g, '\r');
   }
-  if (body.length + 1 > 249) warnings.push(`telegram is ${body.length + 1} tekens; ASFP negeert alles boven ~249 tekens`);
+  const limit = (kind === 'bitmap' || kind === 'pixel') ? 500 : 249;
+  if (body.length + 1 > limit) warnings.push(`telegram is ${body.length + 1} tekens; de firmware negeert alles boven ~${limit} tekens`);
+  if (['pixel', 'bitmap', 'full'].includes(kind) && !$('rom').value.includes('asfp-bitmap')) warnings.push('dit telegram werkt alleen met de ASFP-bitmap-firmware');
   return { body, warnings };
 }
 
@@ -184,6 +194,7 @@ function checksum(body) { let cs = 0x7F; for (const ch of body + '\r') cs ^= ch.
 function updateBuilder() {
   const kind = $('kind').value;
   for (const f of document.querySelectorAll('.fields')) f.hidden = !f.dataset.kind.split(' ').includes(kind);
+  $('screen').style.cursor = kind === 'pixel' ? 'crosshair' : '';
   $('numhint').textContent = {
     dest: 'DS003: bestemmingsnummer. MLAWO/AZR-12C zoeken de tekst op in de tekst-EPROM.',
     line: 'DS001: lijnnummer, getoond in het lijnnummervak.',
@@ -212,6 +223,30 @@ function insertAtCursor(el, text) {
   el.focus();
 }
 
+// ---------- bitmap uit afbeelding ----------
+let bitmapWords = null, bitmapImg = null;
+function imageToWords() {
+  if (!bitmapImg) return;
+  const cols = Number($('cols').value), rows = Number($('rows').value);
+  const c = document.createElement('canvas'); c.width = cols; c.height = rows;
+  const g = c.getContext('2d');
+  g.fillStyle = '#000'; g.fillRect(0, 0, cols, rows);
+  const scale = Math.min(cols / bitmapImg.width, rows / bitmapImg.height);
+  const w = bitmapImg.width * scale, h = bitmapImg.height * scale;
+  g.drawImage(bitmapImg, (cols - w) / 2, (rows - h) / 2, w, h);
+  const px = g.getImageData(0, 0, cols, rows).data, thr = Number($('fthr').value), inv = $('finv').checked;
+  bitmapWords = [];
+  for (let x = 0; x < cols; x++) {
+    let word = 0;
+    for (let y = 0; y < rows && y < 16; y++) {
+      const i = (y * cols + x) * 4;
+      const lum = 0.299 * px[i] + 0.587 * px[i + 1] + 0.114 * px[i + 2];
+      if ((lum >= thr) !== inv) word |= 1 << y;
+    }
+    bitmapWords.push(word);
+  }
+}
+
 function initBuilder() {
   $('kind').value = store.get('kind', 'text');
   $('ftext').value = store.get('ftext', $('ftext').value);
@@ -223,7 +258,24 @@ function initBuilder() {
     b.onclick = () => { insertAtCursor($('ftext'), glyph); updateBuilder(); };
     sym.appendChild(b);
   }
-  for (const id of ['kind', 'taddr', 'fline', 'ftext', 'fumlaut', 'fnum', 'fpattern', 'tele']) {
+  $('fimg').addEventListener('change', (e) => {
+    const f = e.target.files[0]; if (!f) return;
+    const img = new Image();
+    img.onload = () => { bitmapImg = img; imageToWords(); updateBuilder(); };
+    img.src = URL.createObjectURL(f);
+  });
+  for (const id of ['finv', 'fthr']) $(id).addEventListener('input', () => { imageToWords(); updateBuilder(); });
+  $('screen').addEventListener('click', (e) => {
+    if ($('kind').value !== 'pixel' || !board) return;
+    const r = $('screen').getBoundingClientRect();
+    const x = Math.floor((e.clientX - r.left) / r.width * board.cols);
+    const y = Math.floor((e.clientY - r.top) / r.height * board.rows);
+    if (x < 0 || y < 0 || x >= board.cols || y >= board.rows) return;
+    $('fpx').value = x; $('fpy').value = y;
+    $('fpc').value = board.dots[y * board.cols + x] ? '0' : '1';
+    updateBuilder(); send();
+  });
+  for (const id of ['kind', 'taddr', 'fline', 'ftext', 'fumlaut', 'fnum', 'fpattern', 'tele', 'fpx', 'fpy', 'fpc']) {
     $(id).addEventListener('input', updateBuilder);
     $(id).addEventListener('change', updateBuilder);
   }
