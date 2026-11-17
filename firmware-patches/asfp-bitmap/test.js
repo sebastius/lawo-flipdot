@@ -15,12 +15,14 @@ const check = (name, cond, detail = '') => {
 };
 
 for (const V of VARIANTS) {
-  const rom = new Uint8Array(readFileSync(here('./' + V.file)));
+  const romFile = new Uint8Array(readFileSync(here('./' + V.file)));
+  const XOFF = 0x5FFF;
+  const rom = new Uint8Array(romFile); rom[XOFF] = 0;     // tests hieronder: volledig display, x = kolom
   const txTime = (tele) => (tele.length + 2) * 11 / V.baud;     // 11 bits per teken (7E2)
   console.log(`\n===== ${V.file}`);
 
-  const boot = (address = 1) => {
-    const b = new AZR802({ rom, address, osc: V.osc });
+  const boot = (address = 1, image = rom) => {
+    const b = new AZR802({ rom: image, address, osc: V.osc });
     b.replies = [];
     const rx = new IbisReceiver((t, ok) => b.replies.push(ok ? t : '!' + t));
     b.on('tx', (x) => rx.push(x));
@@ -53,6 +55,20 @@ for (const V of VARIANTS) {
     while (b.replies.length === before && b.time - t0 < 1) b.runSeconds(0.001);
     return b.replies.length > before ? b.time - t0 : null;
   };
+
+  console.log('kolomverschuiving (byte 0x5FFF)');
+  {
+    check('standaard verschuiving in het image is 28', romFile[XOFF] === 28, String(romFile[XOFF]));
+    const b = boot(1, romFile);
+    settle(b, 'aP1' + '000001' + '083151');
+    check('aP: x 0 -> kolom 28, x 83 -> kolom 111', dot(b, 28, 0) && dot(b, 111, 15) && yellow(b) === 2, `geel=${yellow(b)}`);
+    const r = settle(b, 'aP1' + '084001');
+    check('aP: x 84 valt buiten het display', r.flips === 0 && yellow(b) === 2, `flips=${r.flips}`);
+    settle(b, 'aB1000' + 'FFFF'.repeat(2));
+    check('aB: startkolom 0 -> kolom 28', dot(b, 28, 5) && dot(b, 29, 5) && !dot(b, 27, 5) && !dot(b, 30, 5));
+    settle(b, 'aB1080' + 'FFFF'.repeat(10));
+    check('aB: kolommen voorbij 111 worden overgeslagen', dot(b, 108, 0) && dot(b, 111, 0));
+  }
 
   console.log('bestaand gedrag');
   {

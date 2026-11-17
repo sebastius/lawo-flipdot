@@ -56,7 +56,12 @@
 
 ; 1 = eigen snelle verversing (alleen veranderde kolommen), 0 = originele routine 0x0692.
 ; Op hardware klapten met fast_refresh geen dots om (17-11-2026); daarom voorlopig 0.
-USE_FAST_REFRESH = 0
+USE_FAST_REFRESH = 1
+
+; Kolomverschuiving voor aP en aB: byte op XOFF_ADDR (standaard 28). Op een display waarvan de
+; eerste module (kolom 0-27) ontbreekt, valt x = 0 dan op de eerste zichtbare kolom.
+; Zet het byte op 0 voor een volledig display (build.py --xoff, of met een hex-editor).
+XOFF_ADDR  = 0x5FFF
         .area   PATCH (ABS,CODE)
 
 ; ---------- ASFP ----------
@@ -565,7 +570,8 @@ do_pixels:
 px_go:
         lcall   getnum3
         jc      px_end
-        mov     r4,a                    ; x
+        lcall   add_xoff
+        mov     r4,a                    ; x (+ verschuiving)
         lcall   getdig
         jc      px_end
         mov     b,#10
@@ -628,7 +634,8 @@ px_end:
 do_bitmap:
         lcall   getnum3
         jc      bm_end
-        mov     r4,a                    ; startkolom
+        lcall   add_xoff
+        mov     r4,a                    ; startkolom (+ verschuiving)
 bm_loop:
         movx    a,@dptr
         cjne    a,#CR,bm_go
@@ -1030,3 +1037,21 @@ diag_tab:
         .db     >(FB_OLD+10), <(FB_OLD+10), >(FB_OLD+11), <(FB_OLD+11)
         .db     >(SH+10), <(SH+10),     >(SH+11), <(SH+11)
         .db     0xFF, 0xFF
+
+; a := a + kolomverschuiving (0xFF bij overloop: valt buiten het display); behoudt dptr
+add_xoff:
+        mov     r0,a
+        push    dpl
+        push    dph
+        mov     dptr,#XOFF_ADDR
+        clr     a
+        movc    a,@a+dptr
+        pop     dph
+        pop     dpl
+        add     a,r0
+        jnc     ax_ok
+        mov     a,#0xFF
+ax_ok:  ret
+
+        .org    XOFF_ADDR
+        .db     28

@@ -80,7 +80,15 @@ def parse_ihx(text):
     return data
 
 
+XOFF_ADDR = 0x5FFF   # kolomverschuiving voor aP/aB (zie asfp_bitmap.asm)
+
+
 def main():
+    xoff = None
+    if "--xoff" in sys.argv:
+        xoff = int(sys.argv[sys.argv.index("--xoff") + 1])
+        if not 0 <= xoff <= 255:
+            sys.exit("--xoff moet 0..255 zijn")
     with tempfile.TemporaryDirectory() as tmp:
         rel = Path(tmp) / "patch.rel"
         ihx = Path(tmp) / "patch.ihx"
@@ -104,7 +112,10 @@ def main():
         if not ok:
             sys.exit(f"patch overschrijft gebruikte byte op 0x{addr:04X} (was 0x{orig[addr]:02X})")
         rom[addr] = val
-    used = [a for a in patch if a >= 0x5000]
+    if xoff is not None:
+        rom[XOFF_ADDR] = xoff
+    print(f"kolomverschuiving aP/aB: {rom[XOFF_ADDR]} (byte op 0x{XOFF_ADDR:04X}; wijzigen met --xoff N)")
+    used = [a for a in patch if 0x5000 <= a < XOFF_ADDR]
     print(f"patch: {len(patch)} bytes, nieuwe code 0x5000-0x{max(used):04X} ({len(used)} bytes)")
     for start, end, _ in ALLOWED:
         print(f"  haak 0x{start:04X}: {orig[start:end + 1].hex(' ')} -> {rom[start:end + 1].hex(' ')}")
