@@ -110,16 +110,20 @@ for (const V of VARIANTS) {
   {
     const b = boot();
     const t0 = b.time;
-    let acks = 0, maxAck = 0;
+    // zonder a0 (wachtrij vol) opnieuw proberen, zoals een nette zender doet
+    let acks = 0, maxAck = 0, retries = 0;
     for (let i = 0; i < 40; i++) {
-      const dt = sendWait(b, 'aP1' + String(i * 2).padStart(3, '0') + String(i % 16).padStart(2, '0') + '1');
-      if (dt !== null) { acks++; maxAck = Math.max(maxAck, dt); }
+      for (let tries = 0; tries < 10; tries++) {
+        const dt = sendWait(b, 'aP1' + String(i * 2).padStart(3, '0') + String(i % 16).padStart(2, '0') + '1');
+        if (dt !== null) { acks++; maxAck = Math.max(maxAck, dt); break; }
+        retries++;
+      }
     }
     const sent = b.time - t0;
     b.runSeconds(2);
     let ok = true;
     for (let i = 0; i < 40; i++) if (!dot(b, i * 2, i % 16)) ok = false;
-    check('40 pixeltelegrammen: allemaal a0 en allemaal getekend', acks === 40 && ok && yellow(b) === 40, `acks=${acks} geel=${yellow(b)}`);
+    check('40 pixeltelegrammen: allemaal a0 en allemaal getekend', acks === 40 && ok && yellow(b) === 40, `acks=${acks} geel=${yellow(b)} herhaald=${retries}`);
     console.log(`       40 telegrammen verstuurd in ${sent.toFixed(2)} s (${(40 / sent).toFixed(0)}/s), langste wachttijd op a0 ${(maxAck * 1000).toFixed(1)} ms`);
     const tAck = sendWait(b, 'aB1000' + '8001'.repeat(112));
     const tAck2 = sendWait(b, 'aB1000' + '0180'.repeat(112));

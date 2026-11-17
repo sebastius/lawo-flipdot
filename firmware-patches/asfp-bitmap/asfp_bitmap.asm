@@ -53,6 +53,10 @@
 ; R0-R7, ACC, B, DPTR en (tijdelijk, met herstel) P2, net als de ASFP-routines.
 
         .module asfp_bitmap
+
+; 1 = eigen snelle verversing (alleen veranderde kolommen), 0 = originele routine 0x0692.
+; Op hardware klapten met fast_refresh geen dots om (17-11-2026); daarom voorlopig 0.
+USE_FAST_REFRESH = 0
         .area   PATCH (ABS,CODE)
 
 ; ---------- ASFP ----------
@@ -336,8 +340,22 @@ refresh_wrap:
         jz      rw_go                   ; bitmapmodus intussen beëindigd
         lcall   sh_to_fb
 rw_go:
+        mov     dptr,#CNT_FR
+        lcall   inc_x
+.if USE_FAST_REFRESH
         clr     B_PARTIAL               ; wisseltekst stoppen
         ljmp    fast_refresh            ; alleen veranderde dots, zonder paginawachttijd
+.else
+        ; originele verversroutine: met 22h.0 = 1 slaat 0x0692 onveranderde dots over; de
+        ; paginatimer (32h/33h) op 0, anders wacht 0x0692 eerst de wisseltekst-paginatijd af.
+        ; Daarna 22h.0 = 0, zodat de hoofdlus geen volgende tekstpagina over het beeld tekent.
+        mov     0x32,#0
+        mov     0x33,#0
+        setb    B_PARTIAL
+        lcall   REFRESH
+        clr     B_PARTIAL
+        ljmp    dirty_clear
+.endif
 rw_plain:
         ljmp    REFRESH                 ; testbeeld: origineel gedrag
 
@@ -361,8 +379,6 @@ PCON       = 0x87
 DISP_BUSY  = 0x0554        ; 0x0692 zet deze op 0 na afloop
 
 fast_refresh:
-        mov     dptr,#CNT_FR
-        lcall   inc_x
         lcall   fr_setup                ; rijmasker-pointer en 'omgekeerd' zoals 0x0692
         lcall   dirty_start             ; alleen gewijzigde kolommen
 fr_col:
