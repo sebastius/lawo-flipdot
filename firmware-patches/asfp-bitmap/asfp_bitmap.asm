@@ -55,8 +55,10 @@
         .module asfp_bitmap
 
 ; 1 = eigen snelle verversing (alleen veranderde kolommen), 0 = originele routine 0x0692.
-; Op hardware klapten met fast_refresh geen dots om (17-11-2026); daarom voorlopig 0.
-USE_FAST_REFRESH = 1
+; Op hardware (17-11-2026) klappen met fast_refresh geen dots om, hoewel aD laat zien dat de
+; pulsen worden aangevraagd en afgehandeld; in de emulator werkt het wel. Oorzaak onbekend.
+; Met 0x0692 werkt het op hardware (getest op kolom >= 28). Daarom 0.
+USE_FAST_REFRESH = 0
 
 ; Kolomverschuiving voor aP en aB: byte op XOFF_ADDR (standaard 28). Op een display waarvan de
 ; eerste module (kolom 0-27) ontbreekt, valt x = 0 dan op de eerste zichtbare kolom.
