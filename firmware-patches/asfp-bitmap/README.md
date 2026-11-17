@@ -11,6 +11,9 @@ Uitbreiding van [`firmware/ASFP.bin`](../../firmware/ASFP.bin) in twee varianten
 | `ASFP-bitmap-6MHz-15625.bin` | 6 MHz (origineel) | 15 625 |
 | `ASFP-bitmap-12MHz-31250.bin` | 12 MHz (oscillator vervangen; de CPU is een µPD80C31BH-3 "12P") | 31 250 |
 
+Van beide is er ook een `…-27C512.bin` van 64 KB voor 27C512-achtige chips; zie [Op een echte chip zetten](#op-een-echte-chip-zetten).
+De bijbehorende ESP-firmware met baudrate-instelling staat in [flipdot-ret-mqtt](https://github.com/sebastius/flipdot-ret-mqtt).
+
 Alle bestaande functies blijven werken: tekst, lijnnummer, testbeelden, status en versie `F00293`.
 Daarbij komen drie telegrammen, en het display zet daarbij **alleen de dots om die echt veranderen**.
 
@@ -129,6 +132,29 @@ In de emulator upload je het PNG bij *Bitmap uit afbeelding*, of je stuurt het t
 node emulator/cli.js --rom firmware-patches/asfp-bitmap/ASFP-bitmap-6MHz-15625.bin \
   --script "wait 3; send $(cat firmware-patches/asfp-bitmap/examples/kat-en-muizen.txt); wait 3; show"
 ```
+
+## Op een echte chip zetten
+
+De firmware zit in socket **EP1**, een 28-pins DIL-voet voor een 27C256 (label "LLE-AZ-PROG"). Volgens schemablad 4:
+- **pin 1 (VPP):** vast aan 5 V;
+- **pin 27 (A14):** via jumper J4 aan de CPU;
+- **/OE (pin 22):** aan PSEN;
+- **/CE (pin 20):** aan massa.
+
+| Chip | Image | Opmerking |
+|---|---|---|
+| **W27C512** (Winbond) of **SST27SF512**: aanrader | `…-27C512.bin` (64 KB) | Elektrisch wisbaar, dus geen UV-lamp nodig, en vaak tientallen keren te herprogrammeren. Pin 1 is A15 en staat vast hoog, dus de chip leest de bovenste helft; daarom staat de image er 2× in. |
+| 27C256, UV-wisbaar (bijv. M27C256B, AT27C256) | `….bin` (32 KB) | Zoals het origineel; wissen met een UV-lamp. |
+| AT27C256R, eenmalig programmeerbaar (OTP) | `….bin` (32 KB) | Goedkoop, maar één keer branden. |
+| ~~28C256 (EEPROM)~~ | – | **Niet zonder adapter.** Pin 1 is daar A14 (vast hoog) en pin 27 is /WE, die dan aan A14 van de CPU hangt. Met /CE vast laag kan de chip zichzelf overschrijven. |
+
+- **Snelheid:** bij 6 MHz is elke gangbare EPROM snel genoeg. Bij 12 MHz moet de data volgens de gebruikelijke
+  80C51-timing binnen ~145 ns na PSEN klaarstaan (3·TCLCL − 105 ns), en binnen ~310 ns na een geldig adres, minus
+  ~20–30 ns voor de 74HC573. Kies daarom een chip van **≤ 120 ns** (W27C512-45/-70 en SST27SF512-70 zijn ruim snel genoeg).
+- **Programmer:** bijvoorbeeld een XGecu T48 of TL866II+, die de genoemde chips allemaal ondersteunen.
+- **Voor het snel uitproberen van veel versies** kan een EPROM-emulator handig zijn, zoals het open-source *EPROM EMU NG*.
+  Die zit dan via een kabel in de socket en wordt via USB geladen.
+- **Bewaar de originele EPROM.** De inkeping wijst naar het midden van de print, zoals in de handleiding. Laat J4 staan zoals hij staat.
 
 ## Bekende beperkingen
 

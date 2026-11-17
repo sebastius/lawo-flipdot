@@ -115,6 +115,9 @@ def main():
                 sys.exit(f"{v['name']}: 0x{addr:04X} is 0x{img[addr]:02X}, verwacht 0x{before:02X}")
             img[addr] = after
         (HERE / v["name"]).write_bytes(img)
+        # 64 KB voor 27C512-achtige chips (W27C512, SST27SF512): pin 1 = A15 zit op de
+        # AZR 802/24 vast aan 5 V, dus de bovenste helft wordt gelezen; image staat er 2x in.
+        (HERE / v["name"].replace(".bin", "-27C512.bin")).write_bytes(bytes(img) * 2)
         th1 = img[0x211C]
         baud = 2 * v["osc"] / (384 * (256 - th1))
         tick = (65536 - ((img[0x2122] << 8) | img[0x211F])) * 12 / v["osc"] * 1000
