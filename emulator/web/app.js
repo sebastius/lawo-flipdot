@@ -8,7 +8,8 @@ const FIRMWARES = [
   ['AZR-12C.BIN', '../../firmware/AZR-12C.BIN'],
   ['MLAWO_RET_RET60', '../../firmware/MLAWO_RET_RET60.PLM51_18-11-92.bin'],
   ['dvb_azrfr51v16.bin', '../../firmware/dvb_azrfr51v16.bin'],
-  ['ASFP-bitmap (patch)', '../../firmware-patches/asfp-bitmap/ASFP-bitmap.bin'],
+  ['ASFP-bitmap 6 MHz · 15625 Bd', '../../firmware-patches/asfp-bitmap/ASFP-bitmap-6MHz-15625.bin', '80C31|6000000'],
+  ['ASFP-bitmap 12 MHz · 31250 Bd', '../../firmware-patches/asfp-bitmap/ASFP-bitmap-12MHz-31250.bin', '80C31|12000000'],
 ];
 const EPROMS = [
   ['RAM (62256)', null],
@@ -185,7 +186,7 @@ function buildTelegram() {
   }
   const limit = (kind === 'bitmap' || kind === 'pixel') ? 500 : 249;
   if (body.length + 1 > limit) warnings.push(`telegram is ${body.length + 1} tekens; de firmware negeert alles boven ~${limit} tekens`);
-  if (['pixel', 'bitmap', 'full'].includes(kind) && !$('rom').value.includes('asfp-bitmap')) warnings.push('dit telegram werkt alleen met de ASFP-bitmap-firmware');
+  if (['pixel', 'bitmap', 'full'].includes(kind) && !$('rom').value.includes('ASFP-bitmap')) warnings.push('dit telegram werkt alleen met de ASFP-bitmap-firmware');
   return { body, warnings };
 }
 
@@ -344,6 +345,9 @@ function init() {
     log('sys', `tekst-EPROM geüpload: ${f.name}; kies "geüpload bestand" bij RM2/RM3 en laad opnieuw`);
   };
   applyUrlParams();
+  const syncCpu = () => { const f = FIRMWARES.find(([, p]) => p === $('rom').value); $('cpu').value = (f && f[2]) || '80C31|6000000'; };
+  $('rom').addEventListener('change', syncCpu);
+  if (params.has('rom')) syncCpu();
   $('load').onclick = load;
   $('send').onclick = send;
   initBuilder();

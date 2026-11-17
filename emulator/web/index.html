@@ -134,7 +134,7 @@ Tweede pagina</textarea>
           <label><input type="checkbox" id="finv"> omkeren</label>
           <label for="fthr">drempel</label><input type="range" id="fthr" min="1" max="254" value="128" style="width:110px">
         </div>
-        <p class="hint">De afbeelding wordt geschaald naar de displaygrootte; licht = geel. Tot 500 tekens gaat in één telegram (112 × 16 = 456 tekens, ±4,6 s bij 1200 Bd).</p>
+        <p class="hint">De afbeelding wordt geschaald naar de displaygrootte; licht = geel. Tot 500 tekens gaat in één telegram (112 × 16 = 456 tekens: 0,32 s bij 15625 Bd, 0,16 s bij 31250 Bd).</p>
       </div>
       <div class="fields" data-kind="full">
         <p class="hint">Zet alle dots opnieuw om met het huidige beeld, tegen vastzittende dots.</p>
@@ -154,7 +154,7 @@ Tweede pagina</textarea>
       <p class="hint warn" id="pwarn"></p>
       <div class="row">
         <button class="primary" id="send">Verstuur</button>
-        <span class="hint">1200 Bd 7E2 · CR + XOR-checksum automatisch · Ctrl+Enter verstuurt</span>
+        <span class="hint">7E2 op de baudrate van de firmware · CR + XOR-checksum automatisch · Ctrl+Enter verstuurt</span>
       </div>
       <div id="log"></div>
     </section>
@@ -169,7 +169,7 @@ Tweede pagina</textarea>
       <div class="row"><label>tekst-EPROM uploaden</label><input type="file" id="epromFile" accept=".bin,.BIN"></div>
       <div class="row">
         <label>CPU</label>
-        <select id="cpu"><option value="80C31|6000000">80C31 · 6 MHz</option><option value="80C32|11059200">80C32 · 11,0592 MHz</option></select>
+        <select id="cpu"><option value="80C31|6000000">80C31 · 6 MHz</option><option value="80C31|12000000">80C31 · 12 MHz</option><option value="80C32|11059200">80C32 · 11,0592 MHz</option></select>
       </div>
       <div class="row">
         <label>Display</label>

@@ -413,6 +413,8 @@ export class CPU8051 {
         if (!(s[SCON] & 0x01) && (!sm2 || ninth)) {
           u.sbufRx = f.byte;
           s[SCON] = (s[SCON] & ~0x04) | (ninth ? 0x04 : 0) | 0x01;   // RB8, RI
+        } else if (s[SCON] & 0x01) {
+          this.rxOverruns = (this.rxOverruns || 0) + 1;              // RI nog gezet: teken kwijt
         }
         u.rxFrame = null;
       }

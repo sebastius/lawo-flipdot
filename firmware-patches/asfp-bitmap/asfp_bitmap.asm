@@ -33,7 +33,7 @@
 ;     kopiëren (2 x 512 bytes), "a0" antwoorden. Kort, zodat er geen tekens verloren gaan.
 ;   - Hoofdlus: zolang de wachtrij niet leeg is wordt 0x0571 = 5. Het omhulsel om de
 ;     verversing verwerkt dan alle telegrammen in de schaduw, kopieert die naar 0x057E en
-;     ververst met 22h.0 = 1 (alleen verschillen); daarna 22h.0 = 0 (wisseltekst stopt).
+;     ververst met een eigen snelle routine (alleen veranderde dots); 22h.0 = 0 (wisseltekst stopt).
 ;   - Reset: eigen variabelen wissen (het werk-RAM is batterijgebufferd).
 ;
 ; Haken in ASFP (origineel -> patch):
@@ -88,9 +88,11 @@ P2         = 0xA0
 QBASE      = 0x09          ; wachtrij: slot i op (QBASE + 2*i) * 256, 512 bytes per slot
 BM_FLAG    = 0x0E00        ; 1 = bitmapmodus (schaduw geldig)
 FULL_REQ   = 0x0E01        ; 1 = volgende verversing alles omzetten
-Q_HEAD     = 0x0E02        ; volgend te vullen slot (0/1)
-Q_TAIL     = 0x0E03        ; volgend te verwerken slot (0/1)
+Q_HEAD     = 0x0E02        ; aantal gevulde slots (modulo 4), alleen de interrupt schrijft
+Q_TAIL     = 0x0E03        ; aantal verwerkte slots (modulo 4), alleen de hoofdlus schrijft
 RX_HI      = 0x0E04        ; ontvangstindex (hoog) voor lange telegrammen
+DIRTY_MIN  = 0x0E05        ; laagste gewijzigde kolom sinds de vorige verversing (0xFF = geen)
+DIRTY_MAX  = 0x0E06        ; hoogste gewijzigde kolom
 SH         = 0x0E10        ; schaduwbuffer, max 140 kolommen x 2 bytes
 RX_MAX     = 0x01F4        ; max. lengte aB/aP incl. CR (buffer tot vlak voor 0x0553)
 
@@ -133,6 +135,7 @@ init:
         movx    @dptr,a
         inc     dptr                    ; RX_HI
         movx    @dptr,a
+        lcall   dirty_clear
         ljmp    RESET_ORIG
 
 ; ---------- ontvangst (seriële interrupt) ----------
@@ -239,22 +242,30 @@ ext_exit:
         ljmp    DISPATCH_TAIL
 
 ; ruw telegram (tot en met CR) naar slot Q_HEAD; C = 1 als de wachtrij vol is
+; head en tail tellen modulo 4 (slot = teller AND 1); aantal = (head - tail) AND 3.
+; Alleen de interrupt schrijft head, alleen de hoofdlus schrijft tail: geen vergrendeling nodig.
 enqueue:
-        mov     dptr,#Q_HEAD
-        movx    a,@dptr
-        anl     a,#1
-        mov     r2,a                    ; head
-        inc     a
-        anl     a,#1
-        mov     r3,a                    ; head + 1
         mov     dptr,#Q_TAIL
         movx    a,@dptr
-        anl     a,#1
-        xrl     a,r3
-        jz      eq_full
+        mov     r3,a                    ; tail
+        mov     dptr,#Q_HEAD
+        movx    a,@dptr
+        anl     a,#3
+        mov     r2,a                    ; head
+        clr     c
+        subb    a,r3
+        anl     a,#3
+        cjne    a,#2,eq_room            ; C = 1 als aantal < 2
+eq_room:
+        jnc     eq_full
+        mov     a,r2
+        inc     a
+        anl     a,#3
+        mov     r3,a                    ; nieuwe head
         push    P2
         mov     a,r2
-        add     a,r2
+        anl     a,#1                    ; slot
+        add     a,acc
         add     a,#QBASE
         mov     P2,a                    ; doel via MOVX @R1 (P2 = hoge byte)
         mov     r1,#0
@@ -307,27 +318,140 @@ refresh_wrap:
         jz      rw_go                   ; bitmapmodus intussen beëindigd
         lcall   sh_to_fb
 rw_go:
-        setb    B_PARTIAL               ; alleen veranderde dots omzetten
-        lcall   REFRESH
-        clr     B_PARTIAL               ; geen wisseltekst meer
-        ret
+        clr     B_PARTIAL               ; wisseltekst stoppen
+        ljmp    fast_refresh            ; alleen veranderde dots, zonder paginawachttijd
 rw_plain:
         ljmp    REFRESH                 ; testbeeld: origineel gedrag
+
+; ---------- snelle verversing (hoofdlus) ----------
+; Vervangt 0x0692 voor de bitmapmodus. 0x0692 rekent voor elk van de (tot) 1792 dots
+; apart het verschil uit (645 ms bij 6 MHz, ook als er niets verandert) en wacht bij
+; wisseltekst eerst de paginatijd af. Deze routine vergelijkt per kolom de 16-bit woorden
+; en vraagt alleen voor veranderde dots een puls aan, op dezelfde manier als 0x0692:
+; 056B = rij, 056C = kolom, 21h.6 = kleur (XOR 21h.7 'omgekeerd'), 21h.4 = puls gevraagd;
+; de timer-interrupt geeft de puls en wist 21h.4. Rijmaskers uit de ASFP-tabel (10h:11h).
+ROWMASK_H  = 0x10          ; iRAM: pointer naar rijmasker-tabel (code), hoog
+ROWMASK_L  = 0x11          ;                                        laag
+DOT_ROW    = 0x056B
+DOT_COL    = 0x056C
+B_DOTREQ   = 0x0C          ; 21h.4
+B_COLOR    = 0x0E          ; 21h.6
+B_INVERSE  = 0x0F          ; 21h.7
+PCON       = 0x87
+DISP_BUSY  = 0x0554        ; 0x0692 zet deze op 0 na afloop
+
+fast_refresh:
+        lcall   dirty_start             ; alleen gewijzigde kolommen
+fr_col:
+        lcall   in_range
+        jnc     fr_done
+        mov     r6,#>FB_NEW
+        mov     r7,#<FB_NEW
+        lcall   colptr
+        movx    a,@dptr
+        mov     r3,a                    ; nieuw hoog
+        inc     dptr
+        movx    a,@dptr
+        mov     r2,a                    ; nieuw laag
+        mov     r6,#>FB_OLD
+        mov     r7,#<FB_OLD
+        lcall   colptr
+        movx    a,@dptr
+        xrl     a,r3
+        mov     b,a                     ; verschil hoog
+        inc     dptr
+        movx    a,@dptr
+        xrl     a,r2
+        mov     r5,a                    ; verschil laag
+        orl     a,b
+        jz      fr_next                 ; kolom ongewijzigd
+        mov     r7,#0                   ; rij-index
+fr_row:
+        mov     dptr,#HEIGHT
+        movx    a,@dptr
+        mov     r1,a
+        mov     a,r7
+        clr     c
+        subb    a,r1
+        jnc     fr_store
+        mov     a,r7                    ; dptr = rijmasker-tabel + 2*rij
+        add     a,r7
+        add     a,ROWMASK_L
+        mov     dpl,a
+        clr     a
+        addc    a,ROWMASK_H
+        mov     dph,a
+        clr     a
+        movc    a,@a+dptr
+        mov     r6,a                    ; masker hoog
+        mov     a,#1
+        movc    a,@a+dptr
+        mov     r1,a                    ; masker laag
+        mov     a,r6
+        anl     a,b
+        jnz     fr_flip
+        mov     a,r1
+        anl     a,r5
+        jz      fr_rnext
+fr_flip:
+        mov     a,r6                    ; kleur = (nieuw AND masker) <> 0
+        anl     a,r3
+        mov     r0,a
+        mov     a,r1
+        anl     a,r2
+        orl     a,r0
+        add     a,#0xFF                 ; C = 1 als a <> 0
+        jnb     B_INVERSE,fr_col_ok
+        cpl     c
+fr_col_ok:
+        mov     B_COLOR,c
+        mov     dptr,#DOT_ROW
+        mov     a,r7
+        movx    @dptr,a
+        inc     dptr                    ; DOT_COL
+        mov     a,r4
+        movx    @dptr,a
+        setb    B_DOTREQ
+fr_wait:
+        jnb     B_DOTREQ,fr_rnext       ; wachten tot de timer-interrupt gepulst heeft
+        mov     PCON,#0x81              ; idle, SMOD blijft 1 (zoals ASFP)
+        sjmp    fr_wait
+fr_rnext:
+        inc     r7
+        sjmp    fr_row
+fr_store:
+        mov     r6,#>FB_OLD             ; getoond := nieuw voor deze kolom
+        mov     r7,#<FB_OLD
+        lcall   colptr
+        mov     a,r3
+        movx    @dptr,a
+        inc     dptr
+        mov     a,r2
+        movx    @dptr,a
+fr_next:
+        inc     r4
+        sjmp    fr_col
+fr_done:
+        mov     dptr,#DISP_BUSY
+        clr     a
+        movx    @dptr,a
+        ljmp    dirty_clear
 
 ; alle wachtende telegrammen verwerken in de schaduw
 q_process:
         mov     dptr,#Q_TAIL
         movx    a,@dptr
-        anl     a,#1
+        anl     a,#3
         mov     r5,a                    ; tail
         mov     dptr,#Q_HEAD
         movx    a,@dptr
-        anl     a,#1
+        anl     a,#3
         xrl     a,r5
         jz      qp_end
         lcall   bm_enter                ; schaduw = getoond beeld (eerste keer)
         mov     a,r5
-        add     a,r5
+        anl     a,#1                    ; slot
+        add     a,acc
         add     a,#QBASE
         mov     dph,a
         mov     dpl,#1
@@ -342,13 +466,19 @@ q_process:
 qp_1:   cjne    a,#0x42,qp_2
         lcall   do_bitmap
         sjmp    qp_next
-qp_2:   mov     dptr,#FULL_REQ          ; 'U'
+qp_2:   mov     dptr,#FULL_REQ          ; 'U': alles, over de hele breedte
         mov     a,#1
+        movx    @dptr,a
+        mov     dptr,#DIRTY_MIN
+        clr     a
+        movx    @dptr,a
+        inc     dptr                    ; DIRTY_MAX
+        mov     a,#0xFE
         movx    @dptr,a
 qp_next:
         mov     a,r5
         inc     a
-        anl     a,#1
+        anl     a,#3
         mov     dptr,#Q_TAIL
         movx    @dptr,a
         sjmp    q_process
@@ -414,6 +544,7 @@ px_shift:
         xrl     a,r1                    ; kleur 0: bit wissen
 px_store:
         movx    @dptr,a
+        lcall   mark_dirty
 px_skip:
         pop     dph
         pop     dpl
@@ -459,6 +590,7 @@ bm_go:
         inc     dptr
         mov     a,r2
         movx    @dptr,a
+        lcall   mark_dirty
 bm_skip:
         pop     dph
         pop     dpl
@@ -468,42 +600,48 @@ bm_end:
         ret
 
 ; ---------- bitmapmodus starten: schaduw := getoond beeld ----------
+; blokkopie FB_OLD -> SH (2 * breedte bytes): bron via DPTR, doel via P2:R0 (MOVX @R0)
 bm_enter:
         mov     dptr,#BM_FLAG
         movx    a,@dptr
         jnz     be_done
         mov     a,#1
         movx    @dptr,a
-        mov     r4,#0
-be_loop:
-        lcall   x_lt_width
-        jnc     be_done
-        mov     r6,#>FB_OLD
-        mov     r7,#<FB_OLD
-        lcall   colptr
+        mov     dptr,#WIDTH
         movx    a,@dptr
-        mov     r3,a
+        jz      be_done
+        add     a,acc
+        mov     r3,a                    ; aantal bytes, laag
+        clr     a
+        rlc     a
+        mov     r2,a                    ; aantal bytes, hoog
+        push    P2
+        mov     P2,#>SH
+        mov     r0,#<SH
+        mov     dptr,#FB_OLD
+be_copy:
+        movx    a,@dptr
+        movx    @r0,a
         inc     dptr
-        movx    a,@dptr
-        mov     r2,a
-        mov     r6,#>SH
-        mov     r7,#<SH
-        lcall   colptr
+        inc     r0
+        cjne    r0,#0,be_cnt
+        inc     P2
+be_cnt: mov     a,r3                    ; teller (r2:r3) - 1
+        jnz     be_lo
+        dec     r2
+be_lo:  dec     r3
         mov     a,r3
-        movx    @dptr,a
-        inc     dptr
-        mov     a,r2
-        movx    @dptr,a
-        inc     r4
-        sjmp    be_loop
+        orl     a,r2
+        jnz     be_copy
+        pop     P2
 be_done:
         ret
 
 ; schaduw -> gewenst beeld; bij FULL_REQ: getoond := NOT gewenst (alles verschilt)
 sh_to_fb:
-        mov     r4,#0
+        lcall   dirty_start
 sf_loop:
-        lcall   x_lt_width
+        lcall   in_range
         jnc     sf_full
         mov     r6,#>SH
         mov     r7,#<SH
@@ -529,9 +667,9 @@ sf_full:
         jz      sf_end
         clr     a
         movx    @dptr,a
-        mov     r4,#0
+        lcall   dirty_start
 sf_inv:
-        lcall   x_lt_width
+        lcall   in_range
         jnc     sf_end
         mov     r6,#>FB_NEW
         mov     r7,#<FB_NEW
@@ -557,6 +695,54 @@ sf_end:
         ret
 
 ; ---------- hulproutines ----------
+; bereik gewijzigde kolommen
+dirty_clear:
+        mov     dptr,#DIRTY_MIN
+        mov     a,#0xFF
+        movx    @dptr,a
+        inc     dptr                    ; DIRTY_MAX
+        clr     a
+        movx    @dptr,a
+        ret
+
+; r4 := DIRTY_MIN
+dirty_start:
+        mov     dptr,#DIRTY_MIN
+        movx    a,@dptr
+        mov     r4,a
+        ret
+
+; kolom r4 opnemen in het bereik (gebruikt a, dptr, r0)
+mark_dirty:
+        mov     dptr,#DIRTY_MIN
+        movx    a,@dptr
+        mov     r0,a
+        mov     a,r4
+        clr     c
+        subb    a,r0
+        jnc     md_max                  ; r4 >= min
+        mov     a,r4
+        movx    @dptr,a
+md_max: inc     dptr                    ; DIRTY_MAX
+        movx    a,@dptr
+        clr     c
+        subb    a,r4
+        jnc     md_end                  ; max >= r4
+        mov     a,r4
+        movx    @dptr,a
+md_end: ret
+
+; C = 1 als r4 <= DIRTY_MAX en r4 < breedte
+in_range:
+        mov     dptr,#DIRTY_MAX
+        movx    a,@dptr
+        clr     c
+        subb    a,r4
+        jc      ir_no
+        ljmp    x_lt_width
+ir_no:  clr     c
+        ret
+
 ; C = 1 als r4 < breedte (gebruikt dptr, r1)
 x_lt_width:
         mov     dptr,#WIDTH

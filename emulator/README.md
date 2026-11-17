@@ -26,7 +26,7 @@ In de browser kun je:
 - een firmware kiezen of je eigen `.bin` uploaden;
 - een tekst-EPROM of RAM in RM2/RM3 zetten;
 - het adres, S1/S2, de gele en zwarte knop en reset bedienen;
-- telegrammen samenstellen met de **telegrambouwer**: kies het soort telegram (vrije tekst, bestemming, lijn, koers, testbeeld, status of versie) en vul de velden in. Je ziet het telegram en de checksum live. Umlauts en symbolen (loopmannetje, S-Bahn, U-Bahn) worden omgezet naar de tekens van de font, en je krijgt een waarschuwing bij te lange telegrammen. Handmatig typen kan ook. Met de firmware *ASFP-bitmap (patch)* zijn er ook pixels (klik op het display), een bitmap uit een afbeelding en "alles opnieuw";
+- telegrammen samenstellen met de **telegrambouwer**: kies het soort telegram (vrije tekst, bestemming, lijn, koers, testbeeld, status of versie) en vul de velden in. Je ziet het telegram en de checksum live. Umlauts en symbolen (loopmannetje, S-Bahn, U-Bahn) worden omgezet naar de tekens van de font, en je krijgt een waarschuwing bij te lange telegrammen. Handmatig typen kan ook. Met de *ASFP-bitmap*-firmwares (6 en 12 MHz; de klok wordt automatisch gekozen) zijn er ook pixels (klik op het display), een bitmap uit een afbeelding en "alles opnieuw";
 - de LED's, het 7-segmentdisplay en de antwoorden van het display bekijken.
 
 Met URL-parameters kun je meteen een situatie openen, bijvoorbeeld

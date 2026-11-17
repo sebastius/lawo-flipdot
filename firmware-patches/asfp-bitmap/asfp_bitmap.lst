@@ -33,7 +33,7 @@
                                      33 ;     kopiëren (2 x 512 bytes), "a0" antwoorden. Kort, zodat er geen tekens verloren gaan.
                                      34 ;   - Hoofdlus: zolang de wachtrij niet leeg is wordt 0x0571 = 5. Het omhulsel om de
                                      35 ;     verversing verwerkt dan alle telegrammen in de schaduw, kopieert die naar 0x057E en
-                                     36 ;     ververst met 22h.0 = 1 (alleen verschillen); daarna 22h.0 = 0 (wisseltekst stopt).
+                                     36 ;     ververst met een eigen snelle routine (alleen veranderde dots); 22h.0 = 0 (wisseltekst stopt).
                                      37 ;   - Reset: eigen variabelen wissen (het werk-RAM is batterijgebufferd).
                                      38 ;
                                      39 ; Haken in ASFP (origineel -> patch):
@@ -88,580 +88,766 @@
                            000009    88 QBASE      = 0x09          ; wachtrij: slot i op (QBASE + 2*i) * 256, 512 bytes per slot
                            000E00    89 BM_FLAG    = 0x0E00        ; 1 = bitmapmodus (schaduw geldig)
                            000E01    90 FULL_REQ   = 0x0E01        ; 1 = volgende verversing alles omzetten
-                           000E02    91 Q_HEAD     = 0x0E02        ; volgend te vullen slot (0/1)
-                           000E03    92 Q_TAIL     = 0x0E03        ; volgend te verwerken slot (0/1)
+                           000E02    91 Q_HEAD     = 0x0E02        ; aantal gevulde slots (modulo 4), alleen de interrupt schrijft
+                           000E03    92 Q_TAIL     = 0x0E03        ; aantal verwerkte slots (modulo 4), alleen de hoofdlus schrijft
                            000E04    93 RX_HI      = 0x0E04        ; ontvangstindex (hoog) voor lange telegrammen
-                           000E10    94 SH         = 0x0E10        ; schaduwbuffer, max 140 kolommen x 2 bytes
-                           0001F4    95 RX_MAX     = 0x01F4        ; max. lengte aB/aP incl. CR (buffer tot vlak voor 0x0553)
-                                     96 
-                           00000D    97 CR         = 0x0D
+                           000E05    94 DIRTY_MIN  = 0x0E05        ; laagste gewijzigde kolom sinds de vorige verversing (0xFF = geen)
+                           000E06    95 DIRTY_MAX  = 0x0E06        ; hoogste gewijzigde kolom
+                           000E10    96 SH         = 0x0E10        ; schaduwbuffer, max 140 kolommen x 2 bytes
+                           0001F4    97 RX_MAX     = 0x01F4        ; max. lengte aB/aP incl. CR (buffer tot vlak voor 0x0553)
                                      98 
-                                     99 ; ---------- haken ----------
-      000000                        100         .org    0x0000
-      000000 02r50r00         [24]  101         ljmp    init
-                                    102 
-      00001F                        103         .org    0x001F
-      00001F 02r50r69         [24]  104         ljmp    ext_a
-                                    105 
-      00018B                        106         .org    0x018B
-      00018B 00 1F            [12]  107         ajmp    0x001F
-                                    108 
-      000481                        109         .org    0x0481
-      000481 12r50r10         [24]  110         lcall   rx_start
-                                    111 
-      0004A9                        112         .org    0x04A9
-      0004A9 02r50r19         [24]  113         ljmp    rx_store
-                                    114 
-      002FD9                        115         .org    0x2FD9
-      002FD9 02r50rEE         [24]  116         ljmp    main_poll
-                                    117 
-      0030E0                        118         .org    0x30E0
-      0030E0 12r51r0B         [24]  119         lcall   refresh_wrap
-                                    120 
-      005000                        121         .org    0x5000
+                           00000D    99 CR         = 0x0D
+                                    100 
+                                    101 ; ---------- haken ----------
+      000000                        102         .org    0x0000
+      000000 02r50r00         [24]  103         ljmp    init
+                                    104 
+      00001F                        105         .org    0x001F
+      00001F 02r50r6C         [24]  106         ljmp    ext_a
+                                    107 
+      00018B                        108         .org    0x018B
+      00018B 00 1F            [12]  109         ajmp    0x001F
+                                    110 
+      000481                        111         .org    0x0481
+      000481 12r50r13         [24]  112         lcall   rx_start
+                                    113 
+      0004A9                        114         .org    0x04A9
+      0004A9 02r50r1C         [24]  115         ljmp    rx_store
+                                    116 
+      002FD9                        117         .org    0x2FD9
+      002FD9 02r50rFA         [24]  118         ljmp    main_poll
+                                    119 
+      0030E0                        120         .org    0x30E0
+      0030E0 12r51r17         [24]  121         lcall   refresh_wrap
                                     122 
-                                    123 ; ---------- reset ----------
-      005000                        124 init:
-      005000 E4               [12]  125         clr     a
-      005001 90 0E 00         [24]  126         mov     dptr,#BM_FLAG
-      005004 F0               [24]  127         movx    @dptr,a
-      005005 A3               [24]  128         inc     dptr                    ; FULL_REQ
-      005006 F0               [24]  129         movx    @dptr,a
-      005007 A3               [24]  130         inc     dptr                    ; Q_HEAD
-      005008 F0               [24]  131         movx    @dptr,a
-      005009 A3               [24]  132         inc     dptr                    ; Q_TAIL
-      00500A F0               [24]  133         movx    @dptr,a
-      00500B A3               [24]  134         inc     dptr                    ; RX_HI
-      00500C F0               [24]  135         movx    @dptr,a
-      00500D 02 4E BF         [24]  136         ljmp    RESET_ORIG
-                                    137 
-                                    138 ; ---------- ontvangst (seriële interrupt) ----------
-                                    139 ; begin van een telegram (vervangt MOV 2Dh,#01h; daarna laadt ASFP A en DPTR opnieuw)
-      005010                        140 rx_start:
-      005010 75 2D 01         [24]  141         mov     RX_IDX,#1
-      005013 90 0E 04         [24]  142         mov     dptr,#RX_HI
-      005016 E4               [12]  143         clr     a
-      005017 F0               [24]  144         movx    @dptr,a
-      005018 22               [24]  145         ret
-                                    146 
-                                    147 ; teken opslaan (vervangt MOV A,2Dh / SETB C op 0x04A9)
-      005019                        148 rx_store:
-      005019 90 0E 04         [24]  149         mov     dptr,#RX_HI
-      00501C E0               [24]  150         movx    a,@dptr
-      00501D FF               [12]  151         mov     r7,a                    ; index hoog
-      00501E 70 0A            [24]  152         jnz     rs_long
-      005020 E5 2D            [12]  153         mov     a,RX_IDX
-      005022 D3               [12]  154         setb    c
-      005023 94 F9            [12]  155         subb    a,#0xF9
-      005025 50 03            [24]  156         jnc     rs_long                 ; index >= 0xFA: voorbij de ASFP-grens
-      005027 02 04 B0         [24]  157         ljmp    RX_STORE_ORIG           ; normaal: originele code
-      00502A                        158 rs_long:
-      00502A 90 03 5F         [24]  159         mov     dptr,#BUF               ; alleen aB en aP mogen langer zijn
-      00502D E0               [24]  160         movx    a,@dptr
-      00502E B4 61 35         [24]  161         cjne    a,#0x61,rs_skip
-      005031 A3               [24]  162         inc     dptr
-      005032 E0               [24]  163         movx    a,@dptr
-      005033 B4 42 02         [24]  164         cjne    a,#0x42,rs_p
-      005036 80 03            [24]  165         sjmp    rs_ok
-      005038 B4 50 2B         [24]  166 rs_p:   cjne    a,#0x50,rs_skip
-      00503B                        167 rs_ok:
-      00503B E5 2D            [12]  168         mov     a,RX_IDX                ; index < RX_MAX ?
-      00503D C3               [12]  169         clr     c
-      00503E 94 F4            [12]  170         subb    a,#<RX_MAX
-      005040 EF               [12]  171         mov     a,r7
-      005041 94 01            [12]  172         subb    a,#>RX_MAX
-      005043 50 21            [24]  173         jnc     rs_skip
-      005045 90 00 2E         [24]  174         mov     dptr,#RX_CS             ; checksum bijwerken
-      005048 E0               [24]  175         movx    a,@dptr
-      005049 65 42            [12]  176         xrl     a,RAW_CH
-      00504B F0               [24]  177         movx    @dptr,a
-      00504C E5 2D            [12]  178         mov     a,RX_IDX                ; BUF[index] = teken
-      00504E 24 5F            [12]  179         add     a,#<BUF
-      005050 F5 82            [12]  180         mov     dpl,a
-      005052 EF               [12]  181         mov     a,r7
-      005053 34 03            [12]  182         addc    a,#>BUF
-      005055 F5 83            [12]  183         mov     dph,a
-      005057 E5 43            [12]  184         mov     a,CH7
-      005059 F0               [24]  185         movx    @dptr,a
-      00505A 05 2D            [12]  186         inc     RX_IDX                  ; index++ (16 bit)
-      00505C E5 2D            [12]  187         mov     a,RX_IDX
-      00505E 70 06            [24]  188         jnz     rs_skip
-      005060 0F               [12]  189         inc     r7
-      005061 90 0E 04         [24]  190         mov     dptr,#RX_HI
-      005064 EF               [12]  191         mov     a,r7
-      005065 F0               [24]  192         movx    @dptr,a
-      005066                        193 rs_skip:
-      005066 02 04 FB         [24]  194         ljmp    RX_AFTER                ; CR-controle zoals origineel
-                                    195 
-                                    196 ; ---------- telegramherkenning (seriële interrupt) ----------
-      005069                        197 ext_a:
-      005069 E5 38            [12]  198         mov     a,TYPE
-      00506B 60 11            [24]  199         jz      ext_ours
-      00506D B4 07 02         [24]  200         cjne    a,#T_STATUS,ext_k1      ; ASFP-telegram: inhoud beëindigt bitmapmodus,
-      005070 80 41            [24]  201         sjmp    ext_exit                ; status- en versievragen niet
-      005072 B4 08 02         [24]  202 ext_k1: cjne    a,#T_VERSION,ext_k2
-      005075 80 3C            [24]  203         sjmp    ext_exit
-      005077 90 0E 00         [24]  204 ext_k2: mov     dptr,#BM_FLAG
-      00507A E4               [12]  205         clr     a
-      00507B F0               [24]  206         movx    @dptr,a
-      00507C 80 35            [24]  207         sjmp    ext_exit
-      00507E                        208 ext_ours:
-      00507E 90 03 5F         [24]  209         mov     dptr,#BUF
-      005081 E0               [24]  210         movx    a,@dptr
-      005082 B4 61 2E         [24]  211         cjne    a,#0x61,ext_exit        ; 'a'
-      005085 A3               [24]  212         inc     dptr
-      005086 E0               [24]  213         movx    a,@dptr
-      005087 B4 50 02         [24]  214         cjne    a,#0x50,ext_c1          ; 'P'
-      00508A 80 08            [24]  215         sjmp    ext_addr
-      00508C B4 42 02         [24]  216 ext_c1: cjne    a,#0x42,ext_c2          ; 'B'
-      00508F 80 03            [24]  217         sjmp    ext_addr
-      005091 B4 55 1F         [24]  218 ext_c2: cjne    a,#0x55,ext_exit        ; 'U'
-      005094                        219 ext_addr:
-      005094 A3               [24]  220         inc     dptr
-      005095 E0               [24]  221         movx    a,@dptr
-      005096 FE               [12]  222         mov     r6,a                    ; adresteken
-      005097 7D 00            [12]  223         mov     r5,#0                   ; 1 = rondzending, geen antwoord
-      005099 90 05 5B         [24]  224         mov     dptr,#ADDR
-      00509C E0               [24]  225         movx    a,@dptr
-      00509D 24 30            [12]  226         add     a,#0x30
-      00509F 6E               [12]  227         xrl     a,r6
-      0050A0 60 06            [24]  228         jz      ext_go
-      0050A2 EE               [12]  229         mov     a,r6
-      0050A3 B4 30 0D         [24]  230         cjne    a,#0x30,ext_exit
-      0050A6 7D 01            [12]  231         mov     r5,#1
-      0050A8                        232 ext_go:
-      0050A8 12r50rB6         [24]  233         lcall   enqueue
-      0050AB 40 06            [24]  234         jc      ext_exit                ; wachtrij vol: geen antwoord
-      0050AD ED               [12]  235         mov     a,r5
-      0050AE 70 03            [24]  236         jnz     ext_exit
-      0050B0 12r52rF9         [24]  237         lcall   reply_ok
-      0050B3                        238 ext_exit:
-      0050B3 02 02 04         [24]  239         ljmp    DISPATCH_TAIL
-                                    240 
-                                    241 ; ruw telegram (tot en met CR) naar slot Q_HEAD; C = 1 als de wachtrij vol is
-      0050B6                        242 enqueue:
-      0050B6 90 0E 02         [24]  243         mov     dptr,#Q_HEAD
-      0050B9 E0               [24]  244         movx    a,@dptr
-      0050BA 54 01            [12]  245         anl     a,#1
-      0050BC FA               [12]  246         mov     r2,a                    ; head
-      0050BD 04               [12]  247         inc     a
-      0050BE 54 01            [12]  248         anl     a,#1
-      0050C0 FB               [12]  249         mov     r3,a                    ; head + 1
-      0050C1 90 0E 03         [24]  250         mov     dptr,#Q_TAIL
-      0050C4 E0               [24]  251         movx    a,@dptr
-      0050C5 54 01            [12]  252         anl     a,#1
-      0050C7 6B               [12]  253         xrl     a,r3
-      0050C8 60 22            [24]  254         jz      eq_full
-      0050CA C0 A0            [24]  255         push    P2
-      0050CC EA               [12]  256         mov     a,r2
-      0050CD 2A               [12]  257         add     a,r2
-      0050CE 24 09            [12]  258         add     a,#QBASE
-      0050D0 F5 A0            [12]  259         mov     P2,a                    ; doel via MOVX @R1 (P2 = hoge byte)
-      0050D2 79 00            [12]  260         mov     r1,#0
-      0050D4 90 03 5F         [24]  261         mov     dptr,#BUF
-      0050D7                        262 eq_loop:
-      0050D7 E0               [24]  263         movx    a,@dptr
-      0050D8 F3               [24]  264         movx    @r1,a
-      0050D9 A3               [24]  265         inc     dptr
-      0050DA 09               [12]  266         inc     r1
-      0050DB B9 00 02         [24]  267         cjne    r1,#0,eq_cr
-      0050DE 05 A0            [12]  268         inc     P2
-      0050E0 B4 0D F4         [24]  269 eq_cr:  cjne    a,#CR,eq_loop
-      0050E3 D0 A0            [24]  270         pop     P2
-      0050E5 90 0E 02         [24]  271         mov     dptr,#Q_HEAD
-      0050E8 EB               [12]  272         mov     a,r3
-      0050E9 F0               [24]  273         movx    @dptr,a
-      0050EA C3               [12]  274         clr     c
-      0050EB 22               [24]  275         ret
-      0050EC                        276 eq_full:
-      0050EC D3               [12]  277         setb    c
-      0050ED 22               [24]  278         ret
-                                    279 
-                                    280 ; ---------- hoofdlus ----------
-                                    281 ; vervangt MOV DPTR,#0571h op 0x2FD9: wachtrij niet leeg en geen ander verzoek -> REQ = 5
-      0050EE                        282 main_poll:
-      0050EE 90 0E 03         [24]  283         mov     dptr,#Q_TAIL
-      0050F1 E0               [24]  284         movx    a,@dptr
-      0050F2 F5 F0            [12]  285         mov     b,a
-      0050F4 90 0E 02         [24]  286         mov     dptr,#Q_HEAD
-      0050F7 E0               [24]  287         movx    a,@dptr
-      0050F8 65 F0            [12]  288         xrl     a,b
-      0050FA 60 09            [24]  289         jz      mp_done
-      0050FC 90 05 71         [24]  290         mov     dptr,#REQ
-      0050FF E0               [24]  291         movx    a,@dptr
-      005100 70 03            [24]  292         jnz     mp_done                 ; testbeeld eerst afhandelen
-      005102 74 05            [12]  293         mov     a,#REQ_REFRESH
-      005104 F0               [24]  294         movx    @dptr,a
-      005105                        295 mp_done:
-      005105 90 05 71         [24]  296         mov     dptr,#REQ
-      005108 02 2F DC         [24]  297         ljmp    POLL_CONT
-                                    298 
-                                    299 ; omhulsel om de verversing (0x30E0)
-      00510B                        300 refresh_wrap:
-      00510B 90 05 71         [24]  301         mov     dptr,#REQ
-      00510E E0               [24]  302         movx    a,@dptr
-      00510F B4 05 14         [24]  303         cjne    a,#REQ_REFRESH,rw_plain
-      005112 12r51r29         [24]  304         lcall   q_process
-      005115 90 0E 00         [24]  305         mov     dptr,#BM_FLAG
-      005118 E0               [24]  306         movx    a,@dptr
-      005119 60 03            [24]  307         jz      rw_go                   ; bitmapmodus intussen beëindigd
-      00511B 12r52r3B         [24]  308         lcall   sh_to_fb
-      00511E                        309 rw_go:
-      00511E D2 10            [12]  310         setb    B_PARTIAL               ; alleen veranderde dots omzetten
-      005120 12 06 92         [24]  311         lcall   REFRESH
-      005123 C2 10            [12]  312         clr     B_PARTIAL               ; geen wisseltekst meer
-      005125 22               [24]  313         ret
-      005126                        314 rw_plain:
-      005126 02 06 92         [24]  315         ljmp    REFRESH                 ; testbeeld: origineel gedrag
-                                    316 
-                                    317 ; alle wachtende telegrammen verwerken in de schaduw
-      005129                        318 q_process:
-      005129 90 0E 03         [24]  319         mov     dptr,#Q_TAIL
-      00512C E0               [24]  320         movx    a,@dptr
-      00512D 54 01            [12]  321         anl     a,#1
-      00512F FD               [12]  322         mov     r5,a                    ; tail
-      005130 90 0E 02         [24]  323         mov     dptr,#Q_HEAD
-      005133 E0               [24]  324         movx    a,@dptr
-      005134 54 01            [12]  325         anl     a,#1
-      005136 6D               [12]  326         xrl     a,r5
-      005137 60 33            [24]  327         jz      qp_end
-      005139 12r52r0F         [24]  328         lcall   bm_enter                ; schaduw = getoond beeld (eerste keer)
-      00513C ED               [12]  329         mov     a,r5
-      00513D 2D               [12]  330         add     a,r5
-      00513E 24 09            [12]  331         add     a,#QBASE
-      005140 F5 83            [12]  332         mov     dph,a
-      005142 75 82 01         [24]  333         mov     dpl,#1
-      005145 E0               [24]  334         movx    a,@dptr                 ; commando
-      005146 F5 F0            [12]  335         mov     b,a
-      005148 A3               [24]  336         inc     dptr
-      005149 A3               [24]  337         inc     dptr                    ; eerste dataveld
-      00514A E5 F0            [12]  338         mov     a,b
-      00514C B4 50 05         [24]  339         cjne    a,#0x50,qp_1
-      00514F 12r51r6D         [24]  340         lcall   do_pixels
-      005152 80 0E            [24]  341         sjmp    qp_next
-      005154 B4 42 05         [24]  342 qp_1:   cjne    a,#0x42,qp_2
-      005157 12r51rCB         [24]  343         lcall   do_bitmap
-      00515A 80 06            [24]  344         sjmp    qp_next
-      00515C 90 0E 01         [24]  345 qp_2:   mov     dptr,#FULL_REQ          ; 'U'
-      00515F 74 01            [12]  346         mov     a,#1
-      005161 F0               [24]  347         movx    @dptr,a
-      005162                        348 qp_next:
-      005162 ED               [12]  349         mov     a,r5
-      005163 04               [12]  350         inc     a
-      005164 54 01            [12]  351         anl     a,#1
-      005166 90 0E 03         [24]  352         mov     dptr,#Q_TAIL
-      005169 F0               [24]  353         movx    @dptr,a
-      00516A 80 BD            [24]  354         sjmp    q_process
-      00516C                        355 qp_end:
-      00516C 22               [24]  356         ret
-                                    357 
-                                    358 ; ---------- aP: pixels in de schaduw ----------
-      00516D                        359 do_pixels:
-      00516D E0               [24]  360         movx    a,@dptr
-      00516E B4 0D 01         [24]  361         cjne    a,#CR,px_go
-      005171 22               [24]  362         ret
-      005172                        363 px_go:
-      005172 12r52rAF         [24]  364         lcall   getnum3
-      005175 40 53            [24]  365         jc      px_end
-      005177 FC               [12]  366         mov     r4,a                    ; x
-      005178 12r52rA1         [24]  367         lcall   getdig
-      00517B 40 4D            [24]  368         jc      px_end
-      00517D 75 F0 0A         [24]  369         mov     b,#10
-      005180 A4               [48]  370         mul     ab
-      005181 FB               [12]  371         mov     r3,a
-      005182 12r52rA1         [24]  372         lcall   getdig
-      005185 40 43            [24]  373         jc      px_end
-      005187 2B               [12]  374         add     a,r3
-      005188 FB               [12]  375         mov     r3,a                    ; y
-      005189 E0               [24]  376         movx    a,@dptr
-      00518A A3               [24]  377         inc     dptr
-      00518B 64 30            [12]  378         xrl     a,#0x30                 ; '0' -> 0, '1' -> 1
-      00518D FA               [12]  379         mov     r2,a
-      00518E C3               [12]  380         clr     c
-      00518F 94 02            [12]  381         subb    a,#2
-      005191 50 37            [24]  382         jnc     px_end
-      005193 C0 82            [24]  383         push    dpl
-      005195 C0 83            [24]  384         push    dph
-      005197 12r52r8A         [24]  385         lcall   x_lt_width
-      00519A 50 28            [24]  386         jnc     px_skip                 ; x >= breedte
-      00519C 90 05 5D         [24]  387         mov     dptr,#HEIGHT
-      00519F E0               [24]  388         movx    a,@dptr
-      0051A0 F9               [12]  389         mov     r1,a
-      0051A1 EB               [12]  390         mov     a,r3
-      0051A2 C3               [12]  391         clr     c
-      0051A3 99               [12]  392         subb    a,r1
-      0051A4 50 1E            [24]  393         jnc     px_skip                 ; y >= hoogte
-      0051A6 7E 0E            [12]  394         mov     r6,#>SH
-      0051A8 7F 10            [12]  395         mov     r7,#<SH
-      0051AA 12r52r93         [24]  396         lcall   colptr                  ; dptr = SH + 2*x (hoge byte)
-      0051AD EB               [12]  397         mov     a,r3
-      0051AE C3               [12]  398         clr     c
-      0051AF 94 08            [12]  399         subb    a,#8
-      0051B1 50 02            [24]  400         jnc     px_bit                  ; y >= 8: hoge byte, bit y-8
-      0051B3 A3               [24]  401         inc     dptr                    ; y < 8: lage byte, bit y
-      0051B4 EB               [12]  402         mov     a,r3
-      0051B5                        403 px_bit:
-      0051B5 F9               [12]  404         mov     r1,a
-      0051B6 09               [12]  405         inc     r1
-      0051B7 74 80            [12]  406         mov     a,#0x80
-      0051B9                        407 px_shift:
-      0051B9 23               [12]  408         rl      a
-      0051BA D9 FD            [24]  409         djnz    r1,px_shift             ; a = 1 << bit
-      0051BC F9               [12]  410         mov     r1,a
-      0051BD E0               [24]  411         movx    a,@dptr
-      0051BE 49               [12]  412         orl     a,r1
-      0051BF BA 00 01         [24]  413         cjne    r2,#0,px_store
-      0051C2 69               [12]  414         xrl     a,r1                    ; kleur 0: bit wissen
-      0051C3                        415 px_store:
-      0051C3 F0               [24]  416         movx    @dptr,a
-      0051C4                        417 px_skip:
-      0051C4 D0 83            [24]  418         pop     dph
-      0051C6 D0 82            [24]  419         pop     dpl
-      0051C8 80 A3            [24]  420         sjmp    do_pixels
-      0051CA                        421 px_end:
-      0051CA 22               [24]  422         ret
-                                    423 
-                                    424 ; ---------- aB: kolommen in de schaduw ----------
-      0051CB                        425 do_bitmap:
-      0051CB 12r52rAF         [24]  426         lcall   getnum3
-      0051CE 40 3E            [24]  427         jc      bm_end
-      0051D0 FC               [12]  428         mov     r4,a                    ; startkolom
-      0051D1                        429 bm_loop:
-      0051D1 E0               [24]  430         movx    a,@dptr
-      0051D2 B4 0D 01         [24]  431         cjne    a,#CR,bm_go
-      0051D5 22               [24]  432         ret
-      0051D6                        433 bm_go:
-      0051D6 12r52rD3         [24]  434         lcall   gethex
-      0051D9 40 33            [24]  435         jc      bm_end
-      0051DB C4               [12]  436         swap    a
-      0051DC FB               [12]  437         mov     r3,a
-      0051DD 12r52rD3         [24]  438         lcall   gethex
-      0051E0 40 2C            [24]  439         jc      bm_end
-      0051E2 4B               [12]  440         orl     a,r3
-      0051E3 FB               [12]  441         mov     r3,a                    ; hoge byte (rij 8-15)
-      0051E4 12r52rD3         [24]  442         lcall   gethex
-      0051E7 40 25            [24]  443         jc      bm_end
-      0051E9 C4               [12]  444         swap    a
-      0051EA FA               [12]  445         mov     r2,a
-      0051EB 12r52rD3         [24]  446         lcall   gethex
-      0051EE 40 1E            [24]  447         jc      bm_end
-      0051F0 4A               [12]  448         orl     a,r2
-      0051F1 FA               [12]  449         mov     r2,a                    ; lage byte (rij 0-7)
-      0051F2 C0 82            [24]  450         push    dpl
-      0051F4 C0 83            [24]  451         push    dph
-      0051F6 12r52r8A         [24]  452         lcall   x_lt_width
-      0051F9 50 0C            [24]  453         jnc     bm_skip
-      0051FB 7E 0E            [12]  454         mov     r6,#>SH
-      0051FD 7F 10            [12]  455         mov     r7,#<SH
-      0051FF 12r52r93         [24]  456         lcall   colptr
-      005202 EB               [12]  457         mov     a,r3
-      005203 F0               [24]  458         movx    @dptr,a
-      005204 A3               [24]  459         inc     dptr
-      005205 EA               [12]  460         mov     a,r2
-      005206 F0               [24]  461         movx    @dptr,a
-      005207                        462 bm_skip:
-      005207 D0 83            [24]  463         pop     dph
-      005209 D0 82            [24]  464         pop     dpl
-      00520B 0C               [12]  465         inc     r4
-      00520C 80 C3            [24]  466         sjmp    bm_loop
-      00520E                        467 bm_end:
-      00520E 22               [24]  468         ret
-                                    469 
-                                    470 ; ---------- bitmapmodus starten: schaduw := getoond beeld ----------
-      00520F                        471 bm_enter:
-      00520F 90 0E 00         [24]  472         mov     dptr,#BM_FLAG
-      005212 E0               [24]  473         movx    a,@dptr
-      005213 70 25            [24]  474         jnz     be_done
-      005215 74 01            [12]  475         mov     a,#1
-      005217 F0               [24]  476         movx    @dptr,a
-      005218 7C 00            [12]  477         mov     r4,#0
-      00521A                        478 be_loop:
-      00521A 12r52r8A         [24]  479         lcall   x_lt_width
-      00521D 50 1B            [24]  480         jnc     be_done
-      00521F 7E 07            [12]  481         mov     r6,#>FB_OLD
-      005221 7F AE            [12]  482         mov     r7,#<FB_OLD
-      005223 12r52r93         [24]  483         lcall   colptr
-      005226 E0               [24]  484         movx    a,@dptr
-      005227 FB               [12]  485         mov     r3,a
-      005228 A3               [24]  486         inc     dptr
-      005229 E0               [24]  487         movx    a,@dptr
-      00522A FA               [12]  488         mov     r2,a
-      00522B 7E 0E            [12]  489         mov     r6,#>SH
-      00522D 7F 10            [12]  490         mov     r7,#<SH
-      00522F 12r52r93         [24]  491         lcall   colptr
-      005232 EB               [12]  492         mov     a,r3
-      005233 F0               [24]  493         movx    @dptr,a
-      005234 A3               [24]  494         inc     dptr
-      005235 EA               [12]  495         mov     a,r2
-      005236 F0               [24]  496         movx    @dptr,a
-      005237 0C               [12]  497         inc     r4
-      005238 80 E0            [24]  498         sjmp    be_loop
-      00523A                        499 be_done:
-      00523A 22               [24]  500         ret
-                                    501 
-                                    502 ; schaduw -> gewenst beeld; bij FULL_REQ: getoond := NOT gewenst (alles verschilt)
-      00523B                        503 sh_to_fb:
-      00523B 7C 00            [12]  504         mov     r4,#0
-      00523D                        505 sf_loop:
-      00523D 12r52r8A         [24]  506         lcall   x_lt_width
-      005240 50 1B            [24]  507         jnc     sf_full
-      005242 7E 0E            [12]  508         mov     r6,#>SH
-      005244 7F 10            [12]  509         mov     r7,#<SH
-      005246 12r52r93         [24]  510         lcall   colptr
-      005249 E0               [24]  511         movx    a,@dptr
-      00524A FB               [12]  512         mov     r3,a
-      00524B A3               [24]  513         inc     dptr
-      00524C E0               [24]  514         movx    a,@dptr
-      00524D FA               [12]  515         mov     r2,a
-      00524E 7E 05            [12]  516         mov     r6,#>FB_NEW
-      005250 7F 7E            [12]  517         mov     r7,#<FB_NEW
-      005252 12r52r93         [24]  518         lcall   colptr
-      005255 EB               [12]  519         mov     a,r3
-      005256 F0               [24]  520         movx    @dptr,a
-      005257 A3               [24]  521         inc     dptr
-      005258 EA               [12]  522         mov     a,r2
-      005259 F0               [24]  523         movx    @dptr,a
-      00525A 0C               [12]  524         inc     r4
-      00525B 80 E0            [24]  525         sjmp    sf_loop
-      00525D                        526 sf_full:
-      00525D 90 0E 01         [24]  527         mov     dptr,#FULL_REQ
-      005260 E0               [24]  528         movx    a,@dptr
-      005261 60 26            [24]  529         jz      sf_end
-      005263 E4               [12]  530         clr     a
-      005264 F0               [24]  531         movx    @dptr,a
-      005265 7C 00            [12]  532         mov     r4,#0
-      005267                        533 sf_inv:
-      005267 12r52r8A         [24]  534         lcall   x_lt_width
-      00526A 50 1D            [24]  535         jnc     sf_end
-      00526C 7E 05            [12]  536         mov     r6,#>FB_NEW
-      00526E 7F 7E            [12]  537         mov     r7,#<FB_NEW
-      005270 12r52r93         [24]  538         lcall   colptr
-      005273 E0               [24]  539         movx    a,@dptr
-      005274 F4               [12]  540         cpl     a
-      005275 FB               [12]  541         mov     r3,a
-      005276 A3               [24]  542         inc     dptr
-      005277 E0               [24]  543         movx    a,@dptr
-      005278 F4               [12]  544         cpl     a
-      005279 FA               [12]  545         mov     r2,a
-      00527A 7E 07            [12]  546         mov     r6,#>FB_OLD
-      00527C 7F AE            [12]  547         mov     r7,#<FB_OLD
-      00527E 12r52r93         [24]  548         lcall   colptr
-      005281 EB               [12]  549         mov     a,r3
-      005282 F0               [24]  550         movx    @dptr,a
-      005283 A3               [24]  551         inc     dptr
-      005284 EA               [12]  552         mov     a,r2
-      005285 F0               [24]  553         movx    @dptr,a
-      005286 0C               [12]  554         inc     r4
-      005287 80 DE            [24]  555         sjmp    sf_inv
-      005289                        556 sf_end:
-      005289 22               [24]  557         ret
-                                    558 
-                                    559 ; ---------- hulproutines ----------
-                                    560 ; C = 1 als r4 < breedte (gebruikt dptr, r1)
-      00528A                        561 x_lt_width:
-      00528A 90 05 5C         [24]  562         mov     dptr,#WIDTH
-      00528D E0               [24]  563         movx    a,@dptr
-      00528E F9               [12]  564         mov     r1,a
-      00528F EC               [12]  565         mov     a,r4
-      005290 C3               [12]  566         clr     c
-      005291 99               [12]  567         subb    a,r1
-      005292 22               [24]  568         ret
-                                    569 
-                                    570 ; dptr = (r6:r7) + 2*r4
-      005293                        571 colptr:
-      005293 EC               [12]  572         mov     a,r4
-      005294 2C               [12]  573         add     a,r4
-      005295 F8               [12]  574         mov     r0,a
-      005296 E4               [12]  575         clr     a
-      005297 33               [12]  576         rlc     a
-      005298 C8               [12]  577         xch     a,r0                    ; a = laag, r0 = hoog
-      005299 2F               [12]  578         add     a,r7
-      00529A F5 82            [12]  579         mov     dpl,a
-      00529C E8               [12]  580         mov     a,r0
-      00529D 3E               [12]  581         addc    a,r6
-      00529E F5 83            [12]  582         mov     dph,a
-      0052A0 22               [24]  583         ret
-                                    584 
-                                    585 ; cijfer op @dptr -> a (0..9), dptr++; C = 1 als geen cijfer
-      0052A1                        586 getdig:
-      0052A1 E0               [24]  587         movx    a,@dptr
-      0052A2 A3               [24]  588         inc     dptr
-      0052A3 C3               [12]  589         clr     c
-      0052A4 94 30            [12]  590         subb    a,#0x30
-      0052A6 40 05            [24]  591         jc      gd_bad
-      0052A8 B4 0A 00         [24]  592         cjne    a,#10,gd_cmp
-      0052AB B3               [12]  593 gd_cmp: cpl     c                       ; C was 1 als a < 10
-      0052AC 22               [24]  594         ret
-      0052AD D3               [12]  595 gd_bad: setb    c
-      0052AE 22               [24]  596         ret
-                                    597 
-                                    598 ; drie cijfers -> a (0..255); C = 1 bij fout of > 255
-      0052AF                        599 getnum3:
-      0052AF 12r52rA1         [24]  600         lcall   getdig
-      0052B2 40 1D            [24]  601         jc      gn_bad
-      0052B4 75 F0 64         [24]  602         mov     b,#100
-      0052B7 A4               [48]  603         mul     ab
-      0052B8 F8               [12]  604         mov     r0,a
-      0052B9 E5 F0            [12]  605         mov     a,b
-      0052BB 70 14            [24]  606         jnz     gn_bad
-      0052BD 12r52rA1         [24]  607         lcall   getdig
-      0052C0 40 0F            [24]  608         jc      gn_bad
-      0052C2 75 F0 0A         [24]  609         mov     b,#10
-      0052C5 A4               [48]  610         mul     ab
-      0052C6 28               [12]  611         add     a,r0
-      0052C7 40 08            [24]  612         jc      gn_bad
-      0052C9 F8               [12]  613         mov     r0,a
-      0052CA 12r52rA1         [24]  614         lcall   getdig
-      0052CD 40 02            [24]  615         jc      gn_bad
-      0052CF 28               [12]  616         add     a,r0
-      0052D0 22               [24]  617         ret                             ; C uit add: 1 bij overloop
-      0052D1 D3               [12]  618 gn_bad: setb    c
-      0052D2 22               [24]  619         ret
-                                    620 
-                                    621 ; hexteken op @dptr -> a (0..15), dptr++; C = 1 als ongeldig
-      0052D3                        622 gethex:
-      0052D3 E0               [24]  623         movx    a,@dptr
-      0052D4 A3               [24]  624         inc     dptr
-      0052D5 C3               [12]  625         clr     c
-      0052D6 94 30            [12]  626         subb    a,#0x30
-      0052D8 40 1D            [24]  627         jc      gh_bad
-      0052DA B4 0A 00         [24]  628         cjne    a,#10,gh_c1
-      0052DD 40 16            [24]  629 gh_c1:  jc      gh_ok                   ; '0'..'9'
-      0052DF C3               [12]  630         clr     c
-      0052E0 94 11            [12]  631         subb    a,#17                   ; 'A' -> 0
-      0052E2 40 13            [24]  632         jc      gh_bad
-      0052E4 B4 06 00         [24]  633         cjne    a,#6,gh_c2
-      0052E7 40 0A            [24]  634 gh_c2:  jc      gh_let                  ; 'A'..'F'
-      0052E9 C3               [12]  635         clr     c
-      0052EA 94 20            [12]  636         subb    a,#32                   ; 'a' -> 0
-      0052EC 40 09            [24]  637         jc      gh_bad
-      0052EE B4 06 00         [24]  638         cjne    a,#6,gh_c3
-      0052F1 50 04            [24]  639 gh_c3:  jnc     gh_bad
-      0052F3 24 0A            [12]  640 gh_let: add     a,#10
-      0052F5 C3               [12]  641 gh_ok:  clr     c
-      0052F6 22               [24]  642         ret
-      0052F7 D3               [12]  643 gh_bad: setb    c
-      0052F8 22               [24]  644         ret
-                                    645 
-                                    646 ; antwoord "a0" + CR + checksum, zoals ASFP bij statusvragen doet
-      0052F9                        647 reply_ok:
-      0052F9 90 03 1E         [24]  648         mov     dptr,#TXBUF
-      0052FC 74 61            [12]  649         mov     a,#0x61
-      0052FE F0               [24]  650         movx    @dptr,a
-      0052FF A3               [24]  651         inc     dptr
-      005300 74 30            [12]  652         mov     a,#0x30
-      005302 F0               [24]  653         movx    @dptr,a
-      005303 A3               [24]  654         inc     dptr
-      005304 74 0D            [12]  655         mov     a,#CR
-      005306 F0               [24]  656         movx    @dptr,a
-      005307 75 3A 03         [24]  657         mov     LEN_CS,#3
-      00530A 12 00 B2         [24]  658         lcall   REPLY_CS
-      00530D 90 00 2F         [24]  659         mov     dptr,#TXLEN
-      005310 74 04            [12]  660         mov     a,#4
-      005312 F0               [24]  661         movx    @dptr,a
-      005313 D2 04            [12]  662         setb    B_TXBUSY
-      005315 90 05 55         [24]  663         mov     dptr,#TXIDX
-      005318 E4               [12]  664         clr     a
-      005319 F0               [24]  665         movx    @dptr,a
-      00531A D2 99            [12]  666         setb    B_TI
-      00531C 22               [24]  667         ret
+      005000                        123         .org    0x5000
+                                    124 
+                                    125 ; ---------- reset ----------
+      005000                        126 init:
+      005000 E4               [12]  127         clr     a
+      005001 90 0E 00         [24]  128         mov     dptr,#BM_FLAG
+      005004 F0               [24]  129         movx    @dptr,a
+      005005 A3               [24]  130         inc     dptr                    ; FULL_REQ
+      005006 F0               [24]  131         movx    @dptr,a
+      005007 A3               [24]  132         inc     dptr                    ; Q_HEAD
+      005008 F0               [24]  133         movx    @dptr,a
+      005009 A3               [24]  134         inc     dptr                    ; Q_TAIL
+      00500A F0               [24]  135         movx    @dptr,a
+      00500B A3               [24]  136         inc     dptr                    ; RX_HI
+      00500C F0               [24]  137         movx    @dptr,a
+      00500D 12r53r37         [24]  138         lcall   dirty_clear
+      005010 02 4E BF         [24]  139         ljmp    RESET_ORIG
+                                    140 
+                                    141 ; ---------- ontvangst (seriële interrupt) ----------
+                                    142 ; begin van een telegram (vervangt MOV 2Dh,#01h; daarna laadt ASFP A en DPTR opnieuw)
+      005013                        143 rx_start:
+      005013 75 2D 01         [24]  144         mov     RX_IDX,#1
+      005016 90 0E 04         [24]  145         mov     dptr,#RX_HI
+      005019 E4               [12]  146         clr     a
+      00501A F0               [24]  147         movx    @dptr,a
+      00501B 22               [24]  148         ret
+                                    149 
+                                    150 ; teken opslaan (vervangt MOV A,2Dh / SETB C op 0x04A9)
+      00501C                        151 rx_store:
+      00501C 90 0E 04         [24]  152         mov     dptr,#RX_HI
+      00501F E0               [24]  153         movx    a,@dptr
+      005020 FF               [12]  154         mov     r7,a                    ; index hoog
+      005021 70 0A            [24]  155         jnz     rs_long
+      005023 E5 2D            [12]  156         mov     a,RX_IDX
+      005025 D3               [12]  157         setb    c
+      005026 94 F9            [12]  158         subb    a,#0xF9
+      005028 50 03            [24]  159         jnc     rs_long                 ; index >= 0xFA: voorbij de ASFP-grens
+      00502A 02 04 B0         [24]  160         ljmp    RX_STORE_ORIG           ; normaal: originele code
+      00502D                        161 rs_long:
+      00502D 90 03 5F         [24]  162         mov     dptr,#BUF               ; alleen aB en aP mogen langer zijn
+      005030 E0               [24]  163         movx    a,@dptr
+      005031 B4 61 35         [24]  164         cjne    a,#0x61,rs_skip
+      005034 A3               [24]  165         inc     dptr
+      005035 E0               [24]  166         movx    a,@dptr
+      005036 B4 42 02         [24]  167         cjne    a,#0x42,rs_p
+      005039 80 03            [24]  168         sjmp    rs_ok
+      00503B B4 50 2B         [24]  169 rs_p:   cjne    a,#0x50,rs_skip
+      00503E                        170 rs_ok:
+      00503E E5 2D            [12]  171         mov     a,RX_IDX                ; index < RX_MAX ?
+      005040 C3               [12]  172         clr     c
+      005041 94 F4            [12]  173         subb    a,#<RX_MAX
+      005043 EF               [12]  174         mov     a,r7
+      005044 94 01            [12]  175         subb    a,#>RX_MAX
+      005046 50 21            [24]  176         jnc     rs_skip
+      005048 90 00 2E         [24]  177         mov     dptr,#RX_CS             ; checksum bijwerken
+      00504B E0               [24]  178         movx    a,@dptr
+      00504C 65 42            [12]  179         xrl     a,RAW_CH
+      00504E F0               [24]  180         movx    @dptr,a
+      00504F E5 2D            [12]  181         mov     a,RX_IDX                ; BUF[index] = teken
+      005051 24 5F            [12]  182         add     a,#<BUF
+      005053 F5 82            [12]  183         mov     dpl,a
+      005055 EF               [12]  184         mov     a,r7
+      005056 34 03            [12]  185         addc    a,#>BUF
+      005058 F5 83            [12]  186         mov     dph,a
+      00505A E5 43            [12]  187         mov     a,CH7
+      00505C F0               [24]  188         movx    @dptr,a
+      00505D 05 2D            [12]  189         inc     RX_IDX                  ; index++ (16 bit)
+      00505F E5 2D            [12]  190         mov     a,RX_IDX
+      005061 70 06            [24]  191         jnz     rs_skip
+      005063 0F               [12]  192         inc     r7
+      005064 90 0E 04         [24]  193         mov     dptr,#RX_HI
+      005067 EF               [12]  194         mov     a,r7
+      005068 F0               [24]  195         movx    @dptr,a
+      005069                        196 rs_skip:
+      005069 02 04 FB         [24]  197         ljmp    RX_AFTER                ; CR-controle zoals origineel
+                                    198 
+                                    199 ; ---------- telegramherkenning (seriële interrupt) ----------
+      00506C                        200 ext_a:
+      00506C E5 38            [12]  201         mov     a,TYPE
+      00506E 60 11            [24]  202         jz      ext_ours
+      005070 B4 07 02         [24]  203         cjne    a,#T_STATUS,ext_k1      ; ASFP-telegram: inhoud beëindigt bitmapmodus,
+      005073 80 41            [24]  204         sjmp    ext_exit                ; status- en versievragen niet
+      005075 B4 08 02         [24]  205 ext_k1: cjne    a,#T_VERSION,ext_k2
+      005078 80 3C            [24]  206         sjmp    ext_exit
+      00507A 90 0E 00         [24]  207 ext_k2: mov     dptr,#BM_FLAG
+      00507D E4               [12]  208         clr     a
+      00507E F0               [24]  209         movx    @dptr,a
+      00507F 80 35            [24]  210         sjmp    ext_exit
+      005081                        211 ext_ours:
+      005081 90 03 5F         [24]  212         mov     dptr,#BUF
+      005084 E0               [24]  213         movx    a,@dptr
+      005085 B4 61 2E         [24]  214         cjne    a,#0x61,ext_exit        ; 'a'
+      005088 A3               [24]  215         inc     dptr
+      005089 E0               [24]  216         movx    a,@dptr
+      00508A B4 50 02         [24]  217         cjne    a,#0x50,ext_c1          ; 'P'
+      00508D 80 08            [24]  218         sjmp    ext_addr
+      00508F B4 42 02         [24]  219 ext_c1: cjne    a,#0x42,ext_c2          ; 'B'
+      005092 80 03            [24]  220         sjmp    ext_addr
+      005094 B4 55 1F         [24]  221 ext_c2: cjne    a,#0x55,ext_exit        ; 'U'
+      005097                        222 ext_addr:
+      005097 A3               [24]  223         inc     dptr
+      005098 E0               [24]  224         movx    a,@dptr
+      005099 FE               [12]  225         mov     r6,a                    ; adresteken
+      00509A 7D 00            [12]  226         mov     r5,#0                   ; 1 = rondzending, geen antwoord
+      00509C 90 05 5B         [24]  227         mov     dptr,#ADDR
+      00509F E0               [24]  228         movx    a,@dptr
+      0050A0 24 30            [12]  229         add     a,#0x30
+      0050A2 6E               [12]  230         xrl     a,r6
+      0050A3 60 06            [24]  231         jz      ext_go
+      0050A5 EE               [12]  232         mov     a,r6
+      0050A6 B4 30 0D         [24]  233         cjne    a,#0x30,ext_exit
+      0050A9 7D 01            [12]  234         mov     r5,#1
+      0050AB                        235 ext_go:
+      0050AB 12r50rB9         [24]  236         lcall   enqueue
+      0050AE 40 06            [24]  237         jc      ext_exit                ; wachtrij vol: geen antwoord
+      0050B0 ED               [12]  238         mov     a,r5
+      0050B1 70 03            [24]  239         jnz     ext_exit
+      0050B3 12r53rD8         [24]  240         lcall   reply_ok
+      0050B6                        241 ext_exit:
+      0050B6 02 02 04         [24]  242         ljmp    DISPATCH_TAIL
+                                    243 
+                                    244 ; ruw telegram (tot en met CR) naar slot Q_HEAD; C = 1 als de wachtrij vol is
+                                    245 ; head en tail tellen modulo 4 (slot = teller AND 1); aantal = (head - tail) AND 3.
+                                    246 ; Alleen de interrupt schrijft head, alleen de hoofdlus schrijft tail: geen vergrendeling nodig.
+      0050B9                        247 enqueue:
+      0050B9 90 0E 03         [24]  248         mov     dptr,#Q_TAIL
+      0050BC E0               [24]  249         movx    a,@dptr
+      0050BD FB               [12]  250         mov     r3,a                    ; tail
+      0050BE 90 0E 02         [24]  251         mov     dptr,#Q_HEAD
+      0050C1 E0               [24]  252         movx    a,@dptr
+      0050C2 54 03            [12]  253         anl     a,#3
+      0050C4 FA               [12]  254         mov     r2,a                    ; head
+      0050C5 C3               [12]  255         clr     c
+      0050C6 9B               [12]  256         subb    a,r3
+      0050C7 54 03            [12]  257         anl     a,#3
+      0050C9 B4 02 00         [24]  258         cjne    a,#2,eq_room            ; C = 1 als aantal < 2
+      0050CC                        259 eq_room:
+      0050CC 50 2A            [24]  260         jnc     eq_full
+      0050CE EA               [12]  261         mov     a,r2
+      0050CF 04               [12]  262         inc     a
+      0050D0 54 03            [12]  263         anl     a,#3
+      0050D2 FB               [12]  264         mov     r3,a                    ; nieuwe head
+      0050D3 C0 A0            [24]  265         push    P2
+      0050D5 EA               [12]  266         mov     a,r2
+      0050D6 54 01            [12]  267         anl     a,#1                    ; slot
+      0050D8 25 E0            [12]  268         add     a,acc
+      0050DA 24 09            [12]  269         add     a,#QBASE
+      0050DC F5 A0            [12]  270         mov     P2,a                    ; doel via MOVX @R1 (P2 = hoge byte)
+      0050DE 79 00            [12]  271         mov     r1,#0
+      0050E0 90 03 5F         [24]  272         mov     dptr,#BUF
+      0050E3                        273 eq_loop:
+      0050E3 E0               [24]  274         movx    a,@dptr
+      0050E4 F3               [24]  275         movx    @r1,a
+      0050E5 A3               [24]  276         inc     dptr
+      0050E6 09               [12]  277         inc     r1
+      0050E7 B9 00 02         [24]  278         cjne    r1,#0,eq_cr
+      0050EA 05 A0            [12]  279         inc     P2
+      0050EC B4 0D F4         [24]  280 eq_cr:  cjne    a,#CR,eq_loop
+      0050EF D0 A0            [24]  281         pop     P2
+      0050F1 90 0E 02         [24]  282         mov     dptr,#Q_HEAD
+      0050F4 EB               [12]  283         mov     a,r3
+      0050F5 F0               [24]  284         movx    @dptr,a
+      0050F6 C3               [12]  285         clr     c
+      0050F7 22               [24]  286         ret
+      0050F8                        287 eq_full:
+      0050F8 D3               [12]  288         setb    c
+      0050F9 22               [24]  289         ret
+                                    290 
+                                    291 ; ---------- hoofdlus ----------
+                                    292 ; vervangt MOV DPTR,#0571h op 0x2FD9: wachtrij niet leeg en geen ander verzoek -> REQ = 5
+      0050FA                        293 main_poll:
+      0050FA 90 0E 03         [24]  294         mov     dptr,#Q_TAIL
+      0050FD E0               [24]  295         movx    a,@dptr
+      0050FE F5 F0            [12]  296         mov     b,a
+      005100 90 0E 02         [24]  297         mov     dptr,#Q_HEAD
+      005103 E0               [24]  298         movx    a,@dptr
+      005104 65 F0            [12]  299         xrl     a,b
+      005106 60 09            [24]  300         jz      mp_done
+      005108 90 05 71         [24]  301         mov     dptr,#REQ
+      00510B E0               [24]  302         movx    a,@dptr
+      00510C 70 03            [24]  303         jnz     mp_done                 ; testbeeld eerst afhandelen
+      00510E 74 05            [12]  304         mov     a,#REQ_REFRESH
+      005110 F0               [24]  305         movx    @dptr,a
+      005111                        306 mp_done:
+      005111 90 05 71         [24]  307         mov     dptr,#REQ
+      005114 02 2F DC         [24]  308         ljmp    POLL_CONT
+                                    309 
+                                    310 ; omhulsel om de verversing (0x30E0)
+      005117                        311 refresh_wrap:
+      005117 90 05 71         [24]  312         mov     dptr,#REQ
+      00511A E0               [24]  313         movx    a,@dptr
+      00511B B4 05 11         [24]  314         cjne    a,#REQ_REFRESH,rw_plain
+      00511E 12r51rBA         [24]  315         lcall   q_process
+      005121 90 0E 00         [24]  316         mov     dptr,#BM_FLAG
+      005124 E0               [24]  317         movx    a,@dptr
+      005125 60 03            [24]  318         jz      rw_go                   ; bitmapmodus intussen beëindigd
+      005127 12r52rE6         [24]  319         lcall   sh_to_fb
+      00512A                        320 rw_go:
+      00512A C2 10            [12]  321         clr     B_PARTIAL               ; wisseltekst stoppen
+      00512C 02r51r32         [24]  322         ljmp    fast_refresh            ; alleen veranderde dots, zonder paginawachttijd
+      00512F                        323 rw_plain:
+      00512F 02 06 92         [24]  324         ljmp    REFRESH                 ; testbeeld: origineel gedrag
+                                    325 
+                                    326 ; ---------- snelle verversing (hoofdlus) ----------
+                                    327 ; Vervangt 0x0692 voor de bitmapmodus. 0x0692 rekent voor elk van de (tot) 1792 dots
+                                    328 ; apart het verschil uit (645 ms bij 6 MHz, ook als er niets verandert) en wacht bij
+                                    329 ; wisseltekst eerst de paginatijd af. Deze routine vergelijkt per kolom de 16-bit woorden
+                                    330 ; en vraagt alleen voor veranderde dots een puls aan, op dezelfde manier als 0x0692:
+                                    331 ; 056B = rij, 056C = kolom, 21h.6 = kleur (XOR 21h.7 'omgekeerd'), 21h.4 = puls gevraagd;
+                                    332 ; de timer-interrupt geeft de puls en wist 21h.4. Rijmaskers uit de ASFP-tabel (10h:11h).
+                           000010   333 ROWMASK_H  = 0x10          ; iRAM: pointer naar rijmasker-tabel (code), hoog
+                           000011   334 ROWMASK_L  = 0x11          ;                                        laag
+                           00056B   335 DOT_ROW    = 0x056B
+                           00056C   336 DOT_COL    = 0x056C
+                           00000C   337 B_DOTREQ   = 0x0C          ; 21h.4
+                           00000E   338 B_COLOR    = 0x0E          ; 21h.6
+                           00000F   339 B_INVERSE  = 0x0F          ; 21h.7
+                           000087   340 PCON       = 0x87
+                           000554   341 DISP_BUSY  = 0x0554        ; 0x0692 zet deze op 0 na afloop
+                                    342 
+      005132                        343 fast_refresh:
+      005132 12r53r41         [24]  344         lcall   dirty_start             ; alleen gewijzigde kolommen
+      005135                        345 fr_col:
+      005135 12r53r5C         [24]  346         lcall   in_range
+      005138 50 78            [24]  347         jnc     fr_done
+      00513A 7E 05            [12]  348         mov     r6,#>FB_NEW
+      00513C 7F 7E            [12]  349         mov     r7,#<FB_NEW
+      00513E 12r53r72         [24]  350         lcall   colptr
+      005141 E0               [24]  351         movx    a,@dptr
+      005142 FB               [12]  352         mov     r3,a                    ; nieuw hoog
+      005143 A3               [24]  353         inc     dptr
+      005144 E0               [24]  354         movx    a,@dptr
+      005145 FA               [12]  355         mov     r2,a                    ; nieuw laag
+      005146 7E 07            [12]  356         mov     r6,#>FB_OLD
+      005148 7F AE            [12]  357         mov     r7,#<FB_OLD
+      00514A 12r53r72         [24]  358         lcall   colptr
+      00514D E0               [24]  359         movx    a,@dptr
+      00514E 6B               [12]  360         xrl     a,r3
+      00514F F5 F0            [12]  361         mov     b,a                     ; verschil hoog
+      005151 A3               [24]  362         inc     dptr
+      005152 E0               [24]  363         movx    a,@dptr
+      005153 6A               [12]  364         xrl     a,r2
+      005154 FD               [12]  365         mov     r5,a                    ; verschil laag
+      005155 45 F0            [12]  366         orl     a,b
+      005157 60 56            [24]  367         jz      fr_next                 ; kolom ongewijzigd
+      005159 7F 00            [12]  368         mov     r7,#0                   ; rij-index
+      00515B                        369 fr_row:
+      00515B 90 05 5D         [24]  370         mov     dptr,#HEIGHT
+      00515E E0               [24]  371         movx    a,@dptr
+      00515F F9               [12]  372         mov     r1,a
+      005160 EF               [12]  373         mov     a,r7
+      005161 C3               [12]  374         clr     c
+      005162 99               [12]  375         subb    a,r1
+      005163 50 3E            [24]  376         jnc     fr_store
+      005165 EF               [12]  377         mov     a,r7                    ; dptr = rijmasker-tabel + 2*rij
+      005166 2F               [12]  378         add     a,r7
+      005167 25 11            [12]  379         add     a,ROWMASK_L
+      005169 F5 82            [12]  380         mov     dpl,a
+      00516B E4               [12]  381         clr     a
+      00516C 35 10            [12]  382         addc    a,ROWMASK_H
+      00516E F5 83            [12]  383         mov     dph,a
+      005170 E4               [12]  384         clr     a
+      005171 93               [24]  385         movc    a,@a+dptr
+      005172 FE               [12]  386         mov     r6,a                    ; masker hoog
+      005173 74 01            [12]  387         mov     a,#1
+      005175 93               [24]  388         movc    a,@a+dptr
+      005176 F9               [12]  389         mov     r1,a                    ; masker laag
+      005177 EE               [12]  390         mov     a,r6
+      005178 55 F0            [12]  391         anl     a,b
+      00517A 70 04            [24]  392         jnz     fr_flip
+      00517C E9               [12]  393         mov     a,r1
+      00517D 5D               [12]  394         anl     a,r5
+      00517E 60 20            [24]  395         jz      fr_rnext
+      005180                        396 fr_flip:
+      005180 EE               [12]  397         mov     a,r6                    ; kleur = (nieuw AND masker) <> 0
+      005181 5B               [12]  398         anl     a,r3
+      005182 F8               [12]  399         mov     r0,a
+      005183 E9               [12]  400         mov     a,r1
+      005184 5A               [12]  401         anl     a,r2
+      005185 48               [12]  402         orl     a,r0
+      005186 24 FF            [12]  403         add     a,#0xFF                 ; C = 1 als a <> 0
+      005188 30 0F 01         [24]  404         jnb     B_INVERSE,fr_col_ok
+      00518B B3               [12]  405         cpl     c
+      00518C                        406 fr_col_ok:
+      00518C 92 0E            [24]  407         mov     B_COLOR,c
+      00518E 90 05 6B         [24]  408         mov     dptr,#DOT_ROW
+      005191 EF               [12]  409         mov     a,r7
+      005192 F0               [24]  410         movx    @dptr,a
+      005193 A3               [24]  411         inc     dptr                    ; DOT_COL
+      005194 EC               [12]  412         mov     a,r4
+      005195 F0               [24]  413         movx    @dptr,a
+      005196 D2 0C            [12]  414         setb    B_DOTREQ
+      005198                        415 fr_wait:
+      005198 30 0C 05         [24]  416         jnb     B_DOTREQ,fr_rnext       ; wachten tot de timer-interrupt gepulst heeft
+      00519B 75 87 81         [24]  417         mov     PCON,#0x81              ; idle, SMOD blijft 1 (zoals ASFP)
+      00519E 80 F8            [24]  418         sjmp    fr_wait
+      0051A0                        419 fr_rnext:
+      0051A0 0F               [12]  420         inc     r7
+      0051A1 80 B8            [24]  421         sjmp    fr_row
+      0051A3                        422 fr_store:
+      0051A3 7E 07            [12]  423         mov     r6,#>FB_OLD             ; getoond := nieuw voor deze kolom
+      0051A5 7F AE            [12]  424         mov     r7,#<FB_OLD
+      0051A7 12r53r72         [24]  425         lcall   colptr
+      0051AA EB               [12]  426         mov     a,r3
+      0051AB F0               [24]  427         movx    @dptr,a
+      0051AC A3               [24]  428         inc     dptr
+      0051AD EA               [12]  429         mov     a,r2
+      0051AE F0               [24]  430         movx    @dptr,a
+      0051AF                        431 fr_next:
+      0051AF 0C               [12]  432         inc     r4
+      0051B0 80 83            [24]  433         sjmp    fr_col
+      0051B2                        434 fr_done:
+      0051B2 90 05 54         [24]  435         mov     dptr,#DISP_BUSY
+      0051B5 E4               [12]  436         clr     a
+      0051B6 F0               [24]  437         movx    @dptr,a
+      0051B7 02r53r37         [24]  438         ljmp    dirty_clear
+                                    439 
+                                    440 ; alle wachtende telegrammen verwerken in de schaduw
+      0051BA                        441 q_process:
+      0051BA 90 0E 03         [24]  442         mov     dptr,#Q_TAIL
+      0051BD E0               [24]  443         movx    a,@dptr
+      0051BE 54 03            [12]  444         anl     a,#3
+      0051C0 FD               [12]  445         mov     r5,a                    ; tail
+      0051C1 90 0E 02         [24]  446         mov     dptr,#Q_HEAD
+      0051C4 E0               [24]  447         movx    a,@dptr
+      0051C5 54 03            [12]  448         anl     a,#3
+      0051C7 6D               [12]  449         xrl     a,r5
+      0051C8 60 3F            [24]  450         jz      qp_end
+      0051CA 12r52rB2         [24]  451         lcall   bm_enter                ; schaduw = getoond beeld (eerste keer)
+      0051CD ED               [12]  452         mov     a,r5
+      0051CE 54 01            [12]  453         anl     a,#1                    ; slot
+      0051D0 25 E0            [12]  454         add     a,acc
+      0051D2 24 09            [12]  455         add     a,#QBASE
+      0051D4 F5 83            [12]  456         mov     dph,a
+      0051D6 75 82 01         [24]  457         mov     dpl,#1
+      0051D9 E0               [24]  458         movx    a,@dptr                 ; commando
+      0051DA F5 F0            [12]  459         mov     b,a
+      0051DC A3               [24]  460         inc     dptr
+      0051DD A3               [24]  461         inc     dptr                    ; eerste dataveld
+      0051DE E5 F0            [12]  462         mov     a,b
+      0051E0 B4 50 05         [24]  463         cjne    a,#0x50,qp_1
+      0051E3 12r52r0A         [24]  464         lcall   do_pixels
+      0051E6 80 17            [24]  465         sjmp    qp_next
+      0051E8 B4 42 05         [24]  466 qp_1:   cjne    a,#0x42,qp_2
+      0051EB 12r52r6B         [24]  467         lcall   do_bitmap
+      0051EE 80 0F            [24]  468         sjmp    qp_next
+      0051F0 90 0E 01         [24]  469 qp_2:   mov     dptr,#FULL_REQ          ; 'U': alles, over de hele breedte
+      0051F3 74 01            [12]  470         mov     a,#1
+      0051F5 F0               [24]  471         movx    @dptr,a
+      0051F6 90 0E 05         [24]  472         mov     dptr,#DIRTY_MIN
+      0051F9 E4               [12]  473         clr     a
+      0051FA F0               [24]  474         movx    @dptr,a
+      0051FB A3               [24]  475         inc     dptr                    ; DIRTY_MAX
+      0051FC 74 FE            [12]  476         mov     a,#0xFE
+      0051FE F0               [24]  477         movx    @dptr,a
+      0051FF                        478 qp_next:
+      0051FF ED               [12]  479         mov     a,r5
+      005200 04               [12]  480         inc     a
+      005201 54 03            [12]  481         anl     a,#3
+      005203 90 0E 03         [24]  482         mov     dptr,#Q_TAIL
+      005206 F0               [24]  483         movx    @dptr,a
+      005207 80 B1            [24]  484         sjmp    q_process
+      005209                        485 qp_end:
+      005209 22               [24]  486         ret
+                                    487 
+                                    488 ; ---------- aP: pixels in de schaduw ----------
+      00520A                        489 do_pixels:
+      00520A E0               [24]  490         movx    a,@dptr
+      00520B B4 0D 01         [24]  491         cjne    a,#CR,px_go
+      00520E 22               [24]  492         ret
+      00520F                        493 px_go:
+      00520F 12r53r8E         [24]  494         lcall   getnum3
+      005212 40 56            [24]  495         jc      px_end
+      005214 FC               [12]  496         mov     r4,a                    ; x
+      005215 12r53r80         [24]  497         lcall   getdig
+      005218 40 50            [24]  498         jc      px_end
+      00521A 75 F0 0A         [24]  499         mov     b,#10
+      00521D A4               [48]  500         mul     ab
+      00521E FB               [12]  501         mov     r3,a
+      00521F 12r53r80         [24]  502         lcall   getdig
+      005222 40 46            [24]  503         jc      px_end
+      005224 2B               [12]  504         add     a,r3
+      005225 FB               [12]  505         mov     r3,a                    ; y
+      005226 E0               [24]  506         movx    a,@dptr
+      005227 A3               [24]  507         inc     dptr
+      005228 64 30            [12]  508         xrl     a,#0x30                 ; '0' -> 0, '1' -> 1
+      00522A FA               [12]  509         mov     r2,a
+      00522B C3               [12]  510         clr     c
+      00522C 94 02            [12]  511         subb    a,#2
+      00522E 50 3A            [24]  512         jnc     px_end
+      005230 C0 82            [24]  513         push    dpl
+      005232 C0 83            [24]  514         push    dph
+      005234 12r53r69         [24]  515         lcall   x_lt_width
+      005237 50 2B            [24]  516         jnc     px_skip                 ; x >= breedte
+      005239 90 05 5D         [24]  517         mov     dptr,#HEIGHT
+      00523C E0               [24]  518         movx    a,@dptr
+      00523D F9               [12]  519         mov     r1,a
+      00523E EB               [12]  520         mov     a,r3
+      00523F C3               [12]  521         clr     c
+      005240 99               [12]  522         subb    a,r1
+      005241 50 21            [24]  523         jnc     px_skip                 ; y >= hoogte
+      005243 7E 0E            [12]  524         mov     r6,#>SH
+      005245 7F 10            [12]  525         mov     r7,#<SH
+      005247 12r53r72         [24]  526         lcall   colptr                  ; dptr = SH + 2*x (hoge byte)
+      00524A EB               [12]  527         mov     a,r3
+      00524B C3               [12]  528         clr     c
+      00524C 94 08            [12]  529         subb    a,#8
+      00524E 50 02            [24]  530         jnc     px_bit                  ; y >= 8: hoge byte, bit y-8
+      005250 A3               [24]  531         inc     dptr                    ; y < 8: lage byte, bit y
+      005251 EB               [12]  532         mov     a,r3
+      005252                        533 px_bit:
+      005252 F9               [12]  534         mov     r1,a
+      005253 09               [12]  535         inc     r1
+      005254 74 80            [12]  536         mov     a,#0x80
+      005256                        537 px_shift:
+      005256 23               [12]  538         rl      a
+      005257 D9 FD            [24]  539         djnz    r1,px_shift             ; a = 1 << bit
+      005259 F9               [12]  540         mov     r1,a
+      00525A E0               [24]  541         movx    a,@dptr
+      00525B 49               [12]  542         orl     a,r1
+      00525C BA 00 01         [24]  543         cjne    r2,#0,px_store
+      00525F 69               [12]  544         xrl     a,r1                    ; kleur 0: bit wissen
+      005260                        545 px_store:
+      005260 F0               [24]  546         movx    @dptr,a
+      005261 12r53r47         [24]  547         lcall   mark_dirty
+      005264                        548 px_skip:
+      005264 D0 83            [24]  549         pop     dph
+      005266 D0 82            [24]  550         pop     dpl
+      005268 80 A0            [24]  551         sjmp    do_pixels
+      00526A                        552 px_end:
+      00526A 22               [24]  553         ret
+                                    554 
+                                    555 ; ---------- aB: kolommen in de schaduw ----------
+      00526B                        556 do_bitmap:
+      00526B 12r53r8E         [24]  557         lcall   getnum3
+      00526E 40 41            [24]  558         jc      bm_end
+      005270 FC               [12]  559         mov     r4,a                    ; startkolom
+      005271                        560 bm_loop:
+      005271 E0               [24]  561         movx    a,@dptr
+      005272 B4 0D 01         [24]  562         cjne    a,#CR,bm_go
+      005275 22               [24]  563         ret
+      005276                        564 bm_go:
+      005276 12r53rB2         [24]  565         lcall   gethex
+      005279 40 36            [24]  566         jc      bm_end
+      00527B C4               [12]  567         swap    a
+      00527C FB               [12]  568         mov     r3,a
+      00527D 12r53rB2         [24]  569         lcall   gethex
+      005280 40 2F            [24]  570         jc      bm_end
+      005282 4B               [12]  571         orl     a,r3
+      005283 FB               [12]  572         mov     r3,a                    ; hoge byte (rij 8-15)
+      005284 12r53rB2         [24]  573         lcall   gethex
+      005287 40 28            [24]  574         jc      bm_end
+      005289 C4               [12]  575         swap    a
+      00528A FA               [12]  576         mov     r2,a
+      00528B 12r53rB2         [24]  577         lcall   gethex
+      00528E 40 21            [24]  578         jc      bm_end
+      005290 4A               [12]  579         orl     a,r2
+      005291 FA               [12]  580         mov     r2,a                    ; lage byte (rij 0-7)
+      005292 C0 82            [24]  581         push    dpl
+      005294 C0 83            [24]  582         push    dph
+      005296 12r53r69         [24]  583         lcall   x_lt_width
+      005299 50 0F            [24]  584         jnc     bm_skip
+      00529B 7E 0E            [12]  585         mov     r6,#>SH
+      00529D 7F 10            [12]  586         mov     r7,#<SH
+      00529F 12r53r72         [24]  587         lcall   colptr
+      0052A2 EB               [12]  588         mov     a,r3
+      0052A3 F0               [24]  589         movx    @dptr,a
+      0052A4 A3               [24]  590         inc     dptr
+      0052A5 EA               [12]  591         mov     a,r2
+      0052A6 F0               [24]  592         movx    @dptr,a
+      0052A7 12r53r47         [24]  593         lcall   mark_dirty
+      0052AA                        594 bm_skip:
+      0052AA D0 83            [24]  595         pop     dph
+      0052AC D0 82            [24]  596         pop     dpl
+      0052AE 0C               [12]  597         inc     r4
+      0052AF 80 C0            [24]  598         sjmp    bm_loop
+      0052B1                        599 bm_end:
+      0052B1 22               [24]  600         ret
+                                    601 
+                                    602 ; ---------- bitmapmodus starten: schaduw := getoond beeld ----------
+                                    603 ; blokkopie FB_OLD -> SH (2 * breedte bytes): bron via DPTR, doel via P2:R0 (MOVX @R0)
+      0052B2                        604 bm_enter:
+      0052B2 90 0E 00         [24]  605         mov     dptr,#BM_FLAG
+      0052B5 E0               [24]  606         movx    a,@dptr
+      0052B6 70 2D            [24]  607         jnz     be_done
+      0052B8 74 01            [12]  608         mov     a,#1
+      0052BA F0               [24]  609         movx    @dptr,a
+      0052BB 90 05 5C         [24]  610         mov     dptr,#WIDTH
+      0052BE E0               [24]  611         movx    a,@dptr
+      0052BF 60 24            [24]  612         jz      be_done
+      0052C1 25 E0            [12]  613         add     a,acc
+      0052C3 FB               [12]  614         mov     r3,a                    ; aantal bytes, laag
+      0052C4 E4               [12]  615         clr     a
+      0052C5 33               [12]  616         rlc     a
+      0052C6 FA               [12]  617         mov     r2,a                    ; aantal bytes, hoog
+      0052C7 C0 A0            [24]  618         push    P2
+      0052C9 75 A0 0E         [24]  619         mov     P2,#>SH
+      0052CC 78 10            [12]  620         mov     r0,#<SH
+      0052CE 90 07 AE         [24]  621         mov     dptr,#FB_OLD
+      0052D1                        622 be_copy:
+      0052D1 E0               [24]  623         movx    a,@dptr
+      0052D2 F2               [24]  624         movx    @r0,a
+      0052D3 A3               [24]  625         inc     dptr
+      0052D4 08               [12]  626         inc     r0
+      0052D5 B8 00 02         [24]  627         cjne    r0,#0,be_cnt
+      0052D8 05 A0            [12]  628         inc     P2
+      0052DA EB               [12]  629 be_cnt: mov     a,r3                    ; teller (r2:r3) - 1
+      0052DB 70 01            [24]  630         jnz     be_lo
+      0052DD 1A               [12]  631         dec     r2
+      0052DE 1B               [12]  632 be_lo:  dec     r3
+      0052DF EB               [12]  633         mov     a,r3
+      0052E0 4A               [12]  634         orl     a,r2
+      0052E1 70 EE            [24]  635         jnz     be_copy
+      0052E3 D0 A0            [24]  636         pop     P2
+      0052E5                        637 be_done:
+      0052E5 22               [24]  638         ret
+                                    639 
+                                    640 ; schaduw -> gewenst beeld; bij FULL_REQ: getoond := NOT gewenst (alles verschilt)
+      0052E6                        641 sh_to_fb:
+      0052E6 12r53r41         [24]  642         lcall   dirty_start
+      0052E9                        643 sf_loop:
+      0052E9 12r53r5C         [24]  644         lcall   in_range
+      0052EC 50 1B            [24]  645         jnc     sf_full
+      0052EE 7E 0E            [12]  646         mov     r6,#>SH
+      0052F0 7F 10            [12]  647         mov     r7,#<SH
+      0052F2 12r53r72         [24]  648         lcall   colptr
+      0052F5 E0               [24]  649         movx    a,@dptr
+      0052F6 FB               [12]  650         mov     r3,a
+      0052F7 A3               [24]  651         inc     dptr
+      0052F8 E0               [24]  652         movx    a,@dptr
+      0052F9 FA               [12]  653         mov     r2,a
+      0052FA 7E 05            [12]  654         mov     r6,#>FB_NEW
+      0052FC 7F 7E            [12]  655         mov     r7,#<FB_NEW
+      0052FE 12r53r72         [24]  656         lcall   colptr
+      005301 EB               [12]  657         mov     a,r3
+      005302 F0               [24]  658         movx    @dptr,a
+      005303 A3               [24]  659         inc     dptr
+      005304 EA               [12]  660         mov     a,r2
+      005305 F0               [24]  661         movx    @dptr,a
+      005306 0C               [12]  662         inc     r4
+      005307 80 E0            [24]  663         sjmp    sf_loop
+      005309                        664 sf_full:
+      005309 90 0E 01         [24]  665         mov     dptr,#FULL_REQ
+      00530C E0               [24]  666         movx    a,@dptr
+      00530D 60 27            [24]  667         jz      sf_end
+      00530F E4               [12]  668         clr     a
+      005310 F0               [24]  669         movx    @dptr,a
+      005311 12r53r41         [24]  670         lcall   dirty_start
+      005314                        671 sf_inv:
+      005314 12r53r5C         [24]  672         lcall   in_range
+      005317 50 1D            [24]  673         jnc     sf_end
+      005319 7E 05            [12]  674         mov     r6,#>FB_NEW
+      00531B 7F 7E            [12]  675         mov     r7,#<FB_NEW
+      00531D 12r53r72         [24]  676         lcall   colptr
+      005320 E0               [24]  677         movx    a,@dptr
+      005321 F4               [12]  678         cpl     a
+      005322 FB               [12]  679         mov     r3,a
+      005323 A3               [24]  680         inc     dptr
+      005324 E0               [24]  681         movx    a,@dptr
+      005325 F4               [12]  682         cpl     a
+      005326 FA               [12]  683         mov     r2,a
+      005327 7E 07            [12]  684         mov     r6,#>FB_OLD
+      005329 7F AE            [12]  685         mov     r7,#<FB_OLD
+      00532B 12r53r72         [24]  686         lcall   colptr
+      00532E EB               [12]  687         mov     a,r3
+      00532F F0               [24]  688         movx    @dptr,a
+      005330 A3               [24]  689         inc     dptr
+      005331 EA               [12]  690         mov     a,r2
+      005332 F0               [24]  691         movx    @dptr,a
+      005333 0C               [12]  692         inc     r4
+      005334 80 DE            [24]  693         sjmp    sf_inv
+      005336                        694 sf_end:
+      005336 22               [24]  695         ret
+                                    696 
+                                    697 ; ---------- hulproutines ----------
+                                    698 ; bereik gewijzigde kolommen
+      005337                        699 dirty_clear:
+      005337 90 0E 05         [24]  700         mov     dptr,#DIRTY_MIN
+      00533A 74 FF            [12]  701         mov     a,#0xFF
+      00533C F0               [24]  702         movx    @dptr,a
+      00533D A3               [24]  703         inc     dptr                    ; DIRTY_MAX
+      00533E E4               [12]  704         clr     a
+      00533F F0               [24]  705         movx    @dptr,a
+      005340 22               [24]  706         ret
+                                    707 
+                                    708 ; r4 := DIRTY_MIN
+      005341                        709 dirty_start:
+      005341 90 0E 05         [24]  710         mov     dptr,#DIRTY_MIN
+      005344 E0               [24]  711         movx    a,@dptr
+      005345 FC               [12]  712         mov     r4,a
+      005346 22               [24]  713         ret
+                                    714 
+                                    715 ; kolom r4 opnemen in het bereik (gebruikt a, dptr, r0)
+      005347                        716 mark_dirty:
+      005347 90 0E 05         [24]  717         mov     dptr,#DIRTY_MIN
+      00534A E0               [24]  718         movx    a,@dptr
+      00534B F8               [12]  719         mov     r0,a
+      00534C EC               [12]  720         mov     a,r4
+      00534D C3               [12]  721         clr     c
+      00534E 98               [12]  722         subb    a,r0
+      00534F 50 02            [24]  723         jnc     md_max                  ; r4 >= min
+      005351 EC               [12]  724         mov     a,r4
+      005352 F0               [24]  725         movx    @dptr,a
+      005353 A3               [24]  726 md_max: inc     dptr                    ; DIRTY_MAX
+      005354 E0               [24]  727         movx    a,@dptr
+      005355 C3               [12]  728         clr     c
+      005356 9C               [12]  729         subb    a,r4
+      005357 50 02            [24]  730         jnc     md_end                  ; max >= r4
+      005359 EC               [12]  731         mov     a,r4
+      00535A F0               [24]  732         movx    @dptr,a
+      00535B 22               [24]  733 md_end: ret
+                                    734 
+                                    735 ; C = 1 als r4 <= DIRTY_MAX en r4 < breedte
+      00535C                        736 in_range:
+      00535C 90 0E 06         [24]  737         mov     dptr,#DIRTY_MAX
+      00535F E0               [24]  738         movx    a,@dptr
+      005360 C3               [12]  739         clr     c
+      005361 9C               [12]  740         subb    a,r4
+      005362 40 03            [24]  741         jc      ir_no
+      005364 02r53r69         [24]  742         ljmp    x_lt_width
+      005367 C3               [12]  743 ir_no:  clr     c
+      005368 22               [24]  744         ret
+                                    745 
+                                    746 ; C = 1 als r4 < breedte (gebruikt dptr, r1)
+      005369                        747 x_lt_width:
+      005369 90 05 5C         [24]  748         mov     dptr,#WIDTH
+      00536C E0               [24]  749         movx    a,@dptr
+      00536D F9               [12]  750         mov     r1,a
+      00536E EC               [12]  751         mov     a,r4
+      00536F C3               [12]  752         clr     c
+      005370 99               [12]  753         subb    a,r1
+      005371 22               [24]  754         ret
+                                    755 
+                                    756 ; dptr = (r6:r7) + 2*r4
+      005372                        757 colptr:
+      005372 EC               [12]  758         mov     a,r4
+      005373 2C               [12]  759         add     a,r4
+      005374 F8               [12]  760         mov     r0,a
+      005375 E4               [12]  761         clr     a
+      005376 33               [12]  762         rlc     a
+      005377 C8               [12]  763         xch     a,r0                    ; a = laag, r0 = hoog
+      005378 2F               [12]  764         add     a,r7
+      005379 F5 82            [12]  765         mov     dpl,a
+      00537B E8               [12]  766         mov     a,r0
+      00537C 3E               [12]  767         addc    a,r6
+      00537D F5 83            [12]  768         mov     dph,a
+      00537F 22               [24]  769         ret
+                                    770 
+                                    771 ; cijfer op @dptr -> a (0..9), dptr++; C = 1 als geen cijfer
+      005380                        772 getdig:
+      005380 E0               [24]  773         movx    a,@dptr
+      005381 A3               [24]  774         inc     dptr
+      005382 C3               [12]  775         clr     c
+      005383 94 30            [12]  776         subb    a,#0x30
+      005385 40 05            [24]  777         jc      gd_bad
+      005387 B4 0A 00         [24]  778         cjne    a,#10,gd_cmp
+      00538A B3               [12]  779 gd_cmp: cpl     c                       ; C was 1 als a < 10
+      00538B 22               [24]  780         ret
+      00538C D3               [12]  781 gd_bad: setb    c
+      00538D 22               [24]  782         ret
+                                    783 
+                                    784 ; drie cijfers -> a (0..255); C = 1 bij fout of > 255
+      00538E                        785 getnum3:
+      00538E 12r53r80         [24]  786         lcall   getdig
+      005391 40 1D            [24]  787         jc      gn_bad
+      005393 75 F0 64         [24]  788         mov     b,#100
+      005396 A4               [48]  789         mul     ab
+      005397 F8               [12]  790         mov     r0,a
+      005398 E5 F0            [12]  791         mov     a,b
+      00539A 70 14            [24]  792         jnz     gn_bad
+      00539C 12r53r80         [24]  793         lcall   getdig
+      00539F 40 0F            [24]  794         jc      gn_bad
+      0053A1 75 F0 0A         [24]  795         mov     b,#10
+      0053A4 A4               [48]  796         mul     ab
+      0053A5 28               [12]  797         add     a,r0
+      0053A6 40 08            [24]  798         jc      gn_bad
+      0053A8 F8               [12]  799         mov     r0,a
+      0053A9 12r53r80         [24]  800         lcall   getdig
+      0053AC 40 02            [24]  801         jc      gn_bad
+      0053AE 28               [12]  802         add     a,r0
+      0053AF 22               [24]  803         ret                             ; C uit add: 1 bij overloop
+      0053B0 D3               [12]  804 gn_bad: setb    c
+      0053B1 22               [24]  805         ret
+                                    806 
+                                    807 ; hexteken op @dptr -> a (0..15), dptr++; C = 1 als ongeldig
+      0053B2                        808 gethex:
+      0053B2 E0               [24]  809         movx    a,@dptr
+      0053B3 A3               [24]  810         inc     dptr
+      0053B4 C3               [12]  811         clr     c
+      0053B5 94 30            [12]  812         subb    a,#0x30
+      0053B7 40 1D            [24]  813         jc      gh_bad
+      0053B9 B4 0A 00         [24]  814         cjne    a,#10,gh_c1
+      0053BC 40 16            [24]  815 gh_c1:  jc      gh_ok                   ; '0'..'9'
+      0053BE C3               [12]  816         clr     c
+      0053BF 94 11            [12]  817         subb    a,#17                   ; 'A' -> 0
+      0053C1 40 13            [24]  818         jc      gh_bad
+      0053C3 B4 06 00         [24]  819         cjne    a,#6,gh_c2
+      0053C6 40 0A            [24]  820 gh_c2:  jc      gh_let                  ; 'A'..'F'
+      0053C8 C3               [12]  821         clr     c
+      0053C9 94 20            [12]  822         subb    a,#32                   ; 'a' -> 0
+      0053CB 40 09            [24]  823         jc      gh_bad
+      0053CD B4 06 00         [24]  824         cjne    a,#6,gh_c3
+      0053D0 50 04            [24]  825 gh_c3:  jnc     gh_bad
+      0053D2 24 0A            [12]  826 gh_let: add     a,#10
+      0053D4 C3               [12]  827 gh_ok:  clr     c
+      0053D5 22               [24]  828         ret
+      0053D6 D3               [12]  829 gh_bad: setb    c
+      0053D7 22               [24]  830         ret
+                                    831 
+                                    832 ; antwoord "a0" + CR + checksum, zoals ASFP bij statusvragen doet
+      0053D8                        833 reply_ok:
+      0053D8 90 03 1E         [24]  834         mov     dptr,#TXBUF
+      0053DB 74 61            [12]  835         mov     a,#0x61
+      0053DD F0               [24]  836         movx    @dptr,a
+      0053DE A3               [24]  837         inc     dptr
+      0053DF 74 30            [12]  838         mov     a,#0x30
+      0053E1 F0               [24]  839         movx    @dptr,a
+      0053E2 A3               [24]  840         inc     dptr
+      0053E3 74 0D            [12]  841         mov     a,#CR
+      0053E5 F0               [24]  842         movx    @dptr,a
+      0053E6 75 3A 03         [24]  843         mov     LEN_CS,#3
+      0053E9 12 00 B2         [24]  844         lcall   REPLY_CS
+      0053EC 90 00 2F         [24]  845         mov     dptr,#TXLEN
+      0053EF 74 04            [12]  846         mov     a,#4
+      0053F1 F0               [24]  847         movx    @dptr,a
+      0053F2 D2 04            [12]  848         setb    B_TXBUSY
+      0053F4 90 05 55         [24]  849         mov     dptr,#TXIDX
+      0053F7 E4               [12]  850         clr     a
+      0053F8 F0               [24]  851         movx    @dptr,a
+      0053F9 D2 99            [12]  852         setb    B_TI
+      0053FB 22               [24]  853         ret

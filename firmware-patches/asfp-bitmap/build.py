@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Bouw ASFP-bitmap.bin: assembleer asfp_bitmap.asm en voeg het samen met firmware/ASFP.bin.
+"""Bouw de ASFP-bitmap-varianten: assembleer asfp_bitmap.asm, voeg het samen met
+firmware/ASFP.bin en maak per kloksnelheid een image met hogere baudrate.
 
 Vereist sdas8051 en sdld (SDCC). Pad via de omgevingsvariabele SDCC_BIN,
 standaard ~/tools/sdcc-4.4.0/bin of de PATH.
@@ -15,7 +16,30 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parent.parent
 SRC = HERE / "asfp_bitmap.asm"
 ORIG = REPO / "firmware" / "ASFP.bin"
-OUT = HERE / "ASFP-bitmap.bin"
+
+# Per variant: klok, baudrate en de klokafhankelijke bytes in ASFP (adres: (origineel, nieuw)).
+# Baudrate = 2 * fosc / (384 * (256 - TH1))   (SMOD = 1, zoals ASFP instelt)
+# Timer0 = 1 ms-tick: herlaadwaarde 65536 - fosc / 12000
+VARIANTS = [
+    {
+        "name": "ASFP-bitmap-6MHz-15625.bin", "osc": 6_000_000, "baud": 15625,
+        "bytes": {
+            0x211C: (0xE6, 0xFE),   # TH1: 1200 -> 15625 Bd
+            0x054C: (0x2C, 0x01),   # wachtlus voor antwoord (IBIS-busomschakeling): ~9 ms -> ~0,2 ms
+        },
+    },
+    {
+        "name": "ASFP-bitmap-12MHz-31250.bin", "osc": 12_000_000, "baud": 31250,
+        "bytes": {
+            0x211C: (0xE6, 0xFE),   # TH1: 31250 Bd bij 12 MHz
+            0x211F: (0x0C, 0x18),   # timer0 init laag:  500 -> 1000 tellen (1 ms)
+            0x2122: (0xFE, 0xFC),   # timer0 init hoog
+            0x068D: (0x0C, 0x18),   # timer0 herlaad in ISR, laag
+            0x0690: (0xFE, 0xFC),   # timer0 herlaad in ISR, hoog
+            0x054C: (0x2C, 0x01),   # wachtlus voor antwoord: ~4,4 ms -> ~0,1 ms
+        },
+    },
+]
 
 # Plekken die de patch mag overschrijven: (start, eind, verwachte originele inhoud of None = moet 0xFF zijn)
 ALLOWED = [
@@ -80,11 +104,21 @@ def main():
         if not ok:
             sys.exit(f"patch overschrijft gebruikte byte op 0x{addr:04X} (was 0x{orig[addr]:02X})")
         rom[addr] = val
-    OUT.write_bytes(rom)
     used = [a for a in patch if a >= 0x5000]
-    print(f"{OUT.name}: {len(patch)} bytes gepatcht, nieuwe code 0x5000-0x{max(used):04X} ({len(used)} bytes)")
+    print(f"patch: {len(patch)} bytes, nieuwe code 0x5000-0x{max(used):04X} ({len(used)} bytes)")
     for start, end, _ in ALLOWED:
         print(f"  haak 0x{start:04X}: {orig[start:end + 1].hex(' ')} -> {rom[start:end + 1].hex(' ')}")
+    for v in VARIANTS:
+        img = bytearray(rom)
+        for addr, (before, after) in v["bytes"].items():
+            if img[addr] != before:
+                sys.exit(f"{v['name']}: 0x{addr:04X} is 0x{img[addr]:02X}, verwacht 0x{before:02X}")
+            img[addr] = after
+        (HERE / v["name"]).write_bytes(img)
+        th1 = img[0x211C]
+        baud = 2 * v["osc"] / (384 * (256 - th1))
+        tick = (65536 - ((img[0x2122] << 8) | img[0x211F])) * 12 / v["osc"] * 1000
+        print(f"{v['name']}: {v['osc'] / 1e6:g} MHz, {baud:.0f} Bd (doel {v['baud']}), timertick {tick:.3f} ms")
 
 
 if __name__ == "__main__":
