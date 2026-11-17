@@ -1,6 +1,7 @@
 ; ASFP-bitmap: uitbreiding van ASFP.bin (LAWO AZR 802/24) met pixel-, bitmap- en
 ; ververs-telegrammen en gedeeltelijke verversing (partial update).
-; Alleen getest in de emulator (emulator/), niet op hardware.
+; Getest in de emulator (emulator/). Op hardware (17-11-2026): telegrammen worden aangenomen,
+; maar er klapten nog geen dots om; daarom het diagnosetelegram aD.
 ;
 ; Nieuwe IBIS-telegrammen (CR + XOR-checksum zoals altijd):
 ;   aP<a><XXX><YY><C>[<XXX><YY><C>...]   pixels: kolom (3 cijfers), rij (2 cijfers, 0 = boven),
@@ -8,6 +9,8 @@
 ;   aB<a><XXX><HHHH>[<HHHH>...]          kolommen vanaf XXX; per kolom 16 bits hex,
 ;                                        bit y = rij y van boven (0001 = bovenste dot)
 ;   aU<a>                                alle dots opnieuw omzetten (tegen vastzittende dots)
+;   aD<a>                                diagnose: antwoord "aD" + 28 bytes interne toestand in hex
+;                                        (zie diag_tab); geen a0, beëindigt de bitmapmodus niet
 ; <a> = displayadres als teken ('1'..'?'); '0' = alle displays, dan geen antwoord.
 ; aB en aP mogen tot 500 tekens lang zijn (ASFP: 250), zodat een volledige bitmap van
 ; 112 x 16 (455 tekens) in één telegram past.
@@ -93,6 +96,12 @@ Q_TAIL     = 0x0E03        ; aantal verwerkte slots (modulo 4), alleen de hoofdl
 RX_HI      = 0x0E04        ; ontvangstindex (hoog) voor lange telegrammen
 DIRTY_MIN  = 0x0E05        ; laagste gewijzigde kolom sinds de vorige verversing (0xFF = geen)
 DIRTY_MAX  = 0x0E06        ; hoogste gewijzigde kolom
+CNT_POLL5  = 0x0E07        ; tellers (diagnose, modulo 256): hoofdlus zette REQ = 5
+CNT_ITEMS  = 0x0E08        ;   verwerkte telegrammen uit de wachtrij
+CNT_FR     = 0x0E09        ;   aanroepen van fast_refresh
+CNT_DOT_H  = 0x0E0A        ;   aangevraagde dotpulsen (16 bit)
+CNT_DOT_L  = 0x0E0B
+VARS_END   = 0x0E0C
 SH         = 0x0E10        ; schaduwbuffer, max 140 kolommen x 2 bytes
 RX_MAX     = 0x01F4        ; max. lengte aB/aP incl. CR (buffer tot vlak voor 0x0553)
 
@@ -125,16 +134,11 @@ CR         = 0x0D
 ; ---------- reset ----------
 init:
         clr     a
-        mov     dptr,#BM_FLAG
-        movx    @dptr,a
-        inc     dptr                    ; FULL_REQ
-        movx    @dptr,a
-        inc     dptr                    ; Q_HEAD
-        movx    @dptr,a
-        inc     dptr                    ; Q_TAIL
-        movx    @dptr,a
-        inc     dptr                    ; RX_HI
-        movx    @dptr,a
+        mov     dptr,#BM_FLAG           ; 0x0E00 .. VARS_END-1 wissen
+in_clr: movx    @dptr,a
+        inc     dptr
+        mov     r7,dpl
+        cjne    r7,#<VARS_END,in_clr
         lcall   dirty_clear
         ljmp    RESET_ORIG
 
@@ -218,7 +222,19 @@ ext_ours:
         sjmp    ext_addr
 ext_c1: cjne    a,#0x42,ext_c2          ; 'B'
         sjmp    ext_addr
-ext_c2: cjne    a,#0x55,ext_exit        ; 'U'
+ext_c2: cjne    a,#0x55,ext_c3          ; 'U'
+        sjmp    ext_addr
+ext_c3: cjne    a,#0x44,ext_exit        ; 'D': diagnose, alleen op het eigen adres
+        inc     dptr
+        movx    a,@dptr
+        mov     r6,a
+        mov     dptr,#ADDR
+        movx    a,@dptr
+        add     a,#0x30
+        xrl     a,r6
+        jnz     ext_exit
+        lcall   reply_diag
+        sjmp    ext_exit
 ext_addr:
         inc     dptr
         movx    a,@dptr
@@ -303,6 +319,8 @@ main_poll:
         jnz     mp_done                 ; testbeeld eerst afhandelen
         mov     a,#REQ_REFRESH
         movx    @dptr,a
+        mov     dptr,#CNT_POLL5
+        lcall   inc_x
 mp_done:
         mov     dptr,#REQ
         ljmp    POLL_CONT
@@ -329,7 +347,9 @@ rw_plain:
 ; wisseltekst eerst de paginatijd af. Deze routine vergelijkt per kolom de 16-bit woorden
 ; en vraagt alleen voor veranderde dots een puls aan, op dezelfde manier als 0x0692:
 ; 056B = rij, 056C = kolom, 21h.6 = kleur (XOR 21h.7 'omgekeerd'), 21h.4 = puls gevraagd;
-; de timer-interrupt geeft de puls en wist 21h.4. Rijmaskers uit de ASFP-tabel (10h:11h).
+; de timer-interrupt geeft de puls en wist 21h.4. Rijmaskers uit de ASFP-tabel (10h:11h);
+; fr_setup laadt die pointer en 21h.7 zelf, zoals 0x0692 op 0x0732-0x0766 doet (10h:11h is
+; elders in ASFP ook kladgeheugen).
 ROWMASK_H  = 0x10          ; iRAM: pointer naar rijmasker-tabel (code), hoog
 ROWMASK_L  = 0x11          ;                                        laag
 DOT_ROW    = 0x056B
@@ -341,10 +361,15 @@ PCON       = 0x87
 DISP_BUSY  = 0x0554        ; 0x0692 zet deze op 0 na afloop
 
 fast_refresh:
+        mov     dptr,#CNT_FR
+        lcall   inc_x
+        lcall   fr_setup                ; rijmasker-pointer en 'omgekeerd' zoals 0x0692
         lcall   dirty_start             ; alleen gewijzigde kolommen
 fr_col:
         lcall   in_range
-        jnc     fr_done
+        jc      fr_col_go
+        ljmp    fr_done
+fr_col_go:
         mov     r6,#>FB_NEW
         mov     r7,#<FB_NEW
         lcall   colptr
@@ -411,6 +436,12 @@ fr_col_ok:
         inc     dptr                    ; DOT_COL
         mov     a,r4
         movx    @dptr,a
+        mov     dptr,#CNT_DOT_L
+        lcall   inc_x
+        jnz     fr_req
+        mov     dptr,#CNT_DOT_H
+        lcall   inc_x
+fr_req:
         setb    B_DOTREQ
 fr_wait:
         jnb     B_DOTREQ,fr_rnext       ; wachten tot de timer-interrupt gepulst heeft
@@ -430,12 +461,35 @@ fr_store:
         movx    @dptr,a
 fr_next:
         inc     r4
-        sjmp    fr_col
+        ljmp    fr_col
 fr_done:
         mov     dptr,#DISP_BUSY
         clr     a
         movx    @dptr,a
         ljmp    dirty_clear
+
+; voorbereiding zoals 0x0692 (0x0732-0x0766): 21h.7 = 'omgekeerd' uit tabel 0x4B33 per adres
+; (XOR 20h.0), 10h:11h = rijmasker-pointer uit tabel 0x4B2B per adres (14 bytes per adres)
+fr_setup:
+        mov     dptr,#ADDR
+        movx    a,@dptr
+        mov     r7,#0x0E
+        mov     dptr,#0x4B33
+        lcall   0x4E13                  ; dptr += a * r7
+        clr     a
+        movc    a,@a+dptr
+        add     a,#0xFF                 ; C = 1 als tabelwaarde <> 0
+        cpl     c                       ; omgekeerd = (waarde == 0)
+        jnb     0x00,fs_inv             ; 20h.0 keert om
+        cpl     c
+fs_inv: mov     B_INVERSE,c
+        mov     dptr,#ADDR
+        movx    a,@dptr
+        mov     r7,#0x0E
+        mov     dptr,#0x4B2B
+        lcall   0x4E13
+        mov     r0,#ROWMASK_H
+        ljmp    0x4EB6                  ; 2 bytes uit de tabel naar @r0 (10h, 11h)
 
 ; alle wachtende telegrammen verwerken in de schaduw
 q_process:
@@ -476,6 +530,8 @@ qp_2:   mov     dptr,#FULL_REQ          ; 'U': alles, over de hele breedte
         mov     a,#0xFE
         movx    @dptr,a
 qp_next:
+        mov     dptr,#CNT_ITEMS
+        lcall   inc_x
         mov     a,r5
         inc     a
         anl     a,#3
@@ -851,3 +907,110 @@ reply_ok:
         movx    @dptr,a
         setb    B_TI
         ret
+
+; xdata-byte op dptr ophogen; a = nieuwe waarde
+inc_x:
+        movx    a,@dptr
+        inc     a
+        movx    @dptr,a
+        ret
+
+; ---------- diagnose: "aD" + hex van de bytes uit diag_tab (seriële interrupt) ----------
+; tabel: 2 bytes per regel; hoog = 0xFE: iRAM (laag = adres), 0xFD: P1, 0xFF: einde, anders xdata
+reply_diag:
+        mov     r2,#0                   ; schrijfpositie in TXBUF
+        mov     a,#0x61
+        lcall   put_ch
+        mov     a,#0x44
+        lcall   put_ch
+        mov     r4,#0                   ; tabelindex
+rd_loop:
+        mov     dptr,#diag_tab
+        mov     a,r4
+        movc    a,@a+dptr
+        mov     r5,a
+        inc     r4
+        mov     a,r4
+        movc    a,@a+dptr
+        mov     r6,a
+        inc     r4
+        mov     a,r5
+        cjne    a,#0xFF,rd_x1
+        sjmp    rd_end
+rd_x1:  cjne    a,#0xFE,rd_x2
+        mov     a,r6
+        mov     r0,a
+        mov     a,@r0
+        sjmp    rd_put
+rd_x2:  cjne    a,#0xFD,rd_x3
+        mov     a,0x90                  ; P1
+        sjmp    rd_put
+rd_x3:  mov     dph,r5
+        mov     dpl,r6
+        movx    a,@dptr
+rd_put: lcall   put_hex
+        sjmp    rd_loop
+rd_end:
+        mov     a,#CR
+        lcall   put_ch
+        mov     a,r2                    ; r2 = lengte incl. CR
+        mov     LEN_CS,a
+        inc     a                       ; + checksum
+        mov     dptr,#TXLEN
+        movx    @dptr,a
+        lcall   REPLY_CS
+        setb    B_TXBUSY
+        mov     dptr,#TXIDX
+        clr     a
+        movx    @dptr,a
+        setb    B_TI
+        ret
+
+; a als twee hextekens naar TXBUF (gebruikt r3)
+put_hex:
+        mov     r3,a
+        swap    a
+        lcall   hexch
+        lcall   put_ch
+        mov     a,r3
+        lcall   hexch
+        ljmp    put_ch
+
+hexch:  anl     a,#0x0F
+        cjne    a,#10,hx_c
+hx_c:   jc      hx_d
+        add     a,#7
+hx_d:   add     a,#0x30
+        ret
+
+; a naar TXBUF[r2], r2++
+put_ch:
+        push    acc
+        mov     a,r2
+        add     a,#<TXBUF
+        mov     dpl,a
+        clr     a
+        addc    a,#>TXBUF
+        mov     dph,a
+        pop     acc
+        movx    @dptr,a
+        inc     r2
+        ret
+
+; volgorde van de 28 bytes in het aD-antwoord (zie README)
+diag_tab:
+        .db     >Q_HEAD, <Q_HEAD,       >Q_TAIL, <Q_TAIL
+        .db     >BM_FLAG, <BM_FLAG,     >FULL_REQ, <FULL_REQ
+        .db     >DIRTY_MIN, <DIRTY_MIN, >DIRTY_MAX, <DIRTY_MAX
+        .db     >REQ, <REQ,             >DISP_BUSY, <DISP_BUSY
+        .db     >CNT_POLL5, <CNT_POLL5, >CNT_ITEMS, <CNT_ITEMS
+        .db     >CNT_FR, <CNT_FR,       >CNT_DOT_H, <CNT_DOT_H, >CNT_DOT_L, <CNT_DOT_L
+        .db     0xFE, 0x10,  0xFE, 0x11                         ; rijmasker-pointer
+        .db     0xFE, 0x20,  0xFE, 0x21,  0xFE, 0x22            ; bitvariabelen
+        .db     0xFD, 0x00                                      ; P1
+        .db     >WIDTH, <WIDTH,         >HEIGHT, <HEIGHT
+        .db     0x00, 0x10                                      ; xdata 0x0010 (timer-isr)
+        .db     >(FB_NEW+10), <(FB_NEW+10), >(FB_NEW+11), <(FB_NEW+11)   ; kolom 5
+        .db     >(FB_OLD+10), <(FB_OLD+10), >(FB_OLD+11), <(FB_OLD+11)
+        .db     >(SH+10), <(SH+10),     >(SH+11), <(SH+11)
+        .db     0xFF, 0xFF

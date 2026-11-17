@@ -1,8 +1,8 @@
 # ASFP-bitmap: pixels, bitmaps, partial update en hogere baudrate
 
 > [!WARNING]
-> Deze patch is geschreven door een AI-tool (Claude Code) en **alleen getest in de [emulator](../../emulator/)**,
-> niet op een echte controller. Brand hem pas op een EPROM als je dat risico accepteert en het origineel bewaart.
+> Deze patch is geschreven door een AI-tool (Claude Code) en getest in de [emulator](../../emulator/).
+> Brand hem pas op een EPROM als je dat risico accepteert en het origineel bewaart. Zie [Stand op hardware](#stand-op-hardware).
 
 Uitbreiding van [`firmware/ASFP.bin`](../../firmware/ASFP.bin) in twee varianten:
 
@@ -33,6 +33,7 @@ Zoals altijd sluit elk telegram af met CR + XOR-checksum. `<a>` is het displayad
 | `aP<a>` + n × `XXX YY C` | pixels: kolom (3 cijfers), rij (2 cijfers, 0 = boven), kleur `0` zwart / `1` geel | `aP1005031` → dot (5,3) geel |
 | `aB<a>XXX` + n × `HHHH` | kolommen vanaf kolom XXX, per kolom 16 bits hex; bit *y* = rij *y* van boven (`0001` = bovenste dot, `8000` = onderste) | `aB1000FFFF0001` |
 | `aU<a>` | alle dots opnieuw omzetten, tegen vastzittende dots | `aU1` |
+| `aD<a>` | diagnose: antwoord `aD` + 28 bytes interne toestand in hex (zie [Diagnose](#diagnose-ad)); geen `a0` | `aD1` |
 
 - `aB` en `aP` mogen tot **500 tekens** lang zijn (gewone ASFP-telegrammen: 250). Een volledige bitmap van
   112 × 16 is 456 tekens incl. CR en past dus in één telegram.
@@ -118,7 +119,7 @@ Per variant (in `build.py`):
 | `0x068D` / `0x0690` | `0C` / `FE` | – | `18` / `FC` | timer0 herladen in de interrupt |
 | `0x054C` | `2C` | `01` | `01` | wachtlus voor het antwoord |
 
-De nieuwe code staat op `0x5000`–`0x53FB`, in ROM die eerst leeg was. Het werk-RAM `0x0900`–`0x0F27` gebruikt ASFP niet;
+De nieuwe code staat op `0x5000`–`0x551A`, in ROM die eerst leeg was. Het werk-RAM `0x0900`–`0x0F27` gebruikt ASFP niet;
 ASFP gebruikt RAM tot `0x08D0`, zowel volgens de code als in de emulator gemeten.
 
 ## Voorbeeld
@@ -156,6 +157,41 @@ De firmware zit in socket **EP1**, een 28-pins DIL-voet voor een 27C256 (label "
   Die zit dan via een kabel in de socket en wordt via USB geladen.
 - **Bewaar de originele EPROM.** De inkeping wijst naar het midden van de print, zoals in de handleiding. Laat J4 staan zoals hij staat.
 
+## Stand op hardware
+
+Getest op 17 november 2026 met de 6 MHz-variant op een M27C512 in een AZR 802/24, met de ESP8266 van
+[flipdot-ret-mqtt](https://github.com/sebastius/flipdot-ret-mqtt):
+
+- **Werkt:** opstarten, tekst, testbeelden (`aT`), 15 625 baud, antwoorden (`a0`, versie `F00293`).
+- **Nog niet:** `aP`, `aB` en `aU` worden aangenomen (`a0`) en uit de wachtrij verwerkt, maar er klappen geen dots om.
+  In de emulator werkt dezelfde reeks wel. Daarom is er het diagnosetelegram `aD`, en laadt `fast_refresh` sindsdien
+  zelf de rijmasker-pointer (10h:11h) en de vlag "omgekeerd" (21h.7), zoals de originele verversroutine op 0x0732–0x0766.
+  Wordt vervolgd.
+
+### Diagnose (`aD`)
+
+`aD1` antwoordt met `aD` gevolgd door 28 bytes in hex (56 tekens), in deze volgorde:
+
+| # | Inhoud | # | Inhoud |
+|---|---|---|---|
+| 0 | `Q_HEAD` (0x0E02) | 13–14 | rijmasker-pointer 10h, 11h (verwacht `32 02`) |
+| 1 | `Q_TAIL` (0x0E03) | 15 | bitvariabelen 20h |
+| 2 | bitmapmodus (0x0E00) | 16 | 21h (bit 4 = puls gevraagd, 6 = kleur, 7 = omgekeerd) |
+| 3 | alles-omzetten-verzoek (0x0E01) | 17 | 22h (bit 0 = wisseltekst) |
+| 4–5 | gewijzigde kolommen min, max | 18 | P1 (adres, S1, S2, spanningsbewaking) |
+| 6 | `REQ` (0x0571) | 19–20 | breedte, hoogte |
+| 7 | 0x0554 (bezig) | 21 | xdata 0x0010 (gebruikt door de timer-interrupt) |
+| 8 | teller: hoofdlus zette `REQ` = 5 | 22–23 | gewenst beeld, kolom 5 (0x0588) |
+| 9 | teller: verwerkte telegrammen | 24–25 | getoond beeld, kolom 5 (0x07B8) |
+| 10 | teller: aanroepen snelle verversing | 26–27 | schaduw, kolom 5 (0x0E1A) |
+| 11–12 | teller: aangevraagde dotpulsen (16 bit) | | |
+
+Tellers lopen modulo 256 en beginnen bij het opstarten op 0. Het formaat staat in `diag_tab` aan het eind van
+[`asfp_bitmap.asm`](asfp_bitmap.asm).
+
+Voorbeeld uit de emulator, na `aT10` en 5 pixels:
+`aD01010100FF000000010101000532020680001E701009000800080008`.
+
 ## Bekende beperkingen
 
 - **Displaybreedte:** een volledige bitmap in één telegram werkt tot ongeveer 120 kolommen. Bij 140 kolommen zijn het twee telegrammen.
@@ -163,7 +199,7 @@ De firmware zit in socket **EP1**, een 28-pins DIL-voet voor een 27C256 (label "
   tekstbuffer (`0x0459`). Wachten op `a0` voorkomt dit.
 - **12 MHz:** dit vraagt een hardware-aanpassing (oscillator Q1). Controleer de opdruk van de CPU en de snelheid
   van de EPROM. Niet getest op hardware.
-- **Niet getest op echte hardware.**
+- **Pixels en bitmaps op hardware:** zie [Stand op hardware](#stand-op-hardware).
 
 ## Bouwen en testen
 
