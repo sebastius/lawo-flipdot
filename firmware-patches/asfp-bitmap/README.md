@@ -182,7 +182,7 @@ met de ESP8266 van [flipdot-ret-mqtt](https://github.com/sebastius/flipdot-ret-m
 - **Werkt nog niet: de eigen snelle verversing (`fast_refresh`).** Daarmee klappen op hardware geen dots om, ook
   niet in het zichtbare deel, terwijl `aD` laat zien dat de pulsen worden aangevraagd en door de timer-interrupt
   afgehandeld; in de emulator werkt het wel. Daarom staat `USE_FAST_REFRESH = 0` en ververst de patch met 0x0692
-  (alleen veranderde dots, 22h.0 = 1, paginatimer op 0). Oorzaak nog onbekend.
+  (alleen veranderde dots, 22h.0 = 1, paginatimer op 0). Oorzaak nog onbekend; zie [`docs/fast-refresh-onderzoek.md`](../../docs/fast-refresh-onderzoek.md).
 - **12 MHz-variant:** niet getest.
 
 ### Diagnose (`aD`)

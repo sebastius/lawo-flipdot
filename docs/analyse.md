@@ -114,7 +114,8 @@ op 0x7385, `printf`-formatstrings).
   (die vectorruimte bevat library-code).
 - `TMOD=21h`, `SCON=D8h` (mode 3, 9 bit, REN, TB8=1), `PCON=80h` (SMOD), `TH1=E6h`
   → **1201,9 baud** bij 6 MHz. Mode 3 = 7 data + pariteit + TB8 als tweede stopbit → **IBIS 1200 7E2**.
-- Timer0 reload `FE0Ch` = 500 tellen × 2 µs = **1 ms tick**.
+- Timer0 reload `FE0Ch` = 500 tellen × 2 µs. Omdat de ISR pas aan het eind herlaadt (`068B`/`068E`), is de
+  werkelijke tick ~700–740 cycli = **~1,45 ms** (zie [`fast-refresh-onderzoek.md`](fast-refresh-onderzoek.md) §2).
 - Ontvangst-ISR:
   1. pariteit gecontroleerd met PSW.P (even pariteit over 8 bits);
   2. startteken moet `a`…`z` zijn; buffer tot 0xF9 tekens;
@@ -123,8 +124,8 @@ op 0x7385, `printf`-formatstrings).
 - Zenden: antwoord-telegram via TI-interrupt, eerste byte na korte delay (busomschakeling).
 - **Dotaansturing in de 1 ms-timer-ISR**: `SETB P3.4` (puls uit) → latches 0x0000 (rij + kleur, LED-bits
   bewaard), 0x0002 (kolom / 112 = moduleblok), 0x0001 (kolom mod 112 via kolomtabel in ROM, OR kleurbit)
-  → `CLR P3.4` (puls aan). **Eén dot per milliseconde, pulsduur ≈ 1 ms.** Een 112×16-display
-  (1 792 dots) kost dus ca. 1,8 s voor een volledige beeldopbouw.
+  → `CLR P3.4` (puls aan). **Eén dot per tick (~1,45 ms), pulsduur ≈ 1,1 ms, E uit ≈ 0,3 ms.**
+  Een 112×16-display (1 792 dots) kost dus ca. 2,5 s voor een volledige beeldopbouw.
   Bij 140 kolommen (`0x8C`) worden andere kolomtabel-offsets (0x54 / 0x62) gebruikt.
 - Watchdog: `CPL P3.5` in de timer-ISR, maar alleen zolang een door de hoofdlus herladen teller
   (iRAM 2Bh/2Ch) > 0 is → hangt de hoofdlus, dan stopt de trigger en reset de MAX690.
@@ -308,7 +309,8 @@ maakt hier gebruik van voor pixel- en bitmaptelegrammen.
 | Pad | Inhoud |
 |---|---|
 | `docs/analyse.md` | dit rapport |
-| `docs/manuals/` | schema AZR 802/24, Full-matrix-handleiding, DIP/jumper-doc, schema matrixmodule 28×13 |
+| `docs/manuals/` | schema AZR 802/24, Full-matrix-handleiding, DIP/jumper-doc, schema matrixmodule 28×13, FP2800A-datasheet |
+| `docs/fast-refresh-onderzoek.md` | onderzoek naar `fast_refresh` op hardware, FP2800A-controle |
 | `docs/images/ASFP_font16_0x3246.png` | weergave van het 16-pixel font |
 | `firmware/` | de vijf firmware-images (zie `firmware/README.md`) |
 | `text-eproms/` | tekst-EPROMs RET0902 en front.bin, plus `RET0902_teksten.txt` (alle gevulde records) |
