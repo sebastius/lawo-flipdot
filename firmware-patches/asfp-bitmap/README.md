@@ -79,7 +79,8 @@ van het versturen, dus inclusief verzendtijd. "Klaar" is de laatste dotpuls.
 - Een dotpuls duurt in alle varianten ~1,1 ms, net als in het origineel.
 - Bij tekst en testbeelden zet ASFP alle 1792 dots om (~2 s). Daar wint 12 MHz vooral bij het opmaken van de tekst.
 - Een volledige bitmap is bij 6 MHz klaar in 1,8 s. Een vergelijkbare beeldwissel via tekst kost met het origineel 5,2 s.
-- Elke verversing rekent eerst alle 1792 dots door (~0,3 s bij 6 MHz, ook voor één pixel). Daardoor haalt een
+- Elke verversing loopt alle 1792 dots door, kolom voor kolom (~0,7 s bij 6 MHz, ook voor één pixel; de eerste
+  klik komt eerder naarmate de kolom verder links ligt, bv. ~0,2 s op kolom 28). Daardoor haalt een
   zender die op `a0` wacht maar een paar pixeltelegrammen per seconde, en raakt de wachtrij (2 plaatsen) bij snel
   achter elkaar gestuurde telegrammen vol: dan komt er geen `a0` en moet de zender het opnieuw proberen. Zet bij veel
   pixels liever alles in één `aP`- of `aB`-telegram. Met de eigen snelle routine (`USE_FAST_REFRESH = 1`) was dit in

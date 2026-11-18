@@ -96,6 +96,22 @@ aangenomen (valt niet op, omdat elke tekstverversing alle dots opnieuw pulst).
    (20:58) en `ae76f60` (21:05), in dezelfde commit als de kolomverschuiving, met een UV-wisbare M27C512.
    Niet vastgelegd is welke image er toen echt in zat en of er gewist en geverifieerd is.
 
+## Aanvulling 18 november 2026 (uit de hardwaresessie van 17 november)
+
+1. **De hardwaretest van `fast_refresh` was wel doorslaggevend.** De snelle build `51464de` is gebrand na een
+   blanco-check en daarna losgelezen: gelijk aan het bestand (MD5 `686ed99b…`). Getest op zichtbare kolommen:
+   10× pixel (4,0) wisselen (kolom 32), de kat vanaf x = 0 en 10× pixel (44,1). Er klapte niets om. Met de
+   0692-build (`ae76f60`, MD5 `09923801…`, ook geverifieerd) werkten dezelfde pixel en de kat wel.
+2. **De RC-enable/duty-cycle-verklaring dekt de losse pixel niet.** Bij het wisselen zat er 1 s tussen de
+   pulsen (duty ≈ 0), en toch werkte `fast_refresh` niet. Voor reeksen kan het meespelen, maar het verschil
+   bij één losse puls verklaart het niet.
+3. **Rekentijd 0692:** een volledige doorloop is ~0,65–0,75 s, maar de eerste klik komt eerder omdat de routine
+   kolom voor kolom werkt (emulator: ~0,19 s op kolom 28, benchmark ~0,33 s op kolom 56). De README's zijn
+   aangepast naar "tot ~0,7 s".
+4. **Testversie met verversingsmodi** (commit na `c4bd712`): `aM1<n>` kiest de verversing zonder opnieuw te
+   branden: 0 = `0x0692`, 1 = `fast_refresh`, 2 = + ~3 ms na de laatste puls, 3 = + ~3 ms na elke puls (open
+   punt 2), 4 = zonder `fr_setup`, 5 = 2+3, 6 = eerst ~300 ms wachten, 7 = 2+3+6. `aD1` toont de modus in byte 28.
+
 ## Open punten
 
 1. Brand de snelle build (verifiëren na het branden), stuur één pixel op een zichtbare kolom (bijv.
