@@ -9,7 +9,8 @@
 ;   aB<a><XXX><HHHH>[<HHHH>...]          kolommen vanaf XXX; per kolom 16 bits hex,
 ;                                        bit y = rij y van boven (0001 = bovenste dot)
 ;   aU<a>                                alle dots opnieuw omzetten (tegen vastzittende dots)
-;   aD<a>                                diagnose: antwoord "aD" + 28 bytes interne toestand in hex
+;   aM<a><n>                           verversingsmodus n (0..7), zie RF_MODE
+;   aD<a>                                diagnose: antwoord "aD" + 29 bytes interne toestand in hex
 ;                                        (zie diag_tab); geen a0, beëindigt de bitmapmodus niet
 ; <a> = displayadres als teken ('1'..'?'); '0' = alle displays, dan geen antwoord.
 ; aB en aP mogen tot 500 tekens lang zijn (ASFP: 250), zodat een volledige bitmap van
@@ -54,11 +55,17 @@
 
         .module asfp_bitmap
 
-; 1 = eigen snelle verversing (alleen veranderde kolommen), 0 = originele routine 0x0692.
-; Op hardware (17-11-2026) klappen met fast_refresh geen dots om, hoewel aD laat zien dat de
+; Verversing kiesbaar tijdens bedrijf met aM<a><n> (RF_MODE, na reset 0):
+;   0 = originele routine 0x0692 (werkt op hardware), 1 = fast_refresh,
+;   2 = fast_refresh + ~3 ms wachten aan het eind, 3 = fast_refresh + ~3 ms na elke puls,
+;   4 = fast_refresh zonder fr_setup, 5 = 2 en 3 samen,
+;   6 = fast_refresh na ~300 ms wachten (zoals de rekentijd van 0x0692), 7 = 2, 3 en 6 samen.
+; Op hardware (17-11-2026) klapten met fast_refresh geen dots om, hoewel aD laat zien dat de
 ; pulsen worden aangevraagd en afgehandeld; in de emulator werkt het wel. Oorzaak onbekend.
-; Met 0x0692 werkt het op hardware (getest op kolom >= 28). Daarom 0.
-USE_FAST_REFRESH = 0
+FRF_NOSETUP = 0x01          ; FR_FLAGS: fr_setup overslaan
+FRF_ENDWAIT = 0x02          ;           ~3 ms wachten na de laatste puls
+FRF_GAP     = 0x04          ;           ~3 ms wachten na elke puls
+FRF_PRE     = 0x08          ;           ~300 ms wachten voor de eerste puls
 
 ; Kolomverschuiving voor aP en aB: byte op XOFF_ADDR (standaard 28). Op een display waarvan de
 ; eerste module (kolom 0-27) ontbreekt, valt x = 0 dan op de eerste zichtbare kolom.
@@ -112,7 +119,9 @@ CNT_ITEMS  = 0x0E08        ;   verwerkte telegrammen uit de wachtrij
 CNT_FR     = 0x0E09        ;   aanroepen van fast_refresh
 CNT_DOT_H  = 0x0E0A        ;   aangevraagde dotpulsen (16 bit)
 CNT_DOT_L  = 0x0E0B
-VARS_END   = 0x0E0C
+RF_MODE    = 0x0E0C        ; verversingsmodus (aM), zie boven
+FR_FLAGS   = 0x0E0D        ; FRF_* voor fast_refresh, afgeleid van RF_MODE
+VARS_END   = 0x0E0E
 SH         = 0x0E10        ; schaduwbuffer, max 140 kolommen x 2 bytes
 RX_MAX     = 0x01F4        ; max. lengte aB/aP incl. CR (buffer tot vlak voor 0x0553)
 
@@ -235,7 +244,29 @@ ext_c1: cjne    a,#0x42,ext_c2          ; 'B'
         sjmp    ext_addr
 ext_c2: cjne    a,#0x55,ext_c3          ; 'U'
         sjmp    ext_addr
-ext_c3: cjne    a,#0x44,ext_exit        ; 'D': diagnose, alleen op het eigen adres
+ext_c3: cjne    a,#0x4D,ext_c4          ; 'M': verversingsmodus kiezen, alleen eigen adres
+        inc     dptr
+        movx    a,@dptr
+        mov     r6,a
+        inc     dptr
+        movx    a,@dptr
+        clr     c
+        subb    a,#0x30
+        jc      ext_exit
+        mov     r5,a                    ; modus
+        subb    a,#8
+        jnc     ext_exit                ; alleen 0..7
+        mov     dptr,#ADDR
+        movx    a,@dptr
+        add     a,#0x30
+        xrl     a,r6
+        jnz     ext_exit
+        mov     dptr,#RF_MODE
+        mov     a,r5
+        movx    @dptr,a
+        lcall   reply_ok
+        sjmp    ext_exit
+ext_c4: cjne    a,#0x44,ext_exit        ; 'D': diagnose, alleen op het eigen adres
         inc     dptr
         movx    a,@dptr
         mov     r6,a
@@ -349,10 +380,20 @@ refresh_wrap:
 rw_go:
         mov     dptr,#CNT_FR
         lcall   inc_x
-.if USE_FAST_REFRESH
+        mov     dptr,#RF_MODE
+        movx    a,@dptr
+        jz      rw_orig
+        dec     a
+        mov     dptr,#mode_flags
+        movc    a,@a+dptr
+        mov     dptr,#FR_FLAGS
+        movx    @dptr,a
         clr     B_PARTIAL               ; wisseltekst stoppen
         ljmp    fast_refresh            ; alleen veranderde dots, zonder paginawachttijd
-.else
+mode_flags:                             ; modus 1..7
+        .db     0, FRF_ENDWAIT, FRF_GAP, FRF_NOSETUP, FRF_ENDWAIT + FRF_GAP
+        .db     FRF_PRE, FRF_PRE + FRF_ENDWAIT + FRF_GAP
+rw_orig:
         ; originele verversroutine: met 22h.0 = 1 slaat 0x0692 onveranderde dots over; de
         ; paginatimer (32h/33h) op 0, anders wacht 0x0692 eerst de wisseltekst-paginatijd af.
         ; Daarna 22h.0 = 0, zodat de hoofdlus geen volgende tekstpagina over het beeld tekent.
@@ -362,7 +403,6 @@ rw_go:
         lcall   REFRESH
         clr     B_PARTIAL
         ljmp    dirty_clear
-.endif
 rw_plain:
         ljmp    REFRESH                 ; testbeeld: origineel gedrag
 
@@ -386,7 +426,18 @@ PCON       = 0x87
 DISP_BUSY  = 0x0554        ; 0x0692 zet deze op 0 na afloop
 
 fast_refresh:
+        mov     dptr,#FR_FLAGS
+        movx    a,@dptr
+        jnb     acc.3,fr_nopre          ; FRF_PRE: ~300 ms wachten
+        mov     r7,#100
+fr_pre: lcall   delay3
+        djnz    r7,fr_pre
+        mov     dptr,#FR_FLAGS
+        movx    a,@dptr
+fr_nopre:
+        jb      acc.0,fr_nosetup        ; FRF_NOSETUP
         lcall   fr_setup                ; rijmasker-pointer en 'omgekeerd' zoals 0x0692
+fr_nosetup:
         lcall   dirty_start             ; alleen gewijzigde kolommen
 fr_col:
         lcall   in_range
@@ -467,9 +518,14 @@ fr_col_ok:
 fr_req:
         setb    B_DOTREQ
 fr_wait:
-        jnb     B_DOTREQ,fr_rnext       ; wachten tot de timer-interrupt gepulst heeft
+        jnb     B_DOTREQ,fr_pulsed      ; wachten tot de timer-interrupt gepulst heeft
         mov     PCON,#0x81              ; idle, SMOD blijft 1 (zoals ASFP)
         sjmp    fr_wait
+fr_pulsed:
+        mov     dptr,#FR_FLAGS
+        movx    a,@dptr
+        jnb     acc.2,fr_rnext          ; FRF_GAP
+        lcall   delay3                  ; gebruikt r0, r6 (r6 wordt per rij opnieuw geladen)
 fr_rnext:
         inc     r7
         sjmp    fr_row
@@ -486,6 +542,11 @@ fr_next:
         inc     r4
         ljmp    fr_col
 fr_done:
+        mov     dptr,#FR_FLAGS
+        movx    a,@dptr
+        jnb     acc.1,fr_done2          ; FRF_ENDWAIT
+        lcall   delay3
+fr_done2:
         mov     dptr,#DISP_BUSY
         clr     a
         movx    @dptr,a
@@ -1022,7 +1083,7 @@ put_ch:
         inc     r2
         ret
 
-; volgorde van de 28 bytes in het aD-antwoord (zie README)
+; volgorde van de 29 bytes in het aD-antwoord (zie README)
 diag_tab:
         .db     >Q_HEAD, <Q_HEAD,       >Q_TAIL, <Q_TAIL
         .db     >BM_FLAG, <BM_FLAG,     >FULL_REQ, <FULL_REQ
@@ -1038,7 +1099,16 @@ diag_tab:
         .db     >(FB_NEW+10), <(FB_NEW+10), >(FB_NEW+11), <(FB_NEW+11)   ; kolom 5
         .db     >(FB_OLD+10), <(FB_OLD+10), >(FB_OLD+11), <(FB_OLD+11)
         .db     >(SH+10), <(SH+10),     >(SH+11), <(SH+11)
+        .db     >RF_MODE, <RF_MODE                              ; byte 28: verversingsmodus
         .db     0xFF, 0xFF
+
+; ~3 ms wachten bij 6 MHz (~1,5 ms bij 12 MHz); gebruikt r0, r6
+delay3:
+        mov     r0,#3
+dl_o:   mov     r6,#250
+dl_i:   djnz    r6,dl_i                 ; 250 x 2 cycli x 2 us = 1 ms bij 6 MHz
+        djnz    r0,dl_o
+        ret
 
 ; a := a + kolomverschuiving (0xFF bij overloop: valt buiten het display); behoudt dptr
 add_xoff:
