@@ -23,7 +23,7 @@ voor flipdot-busfrontdisplays (IBIS-wagenbus, matrixmodules 28 × 13 / 28 × 16)
 | [`docs/`](docs/) | analyse-rapport, handleidingen en schema's ([`docs/manuals/`](docs/manuals/)), fontweergave |
 | [`firmware/`](firmware/) | vijf firmware-images voor de controller ([toelichting](firmware/README.md)) |
 | [`text-eproms/`](text-eproms/) | tekst-EPROMs: RET0902 (RET Rotterdam, TED800-stijl) en front.bin (`FORM`-stijl, 's-Hertogenbosch) |
-| [`firmware-patches/`](firmware-patches/) | **ASFP-bitmap**: ASFP uitgebreid met pixel-, bitmap- en verversingstelegrammen met partial update, in een variant voor 6 MHz (15 625 Bd) en een voor 12 MHz (31 250 Bd) ([uitleg](firmware-patches/asfp-bitmap/README.md); alleen in de emulator getest) |
+| [`firmware-patches/`](firmware-patches/) | **ASFP-bitmap**: ASFP uitgebreid met pixel-, bitmap- en verversingstelegrammen met partial update, in een variant voor 6 MHz (15 625 Bd) en een voor 12 MHz (31 250 Bd) ([uitleg](firmware-patches/asfp-bitmap/README.md)); de 6 MHz-variant werkt op een echte controller (pixels, bitmaps, tekst), de 12 MHz-variant is alleen in de emulator getest |
 | [`emulator/`](emulator/) | emulator van controller + display (8051, browser en commandline) om firmware te testen ([uitleg](emulator/README.md)) |
 | [`tools/`](tools/) | `d51.py` (8051-disassembler) en de Ghidra-pipeline ([`tools/ghidra/`](tools/ghidra/)) |
 | [`analysis/`](analysis/) | disassembly-listings en Ghidra-decompilatie (pseudo-C, functielijsten, xrefs) |
@@ -57,4 +57,6 @@ Het Ghidra-project komt in `build/ghidra_project/` (niet in git); de tekstexport
 ## Status
 
 De analyse is deels zeker en deels afgeleid; in het rapport staat per bewering **[zeker]**, **[waarschijnlijk]** of **[vermoeden]**.
-Plan voor later: een bitmap-telegram toevoegen aan de ASFP-firmware.
+De bitmap-uitbreiding van ASFP draait sinds 17 november 2026 op een echte AZR 802/24 (zie de
+[stand op hardware](firmware-patches/asfp-bitmap/README.md#stand-op-hardware)). Open punt: de eigen snelle
+verversroutine werkt nog niet op hardware, daarom gebruikt de patch voorlopig de tragere originele routine.

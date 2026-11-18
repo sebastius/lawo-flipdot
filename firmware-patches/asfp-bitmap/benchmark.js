@@ -15,7 +15,9 @@ const FIRMWARES = [
 ];
 
 function boot(fw) {
-  const b = new AZR802({ rom: new Uint8Array(readFileSync(repo(fw.file))), address: 1, osc: fw.osc });
+  const rom = new Uint8Array(readFileSync(repo(fw.file)));
+  if (rom.length > 0x5FFF && fw.file.includes("bitmap")) rom[0x5FFF] = 0;   // kolomverschuiving uit: meten over het hele display
+  const b = new AZR802({ rom, address: 1, osc: fw.osc });
   b.replies = [];
   const rx = new IbisReceiver((t, ok) => b.replies.push({ t: b.time, s: ok ? t : '!' + t }));
   b.on('tx', (x) => rx.push(x));

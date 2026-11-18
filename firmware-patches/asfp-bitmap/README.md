@@ -30,8 +30,8 @@ Zoals altijd sluit elk telegram af met CR + XOR-checksum. `<a>` is het displayad
 
 | Telegram | Betekenis | Voorbeeld |
 |---|---|---|
-| `aP<a>` + n × `XXX YY C` | pixels: kolom (3 cijfers), rij (2 cijfers, 0 = boven), kleur `0` zwart / `1` geel | `aP1005031` → dot (5,3) geel |
-| `aB<a>XXX` + n × `HHHH` | kolommen vanaf kolom XXX, per kolom 16 bits hex; bit *y* = rij *y* van boven (`0001` = bovenste dot, `8000` = onderste) | `aB1000FFFF0001` |
+| `aP<a>` + n × `XXX YY C` | pixels: kolom x (3 cijfers), rij (2 cijfers, 0 = boven), kleur `0` zwart / `1` geel | `aP1005031` → dot (5,3) geel |
+| `aB<a>XXX` + n × `HHHH` | kolommen vanaf kolom x = XXX, per kolom 16 bits hex; bit *y* = rij *y* van boven (`0001` = bovenste dot, `8000` = onderste) | `aB1000FFFF0001` |
 | `aU<a>` | alle dots opnieuw omzetten, tegen vastzittende dots | `aU1` |
 | `aD<a>` | diagnose: antwoord `aD` + 28 bytes interne toestand in hex (zie [Diagnose](#diagnose-ad)); geen `a0` | `aD1` |
 
@@ -41,12 +41,18 @@ Zoals altijd sluit elk telegram af met CR + XOR-checksum. `<a>` is het displayad
 - **Wacht op `a0` voordat je het volgende telegram stuurt.** Bij deze baudrates kan de verwerking aan het
   eind van een telegram anders het begin van het volgende missen. Er passen 2 telegrammen in de wachtrij.
   Blijft `a0` uit (wachtrij vol of telegram kapot), stuur het dan na ~50 ms opnieuw.
+- **Kolomverschuiving:** bij `aP` en `aB` telt de firmware een vaste verschuiving op bij x, standaard **28**. Op het
+  geteste display ontbreekt de eerste module van 28 kolommen (ASFP is voor adres 1 ingesteld op 112 kolommen, er
+  hangen 3 modules = 84 kolommen aan), dus x = 0 is de eerste zichtbare kolom en x loopt tot 83. De verschuiving is
+  één byte op `0x5FFF` (in de 64 KB-versie ook op `0xDFFF`); bouw met `python3 build.py --xoff 0` voor een display
+  met alle 4 modules. Tekst, testbeelden en `aU` gebruiken geen verschuiving.
 - Ongeldige tekens beëindigen de verwerking van dat telegram. Wat al was ingelezen, blijft staan. Pixels of
   kolommen buiten het display worden overgeslagen.
 
 ## Benchmark (emulator)
 
-Gemeten met `node firmware-patches/asfp-bitmap/benchmark.js`, alleen in de emulator. Tijden lopen vanaf het begin
+Gemeten met `node firmware-patches/asfp-bitmap/benchmark.js`, alleen in de emulator, met de originele
+verversroutine (zie [Stand op hardware](#stand-op-hardware)) en kolomverschuiving 0. Tijden lopen vanaf het begin
 van het versturen, dus inclusief verzendtijd. "Klaar" is de laatste dotpuls.
 
 | | origineel ASFP<br>6 MHz · 1200 Bd | bitmap 6 MHz<br>6 MHz · 15625 Bd | bitmap 12 MHz<br>12 MHz · 31250 Bd |
@@ -58,21 +64,26 @@ van het versturen, dus inclusief verzendtijd. "Klaar" is de laatste dotpuls.
 | Tekst "Hallo": eerste flip | 1.31 s | 1.13 s | 0.51 s |
 | Tekst "Hallo": klaar | 3.83 s | 3.65 s | 2.67 s |
 | Tekst 2 regels: eerste flip | 2.66 s | 2.30 s | 1.04 s |
-| Tekst 2 regels: klaar | 5.16 s | 4.81 s | 3.20 s |
+| Tekst 2 regels: klaar | 5.16 s | 4.80 s | 3.20 s |
 | Testbeeld geel `aT11`: klaar | 4.31 s | 4.31 s | 3.37 s |
 | Testbeeld zwart `aT10`: klaar | 2.59 s | 2.53 s | 2.16 s |
-| Eén pixel `aP`: eerste flip | n.v.t. | 0.024 s | 0.013 s |
-| Volledige bitmap 112×16 `aB`: eerste flip | n.v.t. | 0.43 s | 0.21 s |
-| Volledige bitmap 112×16 `aB`: klaar | n.v.t. | 1.62 s (849 dots) | 1.23 s (849 dots) |
+| Eén pixel `aP`: eerste flip | n.v.t. | 0.335 s | 0.154 s |
+| Volledige bitmap 112×16 `aB`: eerste flip | n.v.t. | 0.44 s | 0.22 s |
+| Volledige bitmap 112×16 `aB`: klaar | n.v.t. | 1.81 s (849 dots) | 1.25 s (849 dots) |
 | Zelfde bitmap nogmaals: antwoord / flips | n.v.t. | 364.8 ms / 0 | 182.4 ms / 0 |
 | Alles opnieuw `aU`: klaar | n.v.t. | 2.56 s (1792 dots) | 2.17 s (1792 dots) |
-| Pixeltelegrammen per seconde (wachten op `a0`) | n.v.t. | 74 /s (100/100 a0) | 143 /s (100/100 a0) |
+| Pixeltelegrammen per seconde (wachten op `a0`) | n.v.t. | 3 /s (39/100 a0) | 7 /s (59/100 a0) |
 | Langste dotpuls | 1.11 ms | 1.11 ms | 1.06 ms |
 | Watchdog-resets | 0 | 0 | 0 |
 
 - Een dotpuls duurt in alle varianten ~1,1 ms, net als in het origineel.
 - Bij tekst en testbeelden zet ASFP alle 1792 dots om (~2 s). Daar wint 12 MHz vooral bij het opmaken van de tekst.
-- Een volledige bitmap is bij 6 MHz klaar in 1,6 s. Een vergelijkbare beeldwissel via tekst kost met het origineel 5,2 s.
+- Een volledige bitmap is bij 6 MHz klaar in 1,8 s. Een vergelijkbare beeldwissel via tekst kost met het origineel 5,2 s.
+- Elke verversing rekent eerst alle 1792 dots door (~0,3 s bij 6 MHz, ook voor één pixel). Daardoor haalt een
+  zender die op `a0` wacht maar een paar pixeltelegrammen per seconde, en raakt de wachtrij (2 plaatsen) bij snel
+  achter elkaar gestuurde telegrammen vol: dan komt er geen `a0` en moet de zender het opnieuw proberen. Zet bij veel
+  pixels liever alles in één `aP`- of `aB`-telegram. Met de eigen snelle routine (`USE_FAST_REFRESH = 1`) was dit in
+  de emulator 74 /s, maar die werkt nog niet op hardware.
 
 ## Gedrag
 
@@ -95,9 +106,11 @@ verversroutine (`0x0692`). Zie [`docs/analyse.md`](../../docs/analyse.md), §2.9
 3. **Hoofdlus:** zolang de wachtrij niet leeg is, komt er een verzoek (`0x0571 = 5`). Dan gebeurt het volgende:
    - de telegrammen worden in een schaduwbuffer verwerkt;
    - alleen de gewijzigde kolommen gaan naar `0x057E`;
-   - een **eigen snelle verversroutine** vergelijkt per kolom de woorden en vraagt alleen voor veranderde dots een puls aan.
-   Die laatste stap gebruikt hetzelfde mechanisme als ASFP: `056B`/`056C`/`21h.6`, vlag `21h.4`, wachten in idle, met de rijmaskertabel van ASFP en de "omgekeerd"-vlag `21h.7`.
-   `0x0692` deed 645 ms over één dot bij 6 MHz en wachtte bij wisseltekst eerst de paginatijd af.
+   - de originele verversroutine `0x0692` zet alleen de veranderde dots om: de patch zet daarvoor `22h.0` = 1 en
+     de paginatimer `32h/33h` op 0 (anders wacht `0x0692` eerst de wisseltekst-paginatijd af), en daarna `22h.0` = 0,
+     zodat de hoofdlus geen volgende tekstpagina over het beeld tekent.
+   Met `USE_FAST_REFRESH = 1` gebruikt de patch in plaats daarvan een eigen snelle routine die per kolom vergelijkt
+   (`fast_refresh`). Die werkt in de emulator, maar nog niet op hardware; zie [Stand op hardware](#stand-op-hardware).
 4. **Reset:** de eigen variabelen worden gewist, want het werk-RAM is batterijgebufferd.
 
 | Haak | Origineel | Patch |
@@ -119,7 +132,7 @@ Per variant (in `build.py`):
 | `0x068D` / `0x0690` | `0C` / `FE` | – | `18` / `FC` | timer0 herladen in de interrupt |
 | `0x054C` | `2C` | `01` | `01` | wachtlus voor het antwoord |
 
-De nieuwe code staat op `0x5000`–`0x551A`, in ROM die eerst leeg was. Het werk-RAM `0x0900`–`0x0F27` gebruikt ASFP niet;
+De nieuwe code staat op `0x5000`–`0x5534` (plus de verschuivingsbyte op `0x5FFF`), in ROM die eerst leeg was. Het werk-RAM `0x0900`–`0x0F27` gebruikt ASFP niet;
 ASFP gebruikt RAM tot `0x08D0`, zowel volgens de code als in de emulator gemeten.
 
 ## Voorbeeld
@@ -159,14 +172,18 @@ De firmware zit in socket **EP1**, een 28-pins DIL-voet voor een 27C256 (label "
 
 ## Stand op hardware
 
-Getest op 17 november 2026 met de 6 MHz-variant op een M27C512 in een AZR 802/24, met de ESP8266 van
-[flipdot-ret-mqtt](https://github.com/sebastius/flipdot-ret-mqtt):
+Getest op 17 november 2026 met de 6 MHz-variant op een M27C512 in een AZR 802/24 met 3 modules (84 × 16 zichtbaar),
+met de ESP8266 van [flipdot-ret-mqtt](https://github.com/sebastius/flipdot-ret-mqtt):
 
-- **Werkt:** opstarten, tekst, testbeelden (`aT`), 15 625 baud, antwoorden (`a0`, versie `F00293`).
-- **Nog niet:** `aP`, `aB` en `aU` worden aangenomen (`a0`) en uit de wachtrij verwerkt, maar er klappen geen dots om.
-  In de emulator werkt dezelfde reeks wel. Daarom is er het diagnosetelegram `aD`, en laadt `fast_refresh` sindsdien
-  zelf de rijmasker-pointer (10h:11h) en de vlag "omgekeerd" (21h.7), zoals de originele verversroutine op 0x0732–0x0766.
-  Wordt vervolgd.
+- **Werkt:** opstarten, tekst, testbeelden (`aT`), 15 625 baud, antwoorden (`a0`, versie `F00293`), pixels (`aP`),
+  bitmaps (`aB`, het kattenplaatje), met de originele verversroutine 0x0692.
+- **Valkuil:** de eerste module (kolom 0–27) was niet zichtbaar. Alle eerste pixeltests vielen daar, zodat het leek
+  alsof er niets gebeurde. Daarom de kolomverschuiving van 28.
+- **Werkt nog niet: de eigen snelle verversing (`fast_refresh`).** Daarmee klappen op hardware geen dots om, ook
+  niet in het zichtbare deel, terwijl `aD` laat zien dat de pulsen worden aangevraagd en door de timer-interrupt
+  afgehandeld; in de emulator werkt het wel. Daarom staat `USE_FAST_REFRESH = 0` en ververst de patch met 0x0692
+  (alleen veranderde dots, 22h.0 = 1, paginatimer op 0). Oorzaak nog onbekend.
+- **12 MHz-variant:** niet getest.
 
 ### Diagnose (`aD`)
 

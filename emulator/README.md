@@ -23,7 +23,9 @@ node emulator/serve.js          # http://localhost:8051/emulator/web/
 ```
 
 In de browser kun je:
-- een firmware kiezen of je eigen `.bin` uploaden;
+- een firmware kiezen of je eigen `.bin` uploaden. Standaard staat de op hardware geteste *ASFP-bitmap 6 MHz* klaar.
+  Die heeft een kolomverschuiving van 28 voor pixels en bitmaps (het geteste display mist de eerste module); in de
+  emulator, met 112 kolommen, beginnen pixels en bitmaps dus op kolom 28. Klikken op het display houdt daar rekening mee;
 - een tekst-EPROM of RAM in RM2/RM3 zetten;
 - het adres, S1/S2, de gele en zwarte knop en reset bedienen;
 - telegrammen samenstellen met de **telegrambouwer**: kies het soort telegram (vrije tekst, bestemming, lijn, koers, testbeeld, status of versie) en vul de velden in. Je ziet het telegram en de checksum live. Umlauts en symbolen (loopmannetje, S-Bahn, U-Bahn) worden omgezet naar de tekens van de font, en je krijgt een waarschuwing bij te lange telegrammen. Handmatig typen kan ook. Met de *ASFP-bitmap*-firmwares (6 en 12 MHz; de klok wordt automatisch gekozen) zijn er ook pixels (klik op het display), een bitmap uit een afbeelding en "alles opnieuw";

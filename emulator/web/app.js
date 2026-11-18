@@ -11,6 +11,9 @@ const FIRMWARES = [
   ['ASFP-bitmap 6 MHz · 15625 Bd', '../../firmware-patches/asfp-bitmap/ASFP-bitmap-6MHz-15625.bin', '80C31|6000000'],
   ['ASFP-bitmap 12 MHz · 31250 Bd', '../../firmware-patches/asfp-bitmap/ASFP-bitmap-12MHz-31250.bin', '80C31|12000000'],
 ];
+// Standaard: de ASFP-bitmap-firmware die op hardware getest is (6 MHz, 15625 Bd, kolomverschuiving 28).
+const DEFAULT_ROM = '../../firmware-patches/asfp-bitmap/ASFP-bitmap-6MHz-15625.bin';
+const DEFAULTS_VERSION = '2026-11-18';   // ophogen om opgeslagen keuzes eenmalig te negeren
 const EPROMS = [
   ['RAM (62256)', null],
   ['RET0902 (TED800)', '../../text-eproms/RET0902_14-10-2002_C256_05F55CD.bin'],
@@ -68,7 +71,9 @@ async function load() {
     board.on('log', (m) => log('sys', m));
     board.on('reset', (why) => log('sys', `reset (${why})`));
     setupCanvas();
-    log('sys', `geladen: ${$('rom').selectedOptions[0].textContent}, adres ${board.address}`);
+    log('sys', `geladen: ${$('rom').selectedOptions[0].textContent}, adres ${board.address}` +
+      (xoff() ? `; pixels en bitmaps beginnen op kolom ${xoff()} (kolomverschuiving)` : ''));
+    imageToWords();
     for (const id of ['rom', 'rm2', 'rm3', 'cpu', 'cols', 'rows', 'addr']) store.set(id, $(id).value);
     applyUrlActions();
   } catch (e) {
@@ -226,9 +231,15 @@ function insertAtCursor(el, text) {
 
 // ---------- bitmap uit afbeelding ----------
 let bitmapWords = null, bitmapImg = null;
+// kolomverschuiving van de ASFP-bitmap-firmware (byte 0x5FFF): x = 0 is display-kolom xoff
+function xoff() {
+  if (!board || !$('rom').value.includes('ASFP-bitmap') || board.rom.length <= 0x5FFF) return 0;
+  return board.rom[0x5FFF];
+}
+
 function imageToWords() {
   if (!bitmapImg) return;
-  const cols = Number($('cols').value), rows = Number($('rows').value);
+  const cols = Math.max(1, Number($('cols').value) - xoff()), rows = Number($('rows').value);
   const c = document.createElement('canvas'); c.width = cols; c.height = rows;
   const g = c.getContext('2d');
   g.fillStyle = '#000'; g.fillRect(0, 0, cols, rows);
@@ -272,7 +283,8 @@ function initBuilder() {
     const x = Math.floor((e.clientX - r.left) / r.width * board.cols);
     const y = Math.floor((e.clientY - r.top) / r.height * board.rows);
     if (x < 0 || y < 0 || x >= board.cols || y >= board.rows) return;
-    $('fpx').value = x; $('fpy').value = y;
+    if (x < xoff()) { log('sys', `kolom ${x} ligt vóór de kolomverschuiving (${xoff()}) van deze firmware`); return; }
+    $('fpx').value = x - xoff(); $('fpy').value = y;
     $('fpc').value = board.dots[y * board.cols + x] ? '0' : '1';
     updateBuilder(); send();
   });
@@ -330,7 +342,9 @@ function applyUrlActions() {
 }
 
 function init() {
-  fillSelect($('rom'), [...FIRMWARES, ['eigen bestand (upload)…', '__upload']], store.get('rom', FIRMWARES[0][1]));
+  const fresh = store.get('defaults', '') !== DEFAULTS_VERSION;
+  if (fresh) store.set('defaults', DEFAULTS_VERSION);
+  fillSelect($('rom'), [...FIRMWARES, ['eigen bestand (upload)…', '__upload']], fresh ? DEFAULT_ROM : store.get('rom', DEFAULT_ROM));
   fillSelect($('rm2'), [...EPROMS, ['geüpload bestand', '__upload']], store.get('rm2', ''));
   fillSelect($('rm3'), [...EPROMS, ['geüpload bestand', '__upload']], store.get('rm3', ''));
   for (const id of ['cpu', 'cols', 'rows', 'addr']) { const v = store.get(id, null); if (v !== null) $(id).value = v; }
@@ -347,7 +361,7 @@ function init() {
   applyUrlParams();
   const syncCpu = () => { const f = FIRMWARES.find(([, p]) => p === $('rom').value); $('cpu').value = (f && f[2]) || '80C31|6000000'; };
   $('rom').addEventListener('change', syncCpu);
-  if (params.has('rom')) syncCpu();
+  if (fresh || params.has('rom')) syncCpu();
   $('load').onclick = load;
   $('send').onclick = send;
   initBuilder();
