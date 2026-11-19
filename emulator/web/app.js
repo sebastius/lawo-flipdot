@@ -65,6 +65,7 @@ async function load() {
       rom, rm2: await bank($('rm2').value), rm3: await bank($('rm3').value),
       cpuType, osc: Number(osc), cols: Number($('cols').value), rows: Number($('rows').value),
       address: Number($('addr').value), s1: $('s1').checked ? 0 : 1, s2: $('s2').checked ? 1 : 0,
+      physics: { none: null, clamp: { clamp: true }, rc: { clamp: false }, strict: { clamp: true, strict: true } }[$('physics').value] ?? null,
     });
     rx = new IbisReceiver((t, csOk, parOk) => log(csOk && parOk ? 'rx' : 'err', `display → ${show(t)}${csOk ? '' : ' (checksum fout)'}${parOk ? '' : ' (pariteit fout)'}`));
     board.on('tx', (b) => rx.push(b));
@@ -74,7 +75,7 @@ async function load() {
     log('sys', `geladen: ${$('rom').selectedOptions[0].textContent}, adres ${board.address}` +
       (xoff() ? `; pixels en bitmaps beginnen op kolom ${xoff()} (kolomverschuiving)` : ''));
     imageToWords();
-    for (const id of ['rom', 'rm2', 'rm3', 'cpu', 'cols', 'rows', 'addr']) store.set(id, $(id).value);
+    for (const id of ['rom', 'rm2', 'rm3', 'cpu', 'cols', 'rows', 'addr', 'physics']) store.set(id, $(id).value);
     applyUrlActions();
   } catch (e) {
     const hint = location.protocol === 'file:' ? ' (open de emulator via node emulator/serve.js, niet als bestand)'
@@ -116,7 +117,8 @@ function draw() {
   $('ld4').classList.toggle('on', !!l.LD4_bank);
   $('seg').textContent = board.latch[3] ? decode7seg(board.latch[3]) : ' ';
   const st = board.stats;
-  $('stats').textContent = `t = ${t.toFixed(2)} s · pulsen ${st.pulses} · flips ${st.flips} · buiten display ${st.outside} · watchdog-resets ${st.wdResets}`;
+  $('stats').textContent = `t = ${t.toFixed(2)} s · pulsen ${st.pulses} · flips ${st.flips} · buiten display ${st.outside} · watchdog-resets ${st.wdResets}` +
+    (board.phys ? ` · zwak ${st.weakPulses} · t_SE < 50 µs ${st.tseViolations} · latch-schrijf in puls ${st.latchWritesInPulse} · duty max ${(st.maxDuty * 100).toFixed(0)} %` : '');
 }
 
 // ---------- telegrammen samenstellen ----------
@@ -347,7 +349,7 @@ function init() {
   fillSelect($('rom'), [...FIRMWARES, ['eigen bestand (upload)…', '__upload']], fresh ? DEFAULT_ROM : store.get('rom', DEFAULT_ROM));
   fillSelect($('rm2'), [...EPROMS, ['geüpload bestand', '__upload']], store.get('rm2', ''));
   fillSelect($('rm3'), [...EPROMS, ['geüpload bestand', '__upload']], store.get('rm3', ''));
-  for (const id of ['cpu', 'cols', 'rows', 'addr']) { const v = store.get(id, null); if (v !== null) $(id).value = v; }
+  for (const id of ['cpu', 'cols', 'rows', 'addr', 'physics']) { const v = store.get(id, null); if (v !== null) $(id).value = v; }
   $('romFile').onchange = async (e) => {
     const f = e.target.files[0]; if (!f) return;
     uploads.rom = new Uint8Array(await f.arrayBuffer());

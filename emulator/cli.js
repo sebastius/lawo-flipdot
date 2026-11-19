@@ -11,6 +11,8 @@
 //   --cpu 80C31|80C32      (standaard 80C31)    --osc <Hz>      (standaard 6000000)
 //   --s1 0|1 --s2 0|1      pinniveau P1.4 / P1.5                (standaard s1=1, s2=0)
 //   --quiet                geen live-uitvoer van seriële antwoorden
+//   --physics none|rc|clamp fysiek model: RC-enable zonder (rc) of met klemdiode (clamp); standaard none
+//   --strict               met --physics: puls met t_SE < 50 us telt niet
 //
 // Scriptstappen, gescheiden door ';':
 //   wait <s>               emuleer <s> seconden
@@ -31,7 +33,7 @@ function parseArgs(argv) {
     const a = argv[i];
     if (!a.startsWith('--')) continue;
     const k = a.slice(2);
-    if (k === 'quiet') { o.quiet = true; continue; }
+    if (k === 'quiet' || k === 'strict') { o[k] = true; continue; }
     o[k] = argv[++i];
   }
   return o;
@@ -62,6 +64,7 @@ const board = new AZR802({
   address: Number(args.addr ?? 1), cols: Number(args.cols ?? 112), rows: Number(args.rows ?? 16),
   cpuType: args.cpu || '80C31', osc: Number(args.osc ?? 6000000),
   s1: Number(args.s1 ?? 1), s2: Number(args.s2 ?? 0),
+  physics: (args.physics && args.physics !== 'none') ? { clamp: args.physics === 'clamp', strict: !!args.strict } : null,
 });
 
 const rx = new IbisReceiver((t, csOk, parOk) => {

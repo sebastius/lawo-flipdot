@@ -31,6 +31,14 @@ In de browser kun je:
 - telegrammen samenstellen met de **telegrambouwer**: kies het soort telegram (vrije tekst, bestemming, lijn, koers, testbeeld, status of versie) en vul de velden in. Je ziet het telegram en de checksum live. Umlauts en symbolen (loopmannetje, S-Bahn, U-Bahn) worden omgezet naar de tekens van de font, en je krijgt een waarschuwing bij te lange telegrammen. Handmatig typen kan ook. Met de *ASFP-bitmap*-firmwares (6 en 12 MHz; de klok wordt automatisch gekozen) zijn er ook pixels (klik op het display), een bitmap uit een afbeelding en "alles opnieuw";
 - de LED's, het 7-segmentdisplay en de antwoorden van het display bekijken.
 
+**Fysiek model** (keuzelijst in de browser, `--physics none|rc|clamp` en `--strict` in de CLI, `physics` in
+`new AZR802({...})`): standaard emuleert de emulator alleen de logica, en telt elke puls van ≥ 100 µs als
+omgezette dot. Met het fysieke model gaat AEN via C1/R1 naar ENABLE van de FP2800A (τ ≈ 5 ms, drempel 2,0 V,
+met of zonder klemdiode) en telt een puls alleen zolang ENABLE boven de drempel blijft. Daarnaast worden t_SE
+(< 50 µs tussen latch en puls), schrijfacties naar latches tijdens een puls en de duty cycle geteld
+(`board.stats`). Zie [`docs/fast-refresh-onderzoek.md`](../docs/fast-refresh-onderzoek.md) voor wat het
+model wel en niet verklaart.
+
 Met URL-parameters kun je meteen een situatie openen, bijvoorbeeld
 `?rom=ASFP.bin&addr=1&prerun=3&send=aA11001%5CnHallo%5Cn%5Cn&after=6`.
 

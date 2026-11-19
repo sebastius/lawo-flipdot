@@ -175,6 +175,15 @@ Tweede pagina</textarea>
         <label>Display</label>
         <input type="number" id="cols" value="112" min="28" step="28"> × <input type="number" id="rows" value="16" min="7" max="16">
       </div>
+      <div class="row">
+        <label>Fysiek model</label>
+        <select id="physics" title="RC-enable van de FP2800A (C1/R1), t_SE en duty cycle; zie docs/fast-refresh-onderzoek.md">
+          <option value="none">uit (alleen logica)</option>
+          <option value="clamp">RC-enable met klemdiode</option>
+          <option value="rc">RC-enable zonder klemdiode</option>
+          <option value="strict">RC + klemdiode, t_SE strikt 50 µs</option>
+        </select>
+      </div>
       <div class="row"><button class="primary" id="load">Laden + opstarten</button></div>
     </section>
     <section>

@@ -10,6 +10,16 @@
 // Latch 3 (802/15):   7-segment D16 (gemeenschappelijke anode, actief laag)
 // P1: b0..3 adresbruggen (gewicht 1,4,2,8), b4 S1, b5 S2, b6/b7 spanningsbewaking
 // P3: b2 TG (gele knop), b3 TS (zwarte knop), b4 E (puls, laag = actief), b5 WDI (MAX690)
+//
+// Optioneel fysiek model (opts.physics, standaard uit), zie docs/fast-refresh-onderzoek.md:
+// - RC-enable: AEN (= NOT E, 0/5 V) gaat via C1 (0,33 uF) en R1 (15 k) naar ENABLE (pin 24) van de FP2800A.
+//   Een flank van AEN verschuift de spanning op ENABLE met +/-5 V, daarna zakt die met tau = R1*C1 naar 0.
+//   De driver staat aan zolang ENABLE >= V_IH (2,0 V). Zonder klemdiode (clamp: false) kan ENABLE na een puls
+//   negatief worden, zodat de volgende puls lager begint. Een puls telt alleen als de effectieve aan-tijd
+//   >= minPulseUs is ("zwakke puls" anders).
+// - t_SE (datasheet: adres/data 50 us stabiel voor ENABLE): tijd tussen de laatste schrijfactie naar latch 0-2
+//   en het begin van de puls; korter telt als overtreding (alleen geteld, tenzij strict).
+// - schrijfacties naar latch 0-2 tijdens een puls (ook met dezelfde waarde) en duty cycle worden geteld.
 
 // Cache-buster van de webpagina doorgeven (in Node is er geen ?v= en is dit gewoon ./cpu8051.js).
 const V = new URL(import.meta.url).searchParams.get('v');
@@ -37,7 +47,11 @@ export class AZR802 {
     this.wdTimeoutS = opts.wdTimeoutS ?? 1.6;
     this.listeners = { tx: [], flip: [], log: [], reset: [] };
     this.rxQueue = [];
-    this.stats = { flips: 0, pulses: 0, ignoredPulses: 0, outside: 0, resets: 0, wdResets: 0 };
+    this.stats = { flips: 0, pulses: 0, ignoredPulses: 0, outside: 0, resets: 0, wdResets: 0,
+      weakPulses: 0, tseViolations: 0, latchWritesInPulse: 0, maxDuty: 0 };
+    const ph = opts.physics === true ? {} : opts.physics;
+    this.phys = ph ? { tauUs: 4950, vih: 2.0, vAen: 5, clamp: false, clampV: -0.6, tSEus: 50, strict: false, ...ph } : null;
+    this.enV = 0; this.enT = 0; this.lastLatchW = 0; this.lastPulseEnd = 0;
     this.cpu = new CPU8051(this, { upperRam: this.cpuType === '80C32' });
     this.powerOn();
   }
@@ -63,6 +77,7 @@ export class AZR802 {
     this.e = 1; this.pulseStart = 0;
     this.wdi = 1; this.wdLastEdge = this.cpu.cycles;
     this.inReset = false;
+    this.enV = 0; this.enT = this.cpu.cycles; this.lastLatchW = 0; this.lastPulseEnd = 0;
     this.stats.resets++;
     this.emit('reset', 'power-on');
   }
@@ -85,6 +100,10 @@ export class AZR802 {
   writeLatch(i, v) {
     const old = this.latch[i];
     this.latch[i] = v;
+    if (i <= 2) {
+      this.lastLatchW = this.cpu.cycles;
+      if (this.e === 0) this.stats.latchWritesInPulse++;
+    }
     // alleen bits die de spoelen aansturen (latch 0: b0-4, latch 1 en 2: alles)
     const mask = i === 0 ? 0x1F : (i <= 2 ? 0xFF : 0);
     if (this.e === 0 && ((old ^ v) & mask)) this.emit('log', `latch ${i} gewijzigd tijdens puls (${old.toString(16)} -> ${v.toString(16)})`);
@@ -106,7 +125,7 @@ export class AZR802 {
     if (port !== 3) return;
     const e = (v >> 4) & 1, wdi = (v >> 5) & 1, now = this.cpu.cycles;
     if (e !== this.e) {
-      if (e === 0) { this.pulseStart = now; this.pulseLatch = [this.latch[0], this.latch[1], this.latch[2]]; }
+      if (e === 0) { this.pulseStart = now; this.pulseLatch = [this.latch[0], this.latch[1], this.latch[2]]; this.startPulsePhysics(now); }
       else this.endPulse(now);
       this.e = e;
     }
@@ -125,10 +144,51 @@ export class AZR802 {
     }
   }
 
+  // ---------- fysiek model ----------
+  cyclesToUs(c) { return c * 12e6 / this.osc; }
+  startPulsePhysics(now) {
+    const p = this.phys;
+    if (!p) return;
+    // ENABLE ontspant sinds de vorige flank, daarna +5 V door de stijgende flank van AEN
+    this.enV = this.enV * Math.exp(-this.cyclesToUs(now - this.enT) / p.tauUs) + p.vAen;
+    this.enT = now;
+    this.pulseEnStart = this.enV;
+    this.pulseTse = this.cyclesToUs(now - this.lastLatchW);
+    if (this.pulseTse < p.tSEus) this.stats.tseViolations++;
+  }
+  // geeft de effectieve aan-tijd (us) van de puls die nu eindigt
+  endPulsePhysics(now, us) {
+    const p = this.phys;
+    const v0 = this.pulseEnStart;
+    const eff = v0 > p.vih ? Math.min(us, p.tauUs * Math.log(v0 / p.vih)) : 0;
+    this.enV = v0 * Math.exp(-us / p.tauUs) - p.vAen;     // dalende flank van AEN
+    if (p.clamp) this.enV = Math.max(this.enV, p.clampV);
+    this.enT = now;
+    if (this.lastPulseEnd) {
+      const period = this.cyclesToUs(now - this.lastPulseEnd);
+      if (period > 0 && period < 3 * us) this.stats.maxDuty = Math.max(this.stats.maxDuty, us / period);
+    }
+    this.lastPulseEnd = now;
+    return eff;
+  }
+
   // ---------- flipdot ----------
   endPulse(now) {
     this.stats.pulses++;
-    const us = (now - this.pulseStart) * 12e6 / this.osc;
+    let us = (now - this.pulseStart) * 12e6 / this.osc;
+    if (this.phys) {
+      const eff = this.endPulsePhysics(now, us);
+      const tseBad = this.phys.strict && this.pulseTse < this.phys.tSEus;
+      if (eff < this.minPulseUs || tseBad) {
+        if (us >= this.minPulseUs && !this.stats.weakPulses++) {
+          this.emit('log', `zwakke puls: ENABLE ${this.pulseEnStart.toFixed(2)} V bij start, ${eff.toFixed(0)} us boven ${this.phys.vih} V` +
+            (tseBad ? `, t_SE ${this.pulseTse.toFixed(0)} us` : '') + '; verdere worden alleen geteld');
+        }
+        this.stats.ignoredPulses++;
+        return;
+      }
+      us = eff;
+    }
     if (us < this.minPulseUs) { this.stats.ignoredPulses++; return; }
     const l0 = this.latch[0], l1 = this.latch[1], l2 = this.latch[2];
     const code = l0 & 0x0F, rowSink = (l0 >> 4) & 1;

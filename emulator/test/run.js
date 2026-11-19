@@ -130,5 +130,24 @@ for (const tc of cases) {
   check('geen watchdog-resets', b.stats.wdResets === 0, String(b.stats.wdResets));
 }
 
+console.log('fysiek model (RC-enable, t_SE)');
+{
+  const yellow = (b) => b.dots.reduce((a, v) => a + v, 0);
+  const run = (physics) => {
+    const b = boardFor('firmware/ASFP.bin', { opts: { physics } });
+    b.runSeconds(4); b.sendTelegram('aT10'); b.runSeconds(4);
+    const w0 = b.stats.weakPulses; b.sendTelegram('aT11'); b.runSeconds(5);
+    return { b, weak: b.stats.weakPulses - w0 };
+  };
+  const plain = run(null);
+  check('zonder model: testbeeld geel, geen zwakke pulsen', yellow(plain.b) === 1792 && plain.b.stats.weakPulses === 0);
+  const clamp = run({ clamp: true });
+  check('RC + klemdiode: testbeeld geel, t_SE-overtredingen geteld', yellow(clamp.b) === 1792 && clamp.weak === 0 && clamp.b.stats.tseViolations > 0,
+    `geel=${yellow(clamp.b)} zwak=${clamp.weak} tse=${clamp.b.stats.tseViolations}`);
+  const rc = run({ clamp: false });
+  check('RC zonder klemdiode: de meeste pulsen te zwak (strijdig met hardware, zie onderzoek)', rc.weak > 1000, `zwak=${rc.weak}`);
+  check('duty cycle gemeten (~79 %)', clamp.b.stats.maxDuty > 0.7 && clamp.b.stats.maxDuty < 0.85, String(clamp.b.stats.maxDuty));
+}
+
 console.log(`\n${passed} geslaagd, ${failed} mislukt`);
 process.exit(failed ? 1 : 0);

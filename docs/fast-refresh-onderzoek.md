@@ -112,15 +112,90 @@ aangenomen (valt niet op, omdat elke tekstverversing alle dots opnieuw pulst).
    branden: 0 = `0x0692`, 1 = `fast_refresh`, 2 = + ~3 ms na de laatste puls, 3 = + ~3 ms na elke puls (open
    punt 2), 4 = zonder `fr_setup`, 5 = 2+3, 6 = eerst ~300 ms wachten, 7 = 2+3+6. `aD1` toont de modus in byte 28.
 
+## Onderzoek zonder hardware (19 november 2026)
+
+Op schema- en firmwareniveau, met de emulator. Scripts: zie de testcases in
+[`emulator/test/run.js`](../emulator/test/run.js) (fysiek model) en de vergelijkingen hieronder.
+
+### Adresdecodering is volledig (schema blad 3 en 5)
+
+Vermoeden: schrijfacties van de patch naar `0x0E00`–`0x0E07` of `0x0800`–`0x0807` komen ook in een latch
+terecht als de decoder niet alle hoge adreslijnen bekijkt. **Weerlegd.**
+
+- IC9 (74HC138) kiest latch 0–7 met A0–A2. Vrijgave: /E1 = A3, /E2 = /WR, E3 = NOR-uitgang (X, pin 13) van
+  IC14 (74HC4078) over A4, A5, A6, A7, A8, A9, A10 en **BC1**.
+- BC1 = IC7B (74HC4072) = A11 OR (IC7A = A12 OR A13 OR A14 OR A15).
+- Een latch wordt dus alleen geraakt als A3–A15 allemaal 0 zijn. Y0 = **EZ** (klok IC15, latch 0),
+  Y1 = **ES** (klok IC16, latch 1), Y2 = CP3 (IC17, latch 2); EZ en ES hebben een testpunt en gaan nergens
+  anders heen.
+- Ter controle in de emulator: alle schrijfacties tijdens een puls, buiten de ISR, getoetst aan vijf
+  mogelijke decoderingen. Met de echte decodering raakt geen van beide routines een latch. Alleen als
+  A8–A15 of A4–A11 genegeerd zouden worden, zou `fast_refresh` er 2–44 raken en `0x0692` nooit.
+
+### RAM-kopie van latch 0 klopt (schema blad 4)
+
+RM1 heeft /CS = CS1 (alleen hoge adreslijnen), /WE = WR, /OE = RD. Een schrijfactie naar `0x0000` gaat dus
+naar latch 0 **en** naar het RAM. De ISR en de hoofdlus lezen latch 0 terug uit dat RAM; die kopie is exact.
+
+### De rijdecoders en ENABLE (schema blad 5)
+
+De 74HC238-rijdecoders krijgen AC0–AC6 met **AEN** (= NOT E) als vrijgave; AEN gaat via de connector naar de
+modules, waar het via C1 de FP2800A vrijgeeft. Er is geen tweede enable of beveiliging die alleen `0x0692`
+bedient.
+
+### Per puls vergeleken (open punt 5, gedaan)
+
+Eén pixel (4,0) en de kat (84 kolommen), `0x0692` tegenover `fast_refresh`, in de emulator:
+
+- dezelfde latchwaarden (latch 0/1/2) per puls, als verzameling identiek;
+- pulsduur 1102–1106 µs, t_SE 16 µs, bij beide;
+- geen latch die tijdens een puls verandert.
+
+**Eén structureel verschil:** `fast_refresh` keert terug terwijl de laatste puls nog ~1 ms loopt. De
+hoofdlus schrijft dan tijdens die puls 4× naar latch 0 (bit 7 bank, bit 5 fout-LED: `0x2DF4`, `0x2E16` of
+`0x2E22`). Bij `0x0692` gebeurt dat nooit. Omdat de RAM-kopie exact is, is het dezelfde waarde naar een
+74HC574 en dus elektrisch onschuldig. Het verklaart ook de kat niet: daar draait de hoofdlus pas na de
+laatste van 256 pulsen. Modus 2 van de testversie (`aM12`) haalt het weg.
+
+### Fysiek model in de emulator
+
+Nieuw: `opts.physics` in [`emulator/core/azr802.js`](../emulator/core/azr802.js), `--physics none|rc|clamp`
+(en `--strict`) in de CLI, en een keuzelijst in de webemulator. Het model: AEN via C1 (0,33 µF) en R1 (15 kΩ)
+naar ENABLE (τ ≈ 4,95 ms, V_IH 2,0 V), met of zonder klemdiode; een puls telt alleen voor de tijd dat
+ENABLE boven V_IH blijft. Verder worden t_SE (< 50 µs), schrijfacties naar latches tijdens een puls en de duty
+cycle geteld.
+
+Resultaat (patch 6 MHz, na `aT10`; aantal omgezette dots):
+
+| Model | `aT11` (origineel) | pixel 0692 | pixel snel | kat 0692 | kat snel |
+|---|---|---|---|---|---|
+| geen | 1792 | 1 | 1 | 256 | 256 |
+| RC zonder klemdiode | **6** | 1 | 1 | 152 | 69 |
+| RC met klemdiode | 1792 | 1 | 1 | 256 | 256 |
+| RC, t_SE strikt 50 µs | **0** | 0 | 0 | 0 | 0 |
+
+- **RC zonder klemdiode valt af:** dan zou zelfs de originele tekstverversing vrijwel niets omzetten, en die
+  werkt op hardware. Het mechanisme uit §3 (ENABLE zakt bij hoge duty) kan dus niet de oorzaak zijn; de
+  ENABLE-ingang of de module klemt kennelijk.
+- **t_SE = 50 µs is geen harde grens:** het origineel haalt 16 µs en werkt.
+- **Met het realistische model (klemdiode) gedragen beide routines zich identiek**, ook bij de losse pixel.
+- Duty cycle bij dot na dot: ~79 % (boven de 50 % uit het datasheet, maar ook bij het origineel).
+
+### Conclusie
+
+Binnen alles wat de firmware, het schema en het fysieke model laten zien, doet `fast_refresh` per puls
+hetzelfde als `0x0692`. Het verschil op hardware zit dus buiten dit model (bijvoorbeeld de spoel- of
+voedingskant, of iets in de hardwaretest zelf). De testversie met verversingsmodi (`aM1<n>`) is de
+goedkoopste volgende stap; daarna een scoop op AEN en pin 24 van de FP2800A.
+
 ## Open punten
 
-1. Brand de snelle build (verifiëren na het branden), stuur één pixel op een zichtbare kolom (bijv.
-   `aP1040051`) en meet met een scoop op TP E, TP EZ, TP ES **en op pin 24 van de FP2800A** (na C1). Doe
-   hetzelfde met de 0692-build, en ook tijdens een reeks pulsen.
-2. Zakt het hoge niveau op pin 24 onder 2 V tijdens een reeks, dan is het de RC-enable/duty cycle. Snelle
-   proef zonder scoop: laat `fast_refresh` na elke puls één tick leeg (nog één keer `idle` na het wissen van
-   21h.4), zodat de duty onder ~40 % komt.
-3. `aD1`-dump van de hardware na `aT10` en die ene pixel, voor beide builds.
+1. Brand de testversie met verversingsmodi en probeer per modus (0–7) één pixel op een zichtbare kolom en de
+   kat. Werkt een snelle modus, dan wijst de modus de oorzaak aan (2: laatste puls, 3: duty cycle,
+   4: `fr_setup`, 6: timing na het telegram).
+2. Werkt geen enkele snelle modus: scoop op TP E, TP EZ, TP ES, AEN en **pin 24 van de FP2800A** (na C1),
+   voor één pixel met modus 0 en modus 1.
+3. `aD1`-dump van de hardware na `aT10` en die ene pixel, voor modus 0 en 1.
 4. Los daarvan: in de ISR meer tijd tussen latch 1 en `CLR T0` inbouwen, zodat aan t_SE = 50 µs wordt voldaan
-   (geldt ook voor het origineel).
-5. Emulatorvergelijking van de latch-waarden per puls (0692 tegenover fast) is nog niet gedraaid.
+   (geldt ook voor het origineel; volgens de hardware niet nodig).
+5. ~~Emulatorvergelijking van de latch-waarden per puls~~: gedaan, zie hierboven.
